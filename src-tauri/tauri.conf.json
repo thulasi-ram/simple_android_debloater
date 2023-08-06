@@ -20,11 +20,14 @@
 				"scope": [
 					{
 						"name": "adb-devices",
-						"cmd": "which",
-						"args": ["adb"]
+						"cmd": "adb",
+						"args": ["devices"]
 					}
 				]
-			}
+			},
+      "notification": {
+        "all": true
+      }
     },
     "bundle": {
       "active": true,
