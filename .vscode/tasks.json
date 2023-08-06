@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "tasks": [
       {
-        "label": "ui:dev1",
+        "label": "ui:dev",
         "type": "shell",
         // `dev` keeps running in the background
         // ideally you should also configure a `problemMatcher`
@@ -15,7 +15,7 @@
         "args": ["run", "dev"],
       },
       {
-        "label": "ui:dev",
+        "label": "ui:dev1",
         "type": "npm",
         "isBackground": true,
         "script": "dev",

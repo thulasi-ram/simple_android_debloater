@@ -5,6 +5,19 @@
     "version": "0.2.0",
     "configurations": [
       {
+        "name": "npm-run-dev",
+        "request": "launch",
+        "runtimeArgs": [
+          "run",
+          "dev",
+        ],
+        "runtimeExecutable": "npm",
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "type": "node"
+      },
+      {
         "type": "lldb",
         "request": "launch",
         "name": "Tauri Development Debug",
@@ -16,7 +29,7 @@
           ]
         },
         // task for the `beforeDevCommand` if used, must be configured in `.vscode/tasks.json`
-        "preLaunchTask": "ui:dev",
+        // "preLaunchTask": "ui:dev",
       },
       {
         "type": "lldb",
