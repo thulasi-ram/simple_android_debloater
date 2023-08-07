@@ -24,12 +24,20 @@ impl ADBRaw {
 
 pub struct ADBShell {
     sub_commands: Vec<String>,
+    device_id: String,
 }
 
 impl ADBShell {
     pub fn new(value: &[&str]) -> Self {
         Self {
             sub_commands: value.iter().map(|s| String::from(*s)).collect(),
+            device_id: String::from(""),
+        }
+    }
+    pub fn new_for_device(device_id: String, value: &[&str]) -> Self {
+        Self {
+            sub_commands: value.iter().map(|s| String::from(*s)).collect(),
+            device_id: device_id,
         }
     }
 }
@@ -78,8 +86,13 @@ impl ADBCommand for ADBRaw {
 
 impl ADBCommand for ADBShell {
     fn execute(&self) -> Result<String, ADBError> {
-
         let mut sub_commands_with_shell: Vec<String> = vec![String::from("shell")];
+
+        if !String::is_empty(&self.device_id.to_owned()) {
+            sub_commands_with_shell.insert(0, String::from("-s"));
+            sub_commands_with_shell.insert(1, String::from(self.device_id.to_owned()));
+        }
+
         sub_commands_with_shell.extend(self.sub_commands.to_owned());
         let adb_raw = ADBRaw {
             sub_commands: sub_commands_with_shell,
@@ -87,24 +100,6 @@ impl ADBCommand for ADBShell {
         return adb_raw.execute();
     }
 }
-
-
-fn adb_list_devices() -> Result<String, String> {
-    let res = ADBRaw::new(&["devices"]).execute();
-    match res {
-        Err(e) => {
-            return Err(e.to_string());
-        }
-        Ok(o) => {
-            let ot = o.replace("List of devices attached", "");
-            let ots = ot.trim();
-            // for l in ots.lines() {
-            // }
-            return Ok(format!("{}", ots));
-        }
-    }
-}
-
 
 fn adb_list_packages() -> Result<String, String> {
     let res = ADBShell::new(&["pm", "list", "packages"]).execute();

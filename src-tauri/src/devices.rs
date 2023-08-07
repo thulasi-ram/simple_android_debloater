@@ -1,4 +1,4 @@
-use crate::adb_cmd::{ADBCommand, ADBRaw};
+use crate::adb_cmd::{ADBCommand, ADBRaw, ADBShell};
 use anyhow::{anyhow, Error, Result};
 use core::result::Result::Ok;
 use serde::{Deserialize, Serialize};
@@ -48,6 +48,7 @@ pub struct Device {
     pub state: DeviceState,
     pub make: String,
     pub model: String,
+    pub name: String,
 }
 
 pub trait ListDevices {
@@ -67,7 +68,11 @@ impl ADBTerminalImpl {
                 let ot = o.replace("List of devices attached", "");
                 let ots = ot.trim();
 
-                let devices: Result<Vec<_>> = ots.lines().map(|s| Self::_parse_device(s)).collect();
+                let devices: Result<Vec<_>> = ots
+                    .lines()
+                    .map(|s| Self::_parse_device(s))
+                    .map(|d| Self::_set_prop(d))
+                    .collect();
 
                 return devices;
             }
@@ -81,6 +86,68 @@ impl ADBTerminalImpl {
             state: DeviceState::from_str(ss[1]).unwrap(),
             make: String::from(""),
             model: String::from(""),
+            name: String::from(""),
         });
+    }
+
+    fn _set_prop(device: Result<Device>) -> Result<Device> {
+        match device {
+            Err(e) => {
+                return Err(e);
+            }
+            Ok(d) => {
+                let res = ADBShell::new_for_device(d.identifier.to_owned(), &["getprop"]).execute();
+                match res {
+                    Err(e) => {
+                        return Err(e.into());
+                    }
+                    Ok(o) => {
+                        let (mut make, mut model, mut name) =
+                            (String::from(""), String::from(""), String::from(""));
+
+                        let parse_val = |v: &str| {
+                            let split = v.split_once(":");
+
+                            match split {
+                                Some(s) => {
+                                    return s
+                                        .1
+                                        .trim()
+                                        .trim_start_matches("[")
+                                        .trim_end_matches("]")
+                                        .to_string()
+                                }
+                                None => {
+                                    return String::from("parse err");
+                                }
+                            }
+                        };
+
+                        for l in o.lines() {
+                            match l {
+                                s if s.contains("ro.product.product.brand") => {
+                                    make = parse_val(s);
+                                }
+                                s if s.contains("ro.product.model") => {
+                                    model = parse_val(s);
+                                }
+                                s if s.contains("ro.product.odm.marketname") => {
+                                    name = parse_val(s);
+                                }
+                                _ => (),
+                            }
+                        }
+
+                        return Ok(Device {
+                            identifier: d.identifier.to_owned(),
+                            state: d.state,
+                            make: make,
+                            model: model,
+                            name: name,
+                        });
+                    }
+                }
+            }
+        }
     }
 }
