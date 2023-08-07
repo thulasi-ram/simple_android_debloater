@@ -1,7 +1,7 @@
 <script>
-	import { Command } from '@tauri-apps/api/shell';
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { Alert } from 'flowbite-svelte';
+	import { listen } from '@tauri-apps/api/event';
 
 	let name = '';
 	let greetMsg = '';
@@ -29,6 +29,14 @@
 			devicesErr = String(e);
 		}
 	}
+
+	let trackDevices = '';
+	await listen('rs2js', (event) => {
+		console.log('js: rs2js: ' + event);
+		let input = event.payload;
+		trackDevices = input;
+	});
+
 </script>
 
 <div class="space-y-12">
@@ -40,8 +48,12 @@
 	<button on:click={adb_list_packages}>ADB List Packages</button>
 
 	<p>{devices}</p>
-	
+
 	<Alert>
 		{devicesErr}
 	</Alert>
+
+	<p>trackDevices</p>
+	<p>{trackDevices}</p>
+
 </div>

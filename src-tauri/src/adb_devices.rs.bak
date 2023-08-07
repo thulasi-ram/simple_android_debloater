@@ -1,0 +1,94 @@
+use adb_client::AdbTcpConnexion;
+use tokio::sync::broadcast::Sender;
+
+// pub struct ADBDevices {
+//     // id: str,
+//     comment: str,
+// }
+
+// pub struct Device {
+//     // id: str,
+//     is_enabled: bool,
+//     make: str,
+//     model: str,
+//     comment: str,
+// }
+
+pub fn adb_list_devices(c: &mut AdbTcpConnexion) -> Result<String, String> {
+    let res = c.devices();
+    match res {
+        Err(e) => {
+            return Err(e.to_string());
+        }
+        Ok(o) => {
+            // let ot = o.replace("package:", "");
+            // let ots = ot.trim();
+            // for l in ots.lines() {
+            // }
+            return Ok(format!("{:?}", o));
+        }
+    }
+}
+
+
+pub fn adb_track_devices(c: &mut AdbTcpConnexion, devices: &mut Vec<adb_client::Device>) -> Result<(), String> {
+
+    let callback = |device:adb_client::Device| {
+        println!("{}", device);
+        Ok(())
+    };
+
+    let res = c.track_devices(callback);
+
+    match res {
+        Err(e) => {
+            return Err(e.to_string());
+        }
+        Ok(_o) => {
+            return Ok(());
+        }
+    }
+}
+
+
+pub async fn aadb_track_devices(c: &mut AdbTcpConnexion, async_proc_input_tx: tokio::sync::MutexGuard<'_, Sender<String>>) -> Result<(), String> {
+
+    let callback = |device:adb_client::Device| {
+        let res = async_proc_input_tx
+            .send(format!("{}", device))
+            .map_err(|e| e.to_string());
+
+        return res;
+    };
+
+    let res = c.track_devices(callback);
+
+    match res {
+        Err(e) => {
+            return Err(e.to_string());
+        }
+        Ok(_o) => {
+            return Ok(());
+        }
+    }
+}
+
+
+#[tauri::command]
+fn adb_track_devices(
+    adbc: tauri::State<'_, ADBConn>,
+    devices: tauri::State<'_, Devices>,
+) -> Result<String, String> {
+    let mut _devices = devices.0.lock().unwrap();
+    let d = _devices.deref_mut();
+
+    let resTrack = adb_devices::adb_track_devices(adbc.clone().conn.lock().unwrap().deref_mut(), d);
+    match resTrack {
+        Err(e) => {
+            return Err(e.to_string());
+        }
+        Ok(_o) => {
+            return Ok(format!("{:?}", d));
+        }
+    }
+}
