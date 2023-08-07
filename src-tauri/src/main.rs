@@ -1,10 +1,10 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use adb::ADBCommand;
+use adb_cmd::ADBCommand;
 use std::env;
 
-mod adb;
+mod adb_cmd;
 
 fn main() {
     tauri::Builder::default()
