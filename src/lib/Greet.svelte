@@ -16,7 +16,7 @@
 	async function adb_list_devices() {
 		try {
 			const cmdOutpt = await invoke('adb_list_devices');
-			devices = cmdOutpt;
+			devices = JSON.stringify(cmdOutpt);
 		} catch (e) {
 			devicesErr = String(e);
 		}
@@ -30,12 +30,12 @@
 		}
 	}
 
-	let trackDevices = '';
-	await listen('rs2js', (event) => {
-		console.log('js: rs2js: ' + event);
-		let input = event.payload;
-		trackDevices = input;
-	});
+	// let trackDevices = '';
+	// await listen('rs2js', (event) => {
+	// 	console.log('js: rs2js: ' + event);
+	// 	let input = event.payload;
+	// 	trackDevices = input;
+	// });
 
 </script>
 
@@ -53,7 +53,7 @@
 		{devicesErr}
 	</Alert>
 
-	<p>trackDevices</p>
-	<p>{trackDevices}</p>
+	<!-- <p>trackDevices</p> -->
+	<!-- <p>{trackDevices}</p> -->
 
 </div>
