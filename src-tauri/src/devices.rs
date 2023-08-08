@@ -81,6 +81,9 @@ impl ADBTerminalImpl {
 
     fn _parse_device(s: &str) -> Result<Device> {
         let ss: Vec<&str> = s.split_whitespace().collect();
+        if ss.len() < 2 {
+            return Err(anyhow!("unable to parse device. input {}", s));
+        }
         return Ok(Device {
             identifier: ss[0].to_string(),
             state: DeviceState::from_str(ss[1]).unwrap(),
