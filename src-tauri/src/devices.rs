@@ -102,9 +102,8 @@ impl ADBTerminalImpl {
                         return Err(e.into());
                     }
                     Ok(o) => {
-                        let (mut make, mut model, mut name) =
-                            (String::from(""), String::from(""), String::from(""));
 
+                        // helper to extract the prop when a match is found
                         let parse_val = |v: &str| {
                             let split = v.split_once(":");
 
@@ -122,6 +121,9 @@ impl ADBTerminalImpl {
                                 }
                             }
                         };
+
+                        let (mut make, mut model, mut name) =
+                        (String::from(""), String::from(""), String::from(""));
 
                         for l in o.lines() {
                             match l {
@@ -141,9 +143,9 @@ impl ADBTerminalImpl {
                         return Ok(Device {
                             identifier: d.identifier.to_owned(),
                             state: d.state,
-                            make: make,
-                            model: model,
-                            name: name,
+                            make,
+                            model,
+                            name,
                         });
                     }
                 }
