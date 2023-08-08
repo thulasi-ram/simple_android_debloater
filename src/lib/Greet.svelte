@@ -21,6 +21,16 @@
 			devicesErr = String(e);
 		}
 	}
+
+	async function adb_list_users() {
+		try {
+			const cmdOutpt = await invoke('adb_list_users');
+			devices = JSON.stringify(cmdOutpt);
+		} catch (e) {
+			devicesErr = String(e);
+		}
+	}
+
 	async function adb_list_packages() {
 		try {
 			const cmdOutpt = await invoke('adb_list_packages');
@@ -45,6 +55,7 @@
 	<p>{greetMsg}</p>
 
 	<button on:click={adb_list_devices}>ADB List Devices</button>
+	<button on:click={adb_list_users}>ADB List Users</button>
 	<button on:click={adb_list_packages}>ADB List Packages</button>
 
 	<p>{devices}</p>
