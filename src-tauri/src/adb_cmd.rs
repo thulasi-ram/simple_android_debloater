@@ -100,19 +100,3 @@ impl ADBCommand for ADBShell {
         return adb_raw.execute();
     }
 }
-
-fn adb_list_packages() -> Result<String, String> {
-    let res = ADBShell::new(&["pm", "list", "packages"]).execute();
-    match res {
-        Err(e) => {
-            return Err(e.to_string());
-        }
-        Ok(o) => {
-            let ot = o.replace("package:", "");
-            let ots = ot.trim();
-            // for l in ots.lines() {
-            // }
-            return Ok(format!("{}", ots));
-        }
-    }
-}

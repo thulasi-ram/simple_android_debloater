@@ -33,7 +33,6 @@ impl ADBTerminalImpl {
 
                 let mut users: Vec<User> = vec![];
                 for (_, [cap]) in re.captures_iter(&o).map(|c| c.extract()) {
-                    println!("{}", cap);
                     let split: Vec<&str> = cap.split(":").collect();
                     if split.len() < 2 {
                         return Err(anyhow!("unable to parse user. input {}", cap));
