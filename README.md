@@ -4,6 +4,8 @@
 
 An attempt like [Universal Android Debloater](https://github.com/0x192/universal-android-debloater/) built with [Tauri](https://tauri.app/) and an interfacing adb via TCP and commandline both.
 
+Screenshots are available in static directory
+
 [x] List Devices
 
 [x] List Packages
