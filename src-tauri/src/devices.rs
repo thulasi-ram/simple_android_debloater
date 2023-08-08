@@ -44,7 +44,7 @@ impl FromStr for DeviceState {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Device {
-    pub identifier: String,
+    pub id: String,
     pub state: DeviceState,
     pub make: String,
     pub model: String,
@@ -85,7 +85,7 @@ impl ADBTerminalImpl {
             return Err(anyhow!("unable to parse device. input {}", s));
         }
         return Ok(Device {
-            identifier: ss[0].to_string(),
+            id: ss[0].to_string(),
             state: DeviceState::from_str(ss[1]).unwrap(),
             make: String::from(""),
             model: String::from(""),
@@ -99,7 +99,7 @@ impl ADBTerminalImpl {
                 return Err(e);
             }
             Ok(d) => {
-                let res = ADBShell::new_for_device(d.identifier.to_owned(), &["getprop"]).execute();
+                let res = ADBShell::new_for_device(d.id.to_owned(), &["getprop"]).execute();
                 match res {
                     Err(e) => {
                         return Err(e.into());
@@ -144,7 +144,7 @@ impl ADBTerminalImpl {
                         }
 
                         return Ok(Device {
-                            identifier: d.identifier.to_owned(),
+                            id: d.id.to_owned(),
                             state: d.state,
                             make,
                             model,

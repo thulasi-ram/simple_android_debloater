@@ -7,6 +7,7 @@ mod sad;
 mod users;
 
 use adb_cmd::ADBCommand;
+use serde::{Deserialize, Serialize};
 use std::env;
 
 use devices::Device;
@@ -20,6 +21,7 @@ fn main() {
             adb_list_devices,
             adb_list_packages,
             adb_list_users,
+            adb_list_devices_with_users,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -50,7 +52,7 @@ fn adb_list_users() -> Result<Vec<User>, SADError> {
     let device_id = String::from("115f26ee");
     let res = ac.list_users(device_id);
 
-        match res {
+    match res {
         Err(e) => {
             return Err(SADError::E(e));
         }
@@ -73,6 +75,43 @@ fn adb_list_packages() -> Result<String, String> {
             // for l in ots.lines() {
             // }
             return Ok(format!("{}", ots));
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct DeviceWithUsers {
+    device: Device,
+    users: Vec<User>,
+}
+
+#[tauri::command]
+fn adb_list_devices_with_users() -> Result<Vec<DeviceWithUsers>, SADError> {
+    let mut device_with_users: Vec<DeviceWithUsers> = vec![];
+
+    let acd = devices::ADBTerminalImpl {};
+    let acu = users::ADBTerminalImpl {};
+    let res = acd.list_devices();
+    match res {
+        Err(e) => {
+            return Err(SADError::E(e));
+        }
+        Ok(devices) => {
+            for device in devices {
+                let res = acu.list_users(device.id.to_owned());
+
+                match res {
+                    Err(e) => {
+                        return Err(SADError::E(e));
+                    }
+                    Ok(users) => device_with_users.push(DeviceWithUsers {
+                        device,
+                        users,
+                    }),
+                }
+            }
+
+            return Ok(device_with_users);
         }
     }
 }
