@@ -1,7 +1,9 @@
 <script>
 	import { invoke } from '@tauri-apps/api/tauri';
-	import { Alert, Button, Label, Select } from 'flowbite-svelte';
 	import { listen } from '@tauri-apps/api/event';
+	import SadError from './SadError.svelte';
+	import { Label, Select, Button } from 'flowbite-svelte';
+
 	import {
 		Table,
 		TableBody,
@@ -17,10 +19,10 @@
 		selectedDeviceIDStore,
 		applicableUsersStore,
 		selectedUserIDStore,
-		packagesStore
+		packagesStore,
+		sadErrorStore
 	} from '../stores';
 
-	let cmdErr = '';
 	async function adb_list_devices_with_users() {
 		try {
 			const cmdOutpt = await invoke('adb_list_devices_with_users');
@@ -33,7 +35,7 @@
 				}
 			}
 		} catch (e) {
-			cmdErr = String(e);
+			sadErrorStore.setError(String(e));
 		}
 	}
 
@@ -45,7 +47,7 @@
 			});
 			packagesStore.set(cmdOutpt);
 		} catch (e) {
-			cmdErr = String(e);
+			sadErrorStore.setError(String(e), true);
 		}
 	}
 
@@ -73,12 +75,11 @@
 </script>
 
 <div class="space-y-12">
-	<Alert>
-		{cmdErr}
-	</Alert>
 
-	<button on:click={adb_list_devices_with_users}>ADB List Devices and Users </button>
-	<button on:click={adb_list_packages}>ADB List Packages</button>
+	<SadError />
+
+	<Button on:click={adb_list_devices_with_users}>ADB List Devices and Users </Button>
+	<Button on:click={adb_list_packages}>ADB List Packages</Button>
 
 	<Label
 		>Select Device
@@ -91,22 +92,21 @@
 	</Label>
 
 	<Table striped={true}>
-
-	<TableSearch placeholder="Search by name" hoverable={true} bind:inputValue={searchTerm}>
-		<TableHead>
-			<TableHeadCell>name</TableHeadCell>
-			<TableHeadCell>type</TableHeadCell>
-			<TableHeadCell>state</TableHeadCell>
-		</TableHead>
-		<TableBody class="divide-y">
-			{#each filteredPackages as pkg}
-				<TableBodyRow>
-					<TableBodyCell>{pkg.name}</TableBodyCell>
-					<TableBodyCell>{pkg.ptype}</TableBodyCell>
-					<TableBodyCell>{pkg.state}</TableBodyCell>
-				</TableBodyRow>
-			{/each}
-		</TableBody>
-	</TableSearch>
+		<TableSearch placeholder="Search by name" hoverable={true} bind:inputValue={searchTerm}>
+			<TableHead>
+				<TableHeadCell>name</TableHeadCell>
+				<TableHeadCell>type</TableHeadCell>
+				<TableHeadCell>state</TableHeadCell>
+			</TableHead>
+			<TableBody>
+				{#each filteredPackages as pkg}
+					<TableBodyRow>
+						<TableBodyCell>{pkg.name}</TableBodyCell>
+						<TableBodyCell>{pkg.ptype}</TableBodyCell>
+						<TableBodyCell>{pkg.state}</TableBodyCell>
+					</TableBodyRow>
+				{/each}
+			</TableBody>
+		</TableSearch>
 	</Table>
 </div>
