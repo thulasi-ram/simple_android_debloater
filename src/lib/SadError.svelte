@@ -34,7 +34,7 @@
 		</div>
 
 		{#if isPermanent}
-			<Button>Refresh</Button>
+			<Button href="/">Refresh</Button>
 		{/if}
 	</Modal>
 </div>
