@@ -2,8 +2,7 @@
 	import Sad from '../lib/Sad.svelte';
 </script>
 
-<h1>Welcome to SvelteKit</h1>
-<Sad />
+<Sad/>
 
 <style lang="postcss">
 	:global(html) {
