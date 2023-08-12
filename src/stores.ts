@@ -9,6 +9,7 @@ export const packagesStore: Writable<[Package]> = writable(<[Package]>(<unknown>
 
 export const selectedDeviceIDStore: Writable<string> = writable('');
 export const selectedUserIDStore: Writable<string> = writable('');
+export const selectedSidebarItemStore: Writable<string> = writable('');
 
 export const applicableUsersStore = derived(
 	[devicesWithUsersStore, selectedDeviceIDStore],
