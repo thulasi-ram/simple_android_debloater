@@ -8,9 +8,9 @@
 <div class="relative p-4">
 	<NavBar />
 
-	<div class="flex flex-wrap">
+	<div class="flex flex-wrap mt-4">
 		<div class="flex-none"><Sidebar /></div>
-		<div class="flex-auto w-64">
+		<div class="flex-auto px-5">
 			<main class="container px-04">
 				<slot />
 			</main>

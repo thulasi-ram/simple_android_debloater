@@ -1,4 +1,8 @@
 <script>
+	 /**
+	 * @type {any}
+	 */
+	  export let refreshButton;
 </script>
 
 <div class="flex items-center justify-center w-full">
@@ -23,8 +27,10 @@
 				/>
 			</svg>
 			<p class="mb-2 text-base text-gray-500 dark:text-gray-400">
-				<span class="font-semibold"> No Device Found </span>
+				<span class="font-semibold"> No Device Selected </span>
 			</p>
+
+			<svelte:component this={refreshButton} />
 		</div>
 	</label>
 </div>

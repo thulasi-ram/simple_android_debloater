@@ -1,7 +1,7 @@
 <script>
 	import {
 		SidebarDropdownItem,
-		SidebarDropdownWrapper
+		SidebarDropdownWrapper,
 	} from 'flowbite-svelte';
 	import { Icon } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';

@@ -1,21 +1,11 @@
 <script>
-	import { invoke } from '@tauri-apps/api/tauri';
-	import { Button } from 'flowbite-svelte';
 	import NoDeviceBanner from './NoDeviceBanner.svelte';
 	import SadError from './SadError.svelte';
 
 	import { onMount } from 'svelte';
-	import { devicesWithUsersStore, sadErrorStore } from '../stores';
+	import { adb_list_devices_with_users } from './adb';
+	import AdbDeviceWithUsers from './AdbDeviceWithUsers.svelte';
 
-	async function adb_list_devices_with_users() {
-		sadErrorStore.reset();
-		try {
-			const cmdOutpt = await invoke('adb_list_devices_with_users');
-			devicesWithUsersStore.set(cmdOutpt);
-		} catch (e) {
-			sadErrorStore.setError(String(e));
-		}
-	}
 
 	onMount(adb_list_devices_with_users);
 
@@ -29,6 +19,5 @@
 
 <div class="space-y-12">
 	<SadError />
-	<Button on:click={adb_list_devices_with_users}>ADB List Devices and Users</Button>
-	<NoDeviceBanner />
+	<NoDeviceBanner refreshButton={AdbDeviceWithUsers} />
 </div>
