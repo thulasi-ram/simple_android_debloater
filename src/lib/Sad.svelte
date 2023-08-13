@@ -8,6 +8,7 @@
 	import { devicesWithUsersStore, sadErrorStore } from '../stores';
 
 	async function adb_list_devices_with_users() {
+		sadErrorStore.reset();
 		try {
 			const cmdOutpt = await invoke('adb_list_devices_with_users');
 			devicesWithUsersStore.set(cmdOutpt);

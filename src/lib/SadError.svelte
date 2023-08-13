@@ -24,7 +24,7 @@
 	<Modal
 		title="Error"
 		bind:open={hasErrMessage}
-		autoclose
+		autoclose={true}
 		color="red"
 		permanent={isPermanent}
 		on:hide={onHide}
