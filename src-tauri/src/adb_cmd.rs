@@ -28,12 +28,13 @@ pub struct ADBShell {
 }
 
 impl ADBShell {
-    pub fn new(value: &[&str]) -> Self {
-        Self {
-            sub_commands: value.iter().map(|s| String::from(*s)).collect(),
-            device_id: String::from(""),
-        }
-    }
+    // pub fn new(value: &[&str]) -> Self {
+    //     Self {
+    //         sub_commands: value.iter().map(|s| String::from(*s)).collect(),
+    //         device_id: String::from(""),
+    //     }
+    // }
+
     pub fn new_for_device(device_id: String, value: &[&str]) -> Self {
         Self {
             sub_commands: value.iter().map(|s| String::from(*s)).collect(),
