@@ -125,8 +125,14 @@ impl ADBTerminalImpl {
                 ptype = "thirdparty"
             }
 
-            pkgs.push(Package { name: pname.to_string(), state: pstate, ptype: ptype.to_string() })
+            pkgs.push(Package {
+                name: pname.to_string(),
+                state: pstate,
+                ptype: ptype.to_string(),
+            })
         }
+
+        pkgs.sort_by(|a, b| a.name.cmp(&b.name));
 
         return Ok(pkgs);
     }
