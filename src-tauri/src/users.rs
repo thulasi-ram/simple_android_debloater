@@ -29,7 +29,7 @@ impl ADBTerminalImpl {
                 return Err(e.into());
             }
             Ok(o) => {
-                let re = Regex::new(r"UserInfo\{(.*)\} ").unwrap();
+                let re = Regex::new(r"UserInfo\{(.*)\}").unwrap();
 
                 let mut users: Vec<User> = vec![];
                 for (_, [cap]) in re.captures_iter(&o).map(|c| c.extract()) {
