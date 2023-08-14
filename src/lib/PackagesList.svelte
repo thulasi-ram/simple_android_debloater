@@ -1,5 +1,4 @@
 <script>
-	import { Button } from 'flowbite-svelte';
 	import SadError from './SadError.svelte';
 
 	import {
@@ -13,16 +12,19 @@
 	} from 'flowbite-svelte';
 
 	import {
-		packagesStore
+		packagesStore,
+		validateShouldRefreshPackageStore
 	} from '../stores';
 
 	import { onMount } from 'svelte';
 	import { adb_list_packages } from './adb';
 
 	onMount(() => {
-		setTimeout(() => {
-			adb_list_packages();
-		}, 500);
+		validateShouldRefreshPackageStore.subscribe((val) => {
+			if (val) {
+				adb_list_packages();
+			}
+		});
 	});
 
 	let searchTerm = '';
@@ -33,7 +35,6 @@
 
 <div class="space-y-12">
 	<SadError />
-
 
 	<Table striped={true}>
 		<TableSearch placeholder="Search by name" hoverable={true} bind:inputValue={searchTerm}>

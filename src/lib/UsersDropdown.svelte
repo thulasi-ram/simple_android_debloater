@@ -1,40 +1,44 @@
 <script>
+	import { error } from '@sveltejs/kit';
 	import { Label, Select } from 'flowbite-svelte';
 	import { Icon } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
 	import {
-		applicableUsersStore,
-		devicesWithUsersStore,
 		sadErrorStore,
 		selectedDeviceIDStore,
+		selectedDeviceStore,
 		selectedUserIDStore
 	} from '../stores';
 	import SadError from './SadError.svelte';
 
 	export let divClass = '';
 
-	async function setSelectedUser() {
-		let devices = $devicesWithUsersStore.filter((dev) => dev.device.id === $selectedDeviceIDStore);
-		if (!devices || devices.length < 1) {
-			return sadErrorStore.setError('DeviceDetails not found');
-		}
-
-		let dev = devices[0];
-
-		if (!dev.users || dev.users.length < 1) {
+	/**
+	 * @param {import('../models').DeviceWithUsers} selectedDevice
+	 */
+	function setSelectedUser(selectedDevice) {
+		if (!selectedDevice.users || selectedDevice.users.length < 1) {
 			return sadErrorStore.setError('UserDetails not found');
 		}
 
-		$selectedUserIDStore = dev.users[0].id;
+		$selectedUserIDStore = selectedDevice.users[0].id;
 	}
 
 	onMount(() => {
-		setTimeout(() => {
-			setSelectedUser();
-		}, 300);
+
+		selectedDeviceStore.subscribe((sd) => {
+			if (sd) {
+				setSelectedUser(sd);
+			}
+		});
+
+		if (!$selectedDeviceStore) {
+			selectedDeviceIDStore.set('');
+			sadErrorStore.setError("Invalid device");
+		}
 	});
 
-	$: userMap = $applicableUsersStore.map((u) => ({
+	$: userMap = $selectedDeviceStore?.users.map((u) => ({
 		name: u.name,
 		value: u.id
 	}));

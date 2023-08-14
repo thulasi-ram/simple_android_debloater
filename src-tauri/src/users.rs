@@ -5,7 +5,7 @@ use tauri::regex::Regex;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct User {
-    pub id: u16,
+    pub id: String,
     pub name: String,
 }
 
@@ -38,7 +38,7 @@ impl ADBTerminalImpl {
                         return Err(anyhow!("unable to parse user. input {}", cap));
                     }
                     users.push(User {
-                        id: split[0].parse::<u16>().unwrap(),
+                        id: split[0].to_string(),
                         name: split[1].to_string(),
                     })
                 }
