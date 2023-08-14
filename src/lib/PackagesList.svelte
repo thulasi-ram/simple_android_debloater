@@ -1,5 +1,4 @@
 <script>
-	import { invoke } from '@tauri-apps/api/tauri';
 	import { Button } from 'flowbite-svelte';
 	import SadError from './SadError.svelte';
 
@@ -14,33 +13,11 @@
 	} from 'flowbite-svelte';
 
 	import {
-		packagesStore,
-		sadErrorStore,
-		selectedDeviceIDStore,
-		selectedUserIDStore
+		packagesStore
 	} from '../stores';
 
 	import { onMount } from 'svelte';
-
-	async function adb_list_packages() {
-		if (!$selectedDeviceIDStore) {
-			return sadErrorStore.setError('Device ID is not yet set', false);
-		}
-
-		if (!$selectedUserIDStore.toString()) {
-			return sadErrorStore.setError('User is not yet set', false);
-		}
-
-		try {
-			const cmdOutpt = await invoke('adb_list_packages', {
-				deviceId: $selectedDeviceIDStore,
-				userId: $selectedUserIDStore.toString()
-			});
-			packagesStore.set(cmdOutpt);
-		} catch (e) {
-			sadErrorStore.setError(String(e), true);
-		}
-	}
+	import { adb_list_packages } from './adb';
 
 	onMount(() => {
 		setTimeout(() => {
@@ -57,7 +34,6 @@
 <div class="space-y-12">
 	<SadError />
 
-	<Button on:click={adb_list_packages}>ADB List Packages</Button>
 
 	<Table striped={true}>
 		<TableSearch placeholder="Search by name" hoverable={true} bind:inputValue={searchTerm}>

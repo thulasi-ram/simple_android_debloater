@@ -19,7 +19,6 @@ export const applicableUsersStore = derived(
 		}
 
 		for (let d of $devicesWithUsers) {
-			console.log('D', $selectedDeviceIDStore, d.device.id);
 			if (d.device.id == $selectedDeviceIDStore) {
 				return d.users;
 			}

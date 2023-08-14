@@ -6,7 +6,6 @@
 	import { adb_list_devices_with_users } from './adb';
 	import AdbDeviceWithUsers from './AdbDeviceWithUsers.svelte';
 
-
 	onMount(adb_list_devices_with_users);
 
 	// let trackDevices = '';
@@ -19,5 +18,5 @@
 
 <div class="space-y-12">
 	<SadError />
-	<NoDeviceBanner refreshButton={AdbDeviceWithUsers} />
+	<NoDeviceBanner refreshButton={AdbDeviceWithUsers} refreshButtonText="Refresh Devices" />
 </div>

@@ -1,8 +1,13 @@
 <script>
-	 /**
+	/**
 	 * @type {any}
 	 */
-	  export let refreshButton;
+	export let refreshButton;
+	export let refreshButtonText = '';
+
+	let refreshButtonProps = {
+		buttonText: refreshButtonText
+	};
 </script>
 
 <div class="flex items-center justify-center w-full">
@@ -29,8 +34,8 @@
 			<p class="mb-2 text-base text-gray-500 dark:text-gray-400">
 				<span class="font-semibold"> No Device Selected </span>
 			</p>
-
-			<svelte:component this={refreshButton} />
+			<!-- Passing props https://svelte.dev/repl/74593f36569a4c268d8a6ab277db34b5?version=3.12.1 -->
+			<svelte:component this={refreshButton} {...refreshButtonProps} />
 		</div>
 	</label>
 </div>
