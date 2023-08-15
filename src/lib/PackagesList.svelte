@@ -1,6 +1,4 @@
 <script>
-	import SadError from './SadError.svelte';
-
 	import {
 		Table,
 		TableBody,
@@ -11,31 +9,32 @@
 		TableSearch
 	} from 'flowbite-svelte';
 
-	import {
-		packagesStore,
-		validateShouldRefreshPackageStore
-	} from '../stores';
+	import { selectedDeviceStore, selectedUserStore } from '../stores';
 
-	import { onMount } from 'svelte';
+	import { onDestroy } from 'svelte';
+	import { currentPackagesStore, packagesKey, packagesStore } from '../packageStore';
 	import { adb_list_packages } from './adb';
 
-	onMount(() => {
-		validateShouldRefreshPackageStore.subscribe((val) => {
-			if (val) {
+	const unsubSelectedUserStore = selectedUserStore.subscribe((su) => {
+		if (su) {
+			let hasPackages = $packagesStore.hasOwnProperty(
+				packagesKey($selectedDeviceStore?.device.id, su.id)
+			);
+			if (!hasPackages) {
 				adb_list_packages();
 			}
-		});
+		}
 	});
 
+	onDestroy(unsubSelectedUserStore);
+
 	let searchTerm = '';
-	$: filteredPackages = $packagesStore.filter(
+	$: filteredPackages = $currentPackagesStore.filter(
 		(pkg) => pkg.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
 	);
 </script>
 
 <div class="space-y-12">
-	<SadError />
-
 	<Table striped={true}>
 		<TableSearch placeholder="Search by name" hoverable={true} bind:inputValue={searchTerm}>
 			<TableHead>

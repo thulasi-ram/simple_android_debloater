@@ -1,17 +1,17 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { Button, Modal } from 'flowbite-svelte';
+	import { onDestroy } from 'svelte';
 	import { sadErrorStore } from '../stores';
 
 	let errMessage = '';
 	let isPermanent = true;
 
-	onMount(() => {
-		sadErrorStore.subscribe((val) => {
-			errMessage = val.message;
-			isPermanent = val.isPermanent;
-		});
+	const unsubSadErr = sadErrorStore.subscribe((val) => {
+		errMessage = val.message;
+		isPermanent = val.isPermanent;
 	});
+
+	onDestroy(unsubSadErr);
 
 	function onHide() {
 		sadErrorStore.setError('', false);

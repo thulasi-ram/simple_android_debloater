@@ -1,18 +1,36 @@
 <script>
-	import {
-		SidebarDropdownItem,
-		SidebarDropdownWrapper,
-	} from 'flowbite-svelte';
+	import { SidebarDropdownItem, SidebarDropdownWrapper } from 'flowbite-svelte';
 	import { Icon } from 'flowbite-svelte-icons';
-	import { onMount } from 'svelte';
-	import { devicesWithUsersStore, selectedSidebarItemStore } from '../stores';
+	import { onDestroy } from 'svelte';
+	import {
+		devicesWithUsersStore,
+		sadErrorStore,
+		selectedDeviceStore,
+		selectedSidebarItemStore,
+		selectedUserIDStore
+	} from '../stores';
+	import { adb_list_devices_with_users } from './adb';
+
+	let devicesPromise = adb_list_devices_with_users();
+
+	const unsubSelectedDeviceStore = selectedDeviceStore.subscribe((sd) => {
+		if (sd) {
+			if (!sd.users || sd.users.length < 1) {
+				return sadErrorStore.setError('UserDetails not found');
+			}
+
+			selectedUserIDStore.set(sd.users[0].id);
+		}
+	});
+
+	onDestroy(unsubSelectedDeviceStore);
 
 	let activeUrl = '';
-	onMount(() => {
-		selectedSidebarItemStore.subscribe((val) => {
-			activeUrl = val;
-		});
+	const unsubSelectedSidebarItem = selectedSidebarItemStore.subscribe((val) => {
+		activeUrl = val;
 	});
+
+	onDestroy(unsubSelectedSidebarItem);
 
 	$: deviceMap = $devicesWithUsersStore.map((d) => ({
 		name: `${d.device.name} (${d.device.model})`,
@@ -28,7 +46,17 @@
 		/>
 	</svelte:fragment>
 
-	{#each deviceMap as { id, name }, i}
-		<SidebarDropdownItem label={name} href="/devices/{id}" active={activeUrl === '/devices/{id}'} />
-	{/each}
+	{#await devicesPromise}
+		Loading devices...
+	{:then devices}
+		{#each deviceMap as { id, name }, i}
+			<SidebarDropdownItem
+				label={name}
+				href="/devices/{id}"
+				active={activeUrl === '/devices/{id}'}
+			/>
+		{/each}
+	{:catch err}
+		{sadErrorStore.setError(err.message)}
+	{/await}
 </SidebarDropdownWrapper>

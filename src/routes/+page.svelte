@@ -2,7 +2,7 @@
 	import Sad from '../lib/Sad.svelte';
 </script>
 
-<Sad/>
+<Sad />
 
 <!-- <style lang="postcss">
 	:global(html) {
