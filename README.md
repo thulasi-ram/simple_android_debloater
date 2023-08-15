@@ -12,11 +12,11 @@ Screenshots are available in static directory
 
 [x] Hashset Packages
 
-[] Validate deviceID, userID, packageGetAll are valid
+[x] Validate deviceID, userID, packageGetAll are valid
 
-[] Flowbite modal to open up if validation fails
+[x] Flowbite modal to open up if validation fails
 
-[] Disable packages
+[x] Disable packages
 
 [] Adb track device
 
