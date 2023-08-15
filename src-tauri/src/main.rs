@@ -21,6 +21,7 @@ fn main() {
             greet,
             adb_list_devices_with_users,
             adb_list_packages,
+            adb_disable_clear_and_stop_packages,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -69,6 +70,21 @@ fn adb_list_devices_with_users() -> Result<Vec<DeviceWithUsers>, SADError> {
 fn adb_list_packages(device_id: &str, user_id: &str) -> Result<Vec<Package>, SADError> {
     let acl = packages::ADBTerminalImpl {};
     let res = acl.list_packages(device_id.to_string(), user_id.to_string());
+    match res {
+        Err(e) => {
+            return Err(SADError::E(e));
+        }
+        Ok(o) => {
+            return Ok(o);
+        }
+    }
+}
+
+
+#[tauri::command]
+fn adb_disable_clear_and_stop_packages(device_id: &str, user_id: &str, pkg: &str) -> Result<(), SADError> {
+    let acl = packages::ADBTerminalImpl {};
+    let res = acl.disable_package(device_id.to_string(), user_id.to_string(), pkg.to_string());
     match res {
         Err(e) => {
             return Err(SADError::E(e));

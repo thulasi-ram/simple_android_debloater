@@ -47,6 +47,10 @@ pub trait ListPackages {
     fn list_packages(&self, device_id: String, user_id: String) -> Result<Vec<Package>>;
 }
 
+pub trait DisablePackage {
+    fn disable_package(&self, device_id: String, user_id: String, pkg: String) -> Result<()>;
+}
+
 const LIST_ALL_PACKAGES_INCLUDING_UNINSTALLED: &str = "pm list packages -u";
 const LIST_SYSTEM_PACKAGES: &str = "pm list packages -s";
 const LIST_THIRD_PARTY_PACKAGES: &str = "pm list packages -3";
@@ -149,6 +153,70 @@ impl ADBTerminalImpl {
                     container.insert(l.to_string());
                 }
                 return Ok(());
+            }
+        }
+    }
+
+    pub fn disable_package(&self, device_id: String, user_id: String, pkg: String) -> Result<()> {
+        let (cmd_disable_pkg, cmd_fstop_pkg, cmd_clear_pkg) = (
+            ADBShell::new_for_device(
+                device_id.to_owned(),
+                &["pm disable-user", "--user", &user_id, &pkg.to_owned()],
+            ),
+            ADBShell::new_for_device(
+                device_id.to_owned(),
+                &["am force-stop", "--user", &user_id, &pkg.to_owned()],
+            ),
+            ADBShell::new_for_device(
+                device_id.to_owned(),
+                &["clear", "--user", &user_id, &pkg.to_owned()],
+            ),
+        );
+
+        let res = Self::_execute_dis(cmd_disable_pkg, |s| {
+            if s.contains(&format!(
+                "Package {} new state: disabled-user",
+                pkg.to_owned()
+            )) {
+                return Ok(());
+            }
+            return Err(anyhow!(s));
+        })
+        .and_then(|_| {
+            Self::_execute_dis(cmd_fstop_pkg, |s| {
+                if s.is_empty() {
+                    return Ok(());
+                }
+                return Err(anyhow!(s));
+            })
+        })
+        .and_then(|_| {
+            Self::_execute_dis(cmd_clear_pkg, |s| {
+                if s.eq("Success") {
+                    return Ok(());
+                }
+                return Err(anyhow!(s));
+            })
+        });
+
+        match res {
+            Err(e) => {
+                return Err(e.into());
+            }
+            Ok(_) => {
+                return Ok(());
+            }
+        }
+    }
+
+    fn _execute_dis(cmd: ADBShell, parser: impl Fn(String) -> Result<()>) -> Result<()> {
+        let res = cmd.execute();
+        match res {
+            Err(e) => {
+                return Err(e.into());
+            }
+            Ok(o) => {
+                return parser(o);
             }
         }
     }

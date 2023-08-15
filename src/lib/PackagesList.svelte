@@ -1,5 +1,6 @@
 <script>
 	import {
+		Button,
 		Table,
 		TableBody,
 		TableBodyCell,
@@ -13,7 +14,7 @@
 
 	import { onDestroy } from 'svelte';
 	import { currentPackagesStore, packagesKey, packagesStore } from '../packageStore';
-	import { adb_list_packages } from './adb';
+	import { adb_disable_packages, adb_list_packages } from './adb';
 
 	const unsubSelectedUserStore = selectedUserStore.subscribe((su) => {
 		if (su) {
@@ -25,6 +26,10 @@
 			}
 		}
 	});
+
+	const disableSelectedPackage = (/** @type {string} */ pkg) => {
+		adb_disable_packages(pkg);
+	};
 
 	onDestroy(unsubSelectedUserStore);
 
@@ -41,6 +46,9 @@
 				<TableHeadCell>name</TableHeadCell>
 				<TableHeadCell>type</TableHeadCell>
 				<TableHeadCell>state</TableHeadCell>
+				<TableHeadCell>
+					<span class="sr-only">actions</span>
+				</TableHeadCell>
 			</TableHead>
 			<TableBody>
 				{#each filteredPackages as pkg}
@@ -48,6 +56,11 @@
 						<TableBodyCell>{pkg.name}</TableBodyCell>
 						<TableBodyCell>{pkg.ptype}</TableBodyCell>
 						<TableBodyCell>{pkg.state}</TableBodyCell>
+						<TableBodyCell>
+							<TableBodyCell>
+								<Button on:click={() => disableSelectedPackage(pkg.name)}>Disable</Button>
+							</TableBodyCell></TableBodyCell
+						>
 					</TableBodyRow>
 				{/each}
 			</TableBody>
