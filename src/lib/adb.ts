@@ -50,7 +50,7 @@ export async function adb_list_packages() {
 	}
 }
 
-export function adb_disable_packages(pkg: string) {
+export async function adb_disable_packages(pkg: string) {
 	let selectedDevice = get(selectedDeviceStore);
 	let selectedUser = get(selectedUserStore);
 
@@ -69,12 +69,12 @@ export function adb_disable_packages(pkg: string) {
 	console.log(`invoking disable - ${selectedDevice.device.id} - ${selectedUser.name} - ${pkg}`);
 
 	try {
-		invoke('adb_disable_clear_and_stop_packages', {
+		await invoke('adb_disable_clear_and_stop_packages', {
 			deviceId: selectedDevice.device.id,
 			userId: selectedUser.id,
 			pkg: pkg
 		});
 	} catch (e) {
-		sadErrorStore.setError(String(e), true);
+		sadErrorStore.setError(JSON.stringify(e), true);
 	}
 }
