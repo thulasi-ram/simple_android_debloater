@@ -35,10 +35,10 @@ impl FromStr for PackageState {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 
 pub struct Package {
-    name: String,
+    pub name: String,
     state: PackageState,
     ptype: String,
 }
@@ -169,7 +169,7 @@ impl ADBTerminalImpl {
             ),
             ADBShell::new_for_device(
                 device_id.to_owned(),
-                &["clear", "--user", &user_id, &pkg.to_owned()],
+                &["pm clear", "--user", &user_id, &pkg.to_owned()],
             ),
         );
 

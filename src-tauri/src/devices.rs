@@ -4,7 +4,7 @@ use core::result::Result::Ok;
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, str::FromStr};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum DeviceState {
     /// The device is not connected to adb or is not responding.
     Offline,
@@ -42,7 +42,7 @@ impl FromStr for DeviceState {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Device {
     pub id: String,
     pub state: DeviceState,
