@@ -1,6 +1,8 @@
 use crate::{packages::Package, DeviceWithUsers};
 use anyhow::{anyhow, Error, Ok, Result};
+use serde::ser::Serializer;
 use serde::{Deserialize, Serialize};
+
 use std::{
     fmt::Display,
     str::FromStr,
@@ -123,3 +125,5 @@ impl Event for PackageEvent {
         return Ok(res);
     }
 }
+
+pub type AsyncEvent = Box<dyn Event + Send + 'static>;

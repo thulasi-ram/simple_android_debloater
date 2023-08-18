@@ -12,10 +12,9 @@ mod users;
 
 use anyhow::anyhow;
 use err::ResultOkPrintErrExt;
-use events::{DeviceEvent, PackageEvent};
+use events::PackageEvent;
 use packages::Package;
 use serde::{Deserialize, Serialize};
-use store::DeviceWithUserPackages;
 use tauri::Manager;
 use tokio::sync::mpsc;
 
@@ -24,7 +23,7 @@ use sad::SADError;
 use users::User;
 
 struct AsyncEventSender {
-    inner: tokio::sync::Mutex<mpsc::Sender<Box<dyn events::Event + Sync + Send>>>,
+    inner: tokio::sync::Mutex<mpsc::Sender<events::AsyncEvent>>,
 }
 
 struct SadCache {
@@ -33,8 +32,8 @@ struct SadCache {
 
 fn main() {
     let (async_event_sender, mut async_event_receiver): (
-        mpsc::Sender<Box<dyn events::Event + Sync + Send>>,
-        mpsc::Receiver<Box<dyn events::Event + Sync + Send>>,
+        mpsc::Sender<events::AsyncEvent>,
+        mpsc::Receiver<events::AsyncEvent>,
     ) = mpsc::channel(1);
     let store = store::Store::new();
 
@@ -67,11 +66,10 @@ fn main() {
         .expect("error while running tauri application");
 }
 
-fn event_publisher<R: tauri::Runtime>(
-    event: Box<dyn events::Event + Sync + Send>,
-    manager: &impl Manager<R>,
-) {
-    let pl = event.epayload().unwrap();
+/// Since we pass events via mpsc channel a serializable trait is not object safe
+/// So we resort to deserialization before passing event and then again serialize in emit_all of tauri
+fn event_publisher<R: tauri::Runtime>(event: events::AsyncEvent, manager: &impl Manager<R>) {
+    let pl: serde_json::Value = serde_json::from_str(&event.epayload().unwrap()).unwrap();
     manager.emit_all(&event.etype().to_string(), pl).unwrap();
 }
 
