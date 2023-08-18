@@ -44,11 +44,9 @@ pub struct Package {
 }
 
 impl Package {
-
     pub fn set_state(&mut self, s: PackageState) {
         self.state = s;
     }
-    
 }
 
 pub trait ListPackages {
@@ -57,6 +55,10 @@ pub trait ListPackages {
 
 pub trait DisablePackage {
     fn disable_package(&self, device_id: String, user_id: String, pkg: String) -> Result<()>;
+}
+
+pub trait EnablePackage {
+    fn enable_package(&self, device_id: String, user_id: String, pkg: String) -> Result<()>;
 }
 
 const LIST_ALL_PACKAGES_INCLUDING_UNINSTALLED: &str = "pm list packages -u";
@@ -106,11 +108,22 @@ impl ADBTerminalImpl {
             ),
         );
 
-        let res = Self::_execute_and_parse(cmd_all_pkg, &mut all_pkg)
-            .and_then(|_| Self::_execute_and_parse(cmd_enabled_pkg, &mut enabled_pkg))
-            .and_then(|_| Self::_execute_and_parse(cmd_disabled_pkg, &mut disabled_pkg))
-            .and_then(|_| Self::_execute_and_parse(cmd_system_pkg, &mut sys_pkg))
-            .and_then(|_| Self::_execute_and_parse(cmd_tpp_pkg, &mut tpp_pkg));
+        fn callback(container: &mut HashSet<String>) -> impl FnMut(String) -> Result<()> + '_ {
+            let parser = |s: String| -> Result<()> {
+                let ot = s.replace("package:", "");
+                for l in ot.lines() {
+                    container.insert(l.to_string());
+                }
+                return Ok(());
+            };
+            return parser;
+        };
+
+        let res = Self::_execute_and_parse(cmd_all_pkg, callback(&mut all_pkg))
+            .and_then(|_| Self::_execute_and_parse(cmd_enabled_pkg, callback(&mut enabled_pkg)))
+            .and_then(|_| Self::_execute_and_parse(cmd_disabled_pkg, callback(&mut disabled_pkg)))
+            .and_then(|_| Self::_execute_and_parse(cmd_system_pkg, callback(&mut sys_pkg)))
+            .and_then(|_| Self::_execute_and_parse(cmd_tpp_pkg, callback(&mut tpp_pkg)));
 
         match res {
             Err(e) => {
@@ -149,22 +162,6 @@ impl ADBTerminalImpl {
         return Ok(pkgs);
     }
 
-    fn _execute_and_parse(cmd: ADBShell, container: &mut HashSet<String>) -> Result<()> {
-        let res = cmd.execute();
-        match res {
-            Err(e) => {
-                return Err(e.into());
-            }
-            Ok(o) => {
-                let ot = o.replace("package:", "");
-                for l in ot.lines() {
-                    container.insert(l.to_string());
-                }
-                return Ok(());
-            }
-        }
-    }
-
     pub fn disable_package(&self, device_id: String, user_id: String, pkg: String) -> Result<()> {
         let (cmd_disable_pkg, cmd_fstop_pkg, cmd_clear_pkg) = (
             ADBShell::new_for_device(
@@ -181,7 +178,7 @@ impl ADBTerminalImpl {
             ),
         );
 
-        let res = Self::_execute_dis(cmd_disable_pkg, |s| {
+        Self::_execute_and_parse(cmd_disable_pkg, |s| {
             if s.contains(&format!(
                 "Package {} new state: disabled-user",
                 pkg.to_owned()
@@ -191,7 +188,7 @@ impl ADBTerminalImpl {
             return Err(anyhow!(s));
         })
         .and_then(|_| {
-            Self::_execute_dis(cmd_fstop_pkg, |s| {
+            Self::_execute_and_parse(cmd_fstop_pkg, |s| {
                 if s.is_empty() {
                     return Ok(());
                 }
@@ -199,25 +196,34 @@ impl ADBTerminalImpl {
             })
         })
         .and_then(|_| {
-            Self::_execute_dis(cmd_clear_pkg, |s| {
+            Self::_execute_and_parse(cmd_clear_pkg, |s| {
                 if s.eq("Success") {
                     return Ok(());
                 }
                 return Err(anyhow!(s));
             })
-        });
+        })?;
 
-        match res {
-            Err(e) => {
-                return Err(e.into());
-            }
-            Ok(_) => {
-                return Ok(());
-            }
-        }
+        return Ok(());
     }
 
-    fn _execute_dis(cmd: ADBShell, parser: impl Fn(String) -> Result<()>) -> Result<()> {
+    pub fn enable_package(&self, device_id: String, user_id: String, pkg: String) -> Result<()> {
+        let cmd_enable_pkg = ADBShell::new_for_device(
+            device_id.to_owned(),
+            &["pm enable", "--user", &user_id, &pkg.to_owned()],
+        );
+
+        Self::_execute_and_parse(cmd_enable_pkg, |s| {
+            if s.contains(&format!("Package {} new state: enabled", pkg.to_owned())) {
+                return Ok(());
+            }
+            return Err(anyhow!(s));
+        })?;
+
+        return Ok(());
+    }
+
+    fn _execute_and_parse(cmd: ADBShell, mut parser: impl FnMut(String) -> Result<()>) -> Result<()> {
         let res = cmd.execute();
         match res {
             Err(e) => {
