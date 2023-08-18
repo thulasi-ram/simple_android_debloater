@@ -3,14 +3,18 @@
 
 mod adb_cmd;
 mod devices;
+mod err;
+mod events;
 mod packages;
 mod sad;
 mod store;
 mod users;
 
+use anyhow::anyhow;
+use err::ResultOkPrintErrExt;
+use events::{DeviceEvent, PackageEvent};
 use packages::Package;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, env};
 use store::DeviceWithUserPackages;
 use tauri::Manager;
 use tokio::sync::mpsc;
@@ -20,7 +24,7 @@ use sad::SADError;
 use users::User;
 
 struct AsyncEventSender {
-    inner: tokio::sync::Mutex<mpsc::Sender<String>>,
+    inner: tokio::sync::Mutex<mpsc::Sender<Box<dyn events::Event + Sync + Send>>>,
 }
 
 struct SadCache {
@@ -28,8 +32,11 @@ struct SadCache {
 }
 
 fn main() {
-    let (async_event_sender, mut async_event_receiver) = mpsc::channel(1);
-    let store: store::Store = HashMap::new();
+    let (async_event_sender, mut async_event_receiver): (
+        mpsc::Sender<Box<dyn events::Event + Sync + Send>>,
+        mpsc::Receiver<Box<dyn events::Event + Sync + Send>>,
+    ) = mpsc::channel(1);
+    let store = store::Store::new();
 
     tauri::Builder::default()
         .manage(AsyncEventSender {
@@ -60,10 +67,12 @@ fn main() {
         .expect("error while running tauri application");
 }
 
-fn event_publisher<R: tauri::Runtime>(message: String, manager: &impl Manager<R>) {
-    manager
-        .emit_all("rs2js", format!("rs: {}", message))
-        .unwrap();
+fn event_publisher<R: tauri::Runtime>(
+    event: Box<dyn events::Event + Sync + Send>,
+    manager: &impl Manager<R>,
+) {
+    let pl = event.epayload().unwrap();
+    manager.emit_all(&event.etype().to_string(), pl).unwrap();
 }
 
 #[tauri::command]
@@ -102,10 +111,7 @@ async fn adb_list_devices_with_users(
                     }
                     Ok(users) => {
                         let du = DeviceWithUsers { device, users };
-                        cache.insert(
-                            du.device.id.to_owned(),
-                            DeviceWithUserPackages::new_from_device_with_users(du.clone()),
-                        );
+                        cache.insert_device_with_user(du.clone());
                         device_with_users.push(du);
                     }
                 }
@@ -123,23 +129,15 @@ async fn adb_list_packages(
     cache_state: tauri::State<'_, SadCache>,
 ) -> Result<Vec<Package>, SADError> {
     let acl = packages::ADBTerminalImpl {};
-    let res = acl.list_packages(device_id.to_string(), user_id.to_string());
-    match res {
-        Err(e) => {
-            return Err(SADError::E(e));
-        }
-        Ok(o) => {
-            let mut cache = cache_state.inner.lock().await;
-            let device = cache.get_mut(&device_id.to_string()).expect("device is invalid");
-            let user = device.user(user_id.to_string()).expect("user is invalid");
+    let packages = acl.list_packages(device_id.to_string(), user_id.to_string())?;
 
-            for p in o.to_vec() {
-                user.add_package(p);
-            }
-
-            return Ok(o);
-        }
+    let mut cache = cache_state.inner.lock().await;
+    let device = cache.device(device_id.to_owned())?;
+    let user = device.user(user_id.to_owned())?;
+    for p in packages.clone() {
+        user.add_package(p.clone())
     }
+    return Ok(packages);
 }
 
 #[tauri::command]
@@ -150,24 +148,30 @@ async fn adb_disable_clear_and_stop_packages(
     event_sender_state: tauri::State<'_, AsyncEventSender>,
     cache_state: tauri::State<'_, SadCache>,
 ) -> Result<(), SADError> {
-
-    let cache = cache_state.inner.lock().await;
-    println!("{:?}", cache);
-    let esender: tokio::sync::MutexGuard<'_, mpsc::Sender<String>> =
-        event_sender_state.inner.lock().await;
-    let _res = esender
-        .send(String::from("hey"))
-        .await
-        .map_err(|e| e.to_string());
-
     let acl = packages::ADBTerminalImpl {};
-    let res = acl.disable_package(device_id.to_string(), user_id.to_string(), pkg.to_string());
-    match res {
-        Err(e) => {
-            return Err(SADError::E(e));
-        }
-        Ok(o) => {
-            return Ok(o);
+    acl.disable_package(device_id.to_string(), user_id.to_string(), pkg.to_string())?;
+
+    {
+        let mut cache = cache_state.inner.lock().await;
+        let device = cache.device(device_id.to_owned())?;
+        let user = device.user(user_id.to_owned())?;
+        let package = user.get_package(pkg);
+
+        match package {
+            None => {
+                return Err(anyhow!("package {} not found in cache", pkg.to_string()).into());
+            }
+            Some(p) => {
+                p.set_state(packages::PackageState::Disabled);
+                let pe = PackageEvent::new(device_id.to_string(), user_id.to_string(), p.clone());
+                let esender = event_sender_state.inner.lock().await;
+                esender
+                    .send(Box::new(pe))
+                    .await
+                    .ok_or_print_err("error emitting");
+            }
         }
     }
+
+    return Ok(());
 }

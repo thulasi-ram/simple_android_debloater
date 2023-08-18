@@ -43,6 +43,14 @@ pub struct Package {
     ptype: String,
 }
 
+impl Package {
+
+    pub fn set_state(&mut self, s: PackageState) {
+        self.state = s;
+    }
+    
+}
+
 pub trait ListPackages {
     fn list_packages(&self, device_id: String, user_id: String) -> Result<Vec<Package>>;
 }
