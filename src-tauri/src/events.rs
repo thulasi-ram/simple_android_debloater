@@ -1,6 +1,5 @@
 use crate::{packages::Package, DeviceWithUsers};
 use anyhow::{anyhow, Error, Ok, Result};
-use serde::ser::Serializer;
 use serde::{Deserialize, Serialize};
 
 use std::{
