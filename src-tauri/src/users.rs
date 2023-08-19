@@ -7,6 +7,7 @@ use tauri::regex::Regex;
 pub struct User {
     pub id: String,
     pub name: String,
+    pub device_id: String,
 }
 
 impl std::fmt::Display for User {
@@ -23,7 +24,7 @@ pub struct ADBTerminalImpl {}
 
 impl ADBTerminalImpl {
     pub fn list_users(&self, device_id: String) -> Result<Vec<User>> {
-        let res = ADBShell::new_for_device(device_id, &["pm list users "]).execute();
+        let res = ADBShell::new_for_device(device_id.to_owned(), &["pm list users "]).execute();
         match res {
             Err(e) => {
                 return Err(e.into());
@@ -40,6 +41,7 @@ impl ADBTerminalImpl {
                     users.push(User {
                         id: split[0].to_string(),
                         name: split[1].to_string(),
+                        device_id: device_id.to_owned(),
                     })
                 }
                 return Ok(users);

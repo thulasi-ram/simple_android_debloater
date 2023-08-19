@@ -11,33 +11,44 @@
 		TableSearch
 	} from 'flowbite-svelte';
 
-	import { selectedDeviceStore, selectedUserStore } from '../stores';
+	import { selectedUserStore } from '../stores';
 
-	import { onDestroy } from 'svelte';
-	import { currentPackagesStore, packagesKey, packagesStore } from '../packageStore';
-	import { adb_disable_package, adb_enable_package, adb_list_packages } from './adb';
 	import { listen } from '@tauri-apps/api/event';
+	import { onDestroy } from 'svelte';
+	import { get } from 'svelte/store';
 	import { notifications } from '../notificationStore';
+	import { currentPackagesStore, packagesStore } from '../packageStore';
+	import { adb_disable_package, adb_enable_package, adb_list_packages } from './adb';
+	import { setErrorModal } from './utils';
 
 	const unsubSelectedUserStore = selectedUserStore.subscribe((su) => {
 		if (su) {
-			let hasPackages = $packagesStore.hasOwnProperty(
-				packagesKey($selectedDeviceStore?.device.id, su.id)
-			);
-			if (!hasPackages) {
-				adb_list_packages();
+			if (!packagesStore.hasPackages(su.device_id, su.id)) {
+				adb_list_packages(su.device_id, su.id)
+					.then((pkgs) => {
+						notifications.info(`fetching packages for ${su?.name}`);
+						packagesStore.setPackages(pkgs.deviceId, pkgs.userId, pkgs.packages);
+					})
+					.catch(setErrorModal);
 			}
 		}
 	});
+	onDestroy(unsubSelectedUserStore);
 
 	listen('package_event', (event) => {
 		let ep = event.payload;
-		let packages = [ep.package];
-		packagesStore.setPackages(packagesKey(ep.device_id, ep.user_id), packages);
+		packagesStore.setPackages(ep.device_id, ep.user_id, [ep.package]);
 	});
 
 	const disableSelectedPackage = (/** @type {string} */ pkg) => {
-		adb_disable_package(pkg)
+		let user = get(selectedUserStore);
+		if (!user) {
+			return setErrorModal('user is not selected');
+		}
+
+		notifications.info(`disabling package: {pkg} - ${user.name} ${pkg}`);
+
+		adb_disable_package(user.device_id, user.id, pkg)
 			.then(() => {
 				notifications.success(`${pkg} successfully disabled`);
 			})
@@ -47,7 +58,13 @@
 	};
 
 	const enableSelectedPackage = (/** @type {string} */ pkg) => {
-		adb_enable_package(pkg)
+		let user = get(selectedUserStore);
+		if (!user) {
+			return setErrorModal('user is not selected');
+		}
+		notifications.info(`enabling package: {pkg} - ${user.name} ${pkg}`);
+
+		adb_enable_package(user.device_id, user.id, pkg)
 			.then(() => {
 				notifications.success(`${pkg} successfully enabled`);
 			})
@@ -55,8 +72,6 @@
 				notifications.error(`error enabling ${pkg} - ${JSON.stringify(e)}`);
 			});
 	};
-
-	onDestroy(unsubSelectedUserStore);
 
 	let searchTerm = 'aaaaxy';
 	$: filteredPackages = $currentPackagesStore.filter(

@@ -10,13 +10,15 @@ mod sad;
 mod store;
 mod users;
 
+use std::time::Duration;
+
 use anyhow::anyhow;
 use err::ResultOkPrintErrExt;
-use events::PackageEvent;
+use events::{Event, PackageEvent};
 use packages::Package;
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
-use tokio::sync::mpsc;
+use tokio::{sync::mpsc, time};
 
 use devices::Device;
 use sad::SADError;
@@ -61,6 +63,16 @@ fn main() {
                 }
             });
 
+            let app_handle2 = app.handle();
+
+            tauri::async_runtime::spawn(async move {
+                let mut interval = time::interval(Duration::from_millis(3000));
+                loop {
+                    interval.tick().await;
+                    track_devices(&app_handle2).await;
+                }
+            });
+
             Ok(())
         })
         .run(tauri::generate_context!())
@@ -72,6 +84,34 @@ fn main() {
 fn event_publisher<R: tauri::Runtime>(event: events::AsyncEvent, manager: &impl Manager<R>) {
     let pl: serde_json::Value = serde_json::from_str(&event.epayload().unwrap()).unwrap();
     manager.emit_all(&event.etype().to_string(), pl).unwrap();
+}
+
+async fn track_devices<R: tauri::Runtime>(manager: &impl Manager<R>) {
+    let res = _adb_list_device_with_users().await;
+    match res {
+        Err(e) => {
+            println!("Error getting async devices {:?}", e);
+        }
+        Ok(device_with_users) => {
+            let w = manager.get_window("main").unwrap();
+            let cache_state: tauri::State<'_, SadCache> = manager.state();
+            let mut cache = cache_state.inner.lock().await;
+            for du in device_with_users {
+                let event = events::DeviceEvent::new(du.clone());
+                let pl: serde_json::Value =
+                    serde_json::from_str(&event.epayload().unwrap()).unwrap();
+                cache.insert_device_with_user(du);
+
+                let res = w.emit_all(&event.etype().to_string(), pl);
+                match res {
+                    Ok(_) => {}
+                    Err(e) => {
+                        println!("Error emitting async devices {:?}", e);
+                    }
+                }
+            }
+        }
+    }
 }
 
 #[tauri::command]
@@ -89,36 +129,36 @@ pub struct DeviceWithUsers {
 async fn adb_list_devices_with_users(
     cache_state: tauri::State<'_, SadCache>,
 ) -> Result<Vec<DeviceWithUsers>, SADError> {
-    let mut device_with_users: Vec<DeviceWithUsers> = vec![];
-
-    let acd = devices::ADBTerminalImpl {};
-    let acu = users::ADBTerminalImpl {};
-    let res = acd.list_devices();
+    let res = _adb_list_device_with_users().await;
     match res {
         Err(e) => {
             return Err(SADError::E(e));
         }
-        Ok(devices) => {
+        Ok(device_with_users) => {
             let mut cache = cache_state.inner.lock().await;
 
-            for device in devices {
-                let res = acu.list_users(device.id.to_owned());
-
-                match res {
-                    Err(e) => {
-                        return Err(SADError::E(e));
-                    }
-                    Ok(users) => {
-                        let du = DeviceWithUsers { device, users };
-                        cache.insert_device_with_user(du.clone());
-                        device_with_users.push(du);
-                    }
-                }
+            for du in device_with_users.clone() {
+                cache.insert_device_with_user(du.clone());
             }
 
             return Ok(device_with_users);
         }
     }
+}
+
+async fn _adb_list_device_with_users() -> anyhow::Result<Vec<DeviceWithUsers>> {
+    let mut device_with_users: Vec<DeviceWithUsers> = vec![];
+
+    let acd = devices::ADBTerminalImpl {};
+    let acu = users::ADBTerminalImpl {};
+    let devices = acd.list_devices()?;
+
+    for device in devices {
+        let users: Vec<User> = acu.list_users(device.id.to_owned())?;
+        device_with_users.push(DeviceWithUsers { device, users });
+    }
+
+    return anyhow::Ok(device_with_users);
 }
 
 #[tauri::command]
@@ -174,8 +214,6 @@ async fn adb_disable_clear_and_stop_package(
 
     return Ok(());
 }
-
-
 
 #[tauri::command]
 async fn adb_enable_package(

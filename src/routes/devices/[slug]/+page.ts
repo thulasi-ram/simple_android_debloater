@@ -1,11 +1,11 @@
 import { selectedDeviceIDStore } from '../../../stores.js';
 
 export function load({ params }) {
-	let deviceID = params.slug;
+	let deviceId = params.slug;
 
-	selectedDeviceIDStore.set(deviceID);
+	selectedDeviceIDStore.set(deviceId);
 
 	return {
-		deviceID: deviceID
+		deviceId: deviceId
 	};
 }

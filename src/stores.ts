@@ -1,27 +1,21 @@
 import { derived, writable, type Readable, type Writable } from 'svelte/store';
 import type { DeviceWithUsers, Package, User } from './models';
-
-export const devicesWithUsersStore: Writable<DeviceWithUsers[]> = writable([]);
+import { devicesWithUsersStore } from './deviceUsersStore';
 
 export const selectedDeviceIDStore: Writable<string> = writable('');
+
 export const selectedDeviceStore: Readable<DeviceWithUsers | null> = derived(
 	[devicesWithUsersStore, selectedDeviceIDStore],
-	([$devicesWithUsers, $selectedDeviceIDStore]) => {
+	([$devicesWithUsersStore, $selectedDeviceIDStore]) => {
 		let selectedDeviceID = $selectedDeviceIDStore;
 
 		if (!selectedDeviceID) {
-			return;
+			return null;
 		}
 
-		let selectedDevice;
-		$devicesWithUsers.forEach((dev) => {
-			if (dev.device.id === selectedDeviceID) {
-				selectedDevice = dev;
-				return;
-			}
-		});
+		let device = devicesWithUsersStore.getDevice(selectedDeviceID);
 
-		return selectedDevice;
+		return device;
 	}
 );
 

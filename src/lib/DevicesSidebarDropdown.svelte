@@ -1,17 +1,23 @@
-<script>
+<script lang='ts'>
 	import { SidebarDropdownItem, SidebarDropdownWrapper } from 'flowbite-svelte';
 	import { Icon } from 'flowbite-svelte-icons';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import {
-		devicesWithUsersStore,
 		sadErrorStore,
 		selectedDeviceStore,
 		selectedSidebarItemStore,
 		selectedUserIDStore
 	} from '../stores';
-	import { adb_list_devices_with_users } from './adb';
+	import { listen } from '@tauri-apps/api/event';
+	import { devicesWithUsersStore } from '../deviceUsersStore';
+	import type { DeviceWithUsers } from '../models';
 
-	let devicesPromise = adb_list_devices_with_users();
+	onMount(async () => {
+		listen('device_event', (event) => {
+			let du = event.payload as DeviceWithUsers;
+			devicesWithUsersStore.insertDevice(du);
+		});
+	});
 
 	const unsubSelectedDeviceStore = selectedDeviceStore.subscribe((sd) => {
 		if (sd) {
@@ -32,7 +38,7 @@
 
 	onDestroy(unsubSelectedSidebarItem);
 
-	$: deviceMap = $devicesWithUsersStore.map((d) => ({
+	$: deviceMap = Object.entries($devicesWithUsersStore).map(([_, d]) => ({
 		name: `${d.device.name} (${d.device.model})`,
 		id: d.device.id
 	}));
@@ -46,17 +52,13 @@
 		/>
 	</svelte:fragment>
 
-	{#await devicesPromise}
-		Loading devices...
-	{:then devices}
-		{#each deviceMap as { id, name }, i}
-			<SidebarDropdownItem
-				label={name}
-				href="/devices/{id}"
-				active={activeUrl === '/devices/{id}'}
-			/>
-		{/each}
-	{:catch err}
-		{sadErrorStore.setError(err.message)}
-	{/await}
+	<!-- {#await devicesPromise} -->
+	<!-- Loading devices... -->
+	<!-- {:then devices} -->
+	{#each deviceMap as { id, name }, i}
+		<SidebarDropdownItem label={name} href="/devices/{id}" active={activeUrl === '/devices/{id}'} />
+	{/each}
+	<!-- {:catch err} -->
+	<!-- {sadErrorStore.setError(err.message)} -->
+	<!-- {/await} -->
 </SidebarDropdownWrapper>

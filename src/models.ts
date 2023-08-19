@@ -1,6 +1,7 @@
 export type User = {
 	id: string;
 	name: string;
+	device_id: string
 };
 
 export type Device = {
@@ -20,3 +21,10 @@ export type Package = {
 	ptype: string;
 	state: string;
 };
+
+
+export type DeviceUserPackages = {
+	deviceId: string;
+	userId: string;
+	packages: Package[];
+}
