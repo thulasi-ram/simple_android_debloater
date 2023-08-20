@@ -19,7 +19,7 @@ Screenshots are available in [static](simple_android_debloater/tree/main/static/
 
 [x] Disable packages
 
-[] Adb track device
+[x] Adb track device
 
 [] Github discussion for package
 
