@@ -1,16 +1,16 @@
 <script lang='ts'>
+	import { listen } from '@tauri-apps/api/event';
 	import { SidebarDropdownItem, SidebarDropdownWrapper } from 'flowbite-svelte';
 	import { Icon } from 'flowbite-svelte-icons';
 	import { onDestroy, onMount } from 'svelte';
+	import { devicesWithUsersStore } from '../deviceUsersStore';
+	import type { DeviceWithUsers } from '../models';
 	import {
 		sadErrorStore,
 		selectedDeviceStore,
 		selectedSidebarItemStore,
 		selectedUserIDStore
 	} from '../stores';
-	import { listen } from '@tauri-apps/api/event';
-	import { devicesWithUsersStore } from '../deviceUsersStore';
-	import type { DeviceWithUsers } from '../models';
 
 	onMount(async () => {
 		listen('device_event', (event) => {

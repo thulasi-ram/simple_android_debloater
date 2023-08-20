@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Toast } from 'flowbite-svelte';
 	import { Icon } from 'flowbite-svelte-icons';
-	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import { notifications } from '../notificationStore';
 </script>

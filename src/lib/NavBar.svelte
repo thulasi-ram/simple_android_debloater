@@ -1,6 +1,6 @@
 <script>
-    import { NavBrand, Navbar } from 'flowbite-svelte';
     import SadLogo from "$lib/assets/images/sad.svg";
+    import { NavBrand, Navbar } from 'flowbite-svelte';
 </script>
 
 

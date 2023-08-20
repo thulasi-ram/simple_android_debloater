@@ -1,6 +1,6 @@
 import { derived, writable, type Readable, type Writable } from 'svelte/store';
-import type { DeviceWithUsers, Package, User } from './models';
 import { devicesWithUsersStore } from './deviceUsersStore';
+import type { DeviceWithUsers, User } from './models';
 
 export const selectedDeviceIDStore: Writable<string> = writable('');
 

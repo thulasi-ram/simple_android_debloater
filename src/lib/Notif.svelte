@@ -1,6 +1,6 @@
 <script>
-	import { Alert } from 'flowbite-svelte';
 	import { isPermissionGranted, requestPermission } from '@tauri-apps/api/notification';
+	import { Alert } from 'flowbite-svelte';
 
 	let permissionGranted = false;
 

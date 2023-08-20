@@ -3,8 +3,8 @@
 	import SadError from '$lib/SadError.svelte';
 	import SadToast from '$lib/SadToast.svelte';
 	import Sidebar from '$lib/Sidebar.svelte';
-	import '../app.css';
 	import 'flowbite';
+	import '../app.css';
 </script>
 
 
