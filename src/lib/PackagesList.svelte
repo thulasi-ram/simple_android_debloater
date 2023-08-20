@@ -28,17 +28,11 @@
 	});
 	onDestroy(unsub);
 
-	let tbCellClass = 'whitespace-nowrap font-small px-6 py-1';
+	let tbCellClass = 'whitespace-nowrap font-small px-2 py-1';
 </script>
 
 <div>
 	<Table striped={true}>
-		<TableHead>
-			<TableHeadCell>name</TableHeadCell>
-			<TableHeadCell>
-				<span class="sr-only">actions</span>
-			</TableHeadCell>
-		</TableHead>
 		<TableBody>
 			{#each $filteredPackages as pkg}
 				<TableBodyRow>
@@ -56,7 +50,7 @@
 								size="xs"
 								outline
 								color="red"
-								class="rounded"
+								class="rounded float-right"
 								on:click={() => disablePackage(pkg.name)}>Disable</Button
 							>
 						{:else if pkg.state == 'Disabled'}
@@ -64,11 +58,13 @@
 								size="xs"
 								outline
 								color="green"
-								class="rounded"
+								class="rounded float-right"
 								on:click={() => enablePackage(pkg.name)}>Enable</Button
 							>
 						{:else}
-							<Button size="xs" disabled color="alternative" class="rounded">Unknown State</Button>
+							<Button size="xs" disabled color="alternative" class="rounded float-right"
+								>Unknown State</Button
+							>
 						{/if}
 					</TableBodyCell>
 				</TableBodyRow>

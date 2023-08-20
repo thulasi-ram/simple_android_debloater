@@ -6,11 +6,13 @@
 </script>
 
 <div class="w-3/4">
-	<div class="flex items-center gap-x-2">
-		<UsersDropdown divClass="float-left" />
-		<div class="mx-auto" />
-		<FilterAndSearchPackages />
+	<div class="flex items-center gap-x-2 justify-between mb-10">
+		<UsersDropdown divClass="relative" />
 		<RefreshPackagesButton />
+	</div>
+	<div class="flex items-baseline gap-x-2 justify-between mb-2">
+		<h2 class="text-gray-700 font-semibold">Packages</h2>
+		<FilterAndSearchPackages />
 	</div>
 	<PackagesList />
 </div>

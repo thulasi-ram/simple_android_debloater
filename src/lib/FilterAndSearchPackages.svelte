@@ -73,7 +73,7 @@
 
 <div class="flex items-center gap-x-2">
 	<div>
-		<div class="hidden relative md:block">
+		<div class="relative">
 			<Input type="search" class="pl-10" placeholder="Search..." bind:value={searchTerm}> 
 				<Icon name="search-outline" slot="left" class="w-4 h-4 text-gray-500 dark:text-gray-400" />
 			</Input>
