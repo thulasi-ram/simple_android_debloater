@@ -1,9 +1,9 @@
 <script>
 	import { Button } from 'flowbite-svelte';
-	import { adb_list_devices_with_users } from './adb';
-	import { setErrorModal } from './utils';
 	import { devicesWithUsersStore } from '../deviceUsersStore';
 	import { notifications } from '../notificationStore';
+	import { adb_list_devices_with_users } from './adb';
+	import { setErrorModal } from './utils';
 
 	export let buttonText = '';
 

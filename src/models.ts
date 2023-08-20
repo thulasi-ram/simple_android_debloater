@@ -1,7 +1,7 @@
 export type User = {
 	id: string;
 	name: string;
-	device_id: string
+	device_id: string;
 };
 
 export type Device = {
@@ -22,9 +22,14 @@ export type Package = {
 	state: string;
 };
 
-
 export type DeviceUserPackages = {
-	deviceId: string;
-	userId: string;
+	device_id: string;
+	user_id: string;
 	packages: Package[];
-}
+};
+
+export type DeviceUserPackage = {
+	device_id: string;
+	user_id: string;
+	package: Package;
+};

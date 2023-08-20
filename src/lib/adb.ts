@@ -18,7 +18,7 @@ export async function adb_list_packages(
 		deviceId: deviceId,
 		userId: userId
 	});
-	return { deviceId: deviceId, userId: userId, packages: cmdOutpt };
+	return { device_id: deviceId, user_id: userId, packages: cmdOutpt };
 }
 
 export async function adb_disable_package(deviceId: string, userId: string, pkg: string) {

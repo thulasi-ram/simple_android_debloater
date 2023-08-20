@@ -1,8 +1,7 @@
-import { error } from '@sveltejs/kit';
-import { derived, get, writable } from 'svelte/store';
+import { setErrorModal } from '$lib/utils';
+import { derived, get, writable, type Writable } from 'svelte/store';
 import type { Package } from './models';
 import { selectedDeviceStore, selectedUserStore } from './stores';
-import { setErrorModal } from '$lib/utils';
 
 function createPackagesStore() {
 	const store = writable<Record<string, Package[]>>({});
@@ -59,3 +58,5 @@ export const currentPackagesStore = derived(
 		return pkgs || [];
 	}
 );
+
+export const filteredPackages: Writable<Package[]> = writable([]);
