@@ -79,10 +79,27 @@ impl Store {
     }
 
     pub fn insert_device_with_user(&mut self, du: DeviceWithUsers) {
-        let _res = self.0.insert(
-            du.device.id.to_owned(),
-            DeviceWithUserPackages::new_from_device_with_users(du.clone()),
-        );
+        let mut new_dup = DeviceWithUserPackages::new_from_device_with_users(du.clone());
+        let existing_dup = self.0.get(&du.device.id.to_owned());
+        match existing_dup {
+            Some(dup) => {
+                for (user_id, uwp) in &dup.users_map {
+                    let new_uwp = new_dup.user(user_id.to_string());
+                    match new_uwp {
+                        Ok(nuwp) => {
+                            for (_, p) in &uwp.packages_map {
+                                nuwp.add_package(p.clone())
+                            }
+                        },
+                        Err(_) => {}
+                    }
+                }
+            }
+            None => {
+                self.0.insert(du.device.id.to_owned(), new_dup);
+                return;
+            }
+        }
         return;
     }
 }
