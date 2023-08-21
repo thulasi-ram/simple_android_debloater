@@ -1,4 +1,4 @@
-// Simpl Android Debloater
+// Simple Android Debloater
 use anyhow;
 use serde::{ser::Serializer, Serialize};
 

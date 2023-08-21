@@ -11,7 +11,7 @@
 	class="bg-transparent"
 >
 	<NavBrand >
-		<img src={SadLogo} class="w-10 h-10" alt="Simpl Android Debloater Logo" />
-		<span class="self-center whitespace-nowrap text-l font-semibold dark:text-white pl-4">Simpl Android Debloater</span>
+		<img src={SadLogo} class="w-10 h-10" alt="Simple Android Debloater Logo" />
+		<span class="self-center whitespace-nowrap text-l font-semibold dark:text-white pl-4">Simple Android Debloater</span>
 	</NavBrand>
 </Navbar>
