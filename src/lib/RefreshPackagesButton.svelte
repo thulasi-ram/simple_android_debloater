@@ -1,8 +1,8 @@
 <script>
 	import { adb_list_packages } from '$lib/adb';
 	import { setErrorModal } from '$lib/utils';
+	import { IconRefresh } from '@tabler/icons-svelte';
 	import { Button } from 'flowbite-svelte';
-	import { Icon } from 'flowbite-svelte-icons';
 	import { get } from 'svelte/store';
 	import { notifications } from '../notificationStore';
 	import { packagesStore } from '../packageStore';
@@ -23,8 +23,7 @@
 	}
 </script>
 
-<Button color="alternative" on:click={list_packages}>
+<Button color="alternative" class="gap-x-2" on:click={list_packages}>
 	Refresh Packages
-	<Icon name="rotate-outline" class="w-4 h-4 ml-2 inline text-gray-600" />
-
+	<IconRefresh size={18} />
 </Button>

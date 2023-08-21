@@ -1,16 +1,10 @@
 <script lang="ts">
-	import {
-		Badge,
-		Button,
-		Checkbox,
-		Input,
-		Modal
-	} from 'flowbite-svelte';
+	import { Badge, Button, Checkbox, Input, Modal } from 'flowbite-svelte';
 
 	import type { Package } from '../models';
 	import { currentPackagesStore, filteredPackages } from '../packageStore';
 
-	import { Icon } from 'flowbite-svelte-icons';
+	import { IconFilter, IconSearch } from '@tabler/icons-svelte';
 
 	let filterModalOpen = false;
 
@@ -74,16 +68,17 @@
 <div class="flex items-center gap-x-2">
 	<div>
 		<div class="relative">
-			<Input type="search" class="pl-10" placeholder="Search..." bind:value={searchTerm}> 
-				<Icon name="search-outline" slot="left" class="w-4 h-4 text-gray-500 dark:text-gray-400" />
+			<Input type="search" class="pl-10" placeholder="Search..." bind:value={searchTerm}>
+				<svelte:fragment slot="left">
+					<IconSearch  size={18}/>
+				</svelte:fragment>
 			</Input>
-		  </div>
-
+		</div>
 	</div>
 
 	<div>
 		<Button color="alternative" on:click={() => (filterModalOpen = true)}>
-			<Icon name="filter-outline" class="w-5 h-5  mx-1 inline text-gray-600" />
+			<IconFilter size={18}/>
 			<span class="mx-1">Filters</span>
 			<Badge border class="px-2 mx-1">{selectedFiltersCount}</Badge>
 		</Button>
@@ -114,6 +109,4 @@
 			<div class="flex items-center space-x-4 rounded-b dark:border-gray-600" />
 		</Modal>
 	</div>
-
-
 </div>

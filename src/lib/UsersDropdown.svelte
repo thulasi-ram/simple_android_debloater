@@ -1,12 +1,6 @@
 <script lang="ts">
-	import {
-		Avatar,
-		Button,
-		Dropdown,
-		Label,
-		Radio
-	} from 'flowbite-svelte';
-	import { Icon } from 'flowbite-svelte-icons';
+	import { IconSelector } from '@tabler/icons-svelte';
+	import { Avatar, Button, Dropdown, Label, Radio } from 'flowbite-svelte';
 	import { selectedDeviceStore, selectedUserIDStore, selectedUserStore } from '../stores';
 
 	export let divClass = '';
@@ -29,21 +23,24 @@
 </script>
 
 <div class={divClass}>
-
-	{#if $selectedUserStore}
-		<Button pill size="sm" color="light" class="flex p-2 w-48 justify-start justify-items-start">
-			<Avatar border class="mr-2" size="sm" classPlaceholder="w-full h-full bg-red-100">{selectedUserInitials}</Avatar>
+	<Button pill size="sm" color="light" class="flex p-2 w-48 justify-start justify-items-start">
+		{#if $selectedUserStore}
+			<Avatar border class="mr-2" size="sm" classPlaceholder="w-full h-full bg-red-100"
+				>{selectedUserInitials}</Avatar
+			>
 			<span class="mr-auto">{$selectedUserStore.name}</span>
-			<Icon name="caret-sort-solid" class="w-3 h-3 float-right mr-2 text-gray-500"></Icon>
-		</Button>
-	{:else}
-		<Button pill size="sm" color="light" class="flex p-2 w-48 justify-start justify-items-start">
-			<Avatar border class="mr-2 bg-red-100" size="sm" classPlaceholder="w-full h-full bg-red-100" >
-			</Avatar>
+		{:else}
+			<Avatar
+				border
+				class="mr-2 bg-red-100"
+				size="sm"
+				classPlaceholder="w-full h-full bg-red-100"
+			/>
 			<span class="mr-auto">Select User</span>
-			<Icon name="caret-sort-solid" class="w-3 h-3 float-right mr-2 text-gray-500"></Icon>
-		</Button>
-	{/if}
+		{/if}
+
+		<IconSelector />
+	</Button>
 
 	<Dropdown class="w-60 p-3 space-y-1 border rounded">
 		{#each userMap as user}
@@ -52,7 +49,7 @@
 					<Radio
 						name="device_user_drop_down"
 						bind:group={$selectedUserIDStore}
-						value={1}
+						value={user.value}
 						class="hidden peer"
 					/>
 					<Avatar border size="sm" class="bg-red-100">{user.initials}</Avatar>
