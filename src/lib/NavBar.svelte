@@ -10,7 +10,7 @@
 	navDivClass="flex justify-center mx-0" 
 	class="bg-transparent"
 >
-	<NavBrand href="/" >
+	<NavBrand >
 		<img src={SadLogo} class="w-10 h-10" alt="Simpl Android Debloater Logo" />
 		<span class="self-center whitespace-nowrap text-l font-semibold dark:text-white pl-4">Simpl Android Debloater</span>
 	</NavBrand>
