@@ -5,6 +5,7 @@
 	import UsersDropdown from '$lib/UsersDropdown.svelte';
 	import { Breadcrumb, BreadcrumbItem } from 'flowbite-svelte';
 	import { selectedDeviceStore } from '../../../stores';
+	import { IconSlash, IconSlashes } from '@tabler/icons-svelte';
 
 	export const deviceId = '';
 </script>
@@ -12,14 +13,24 @@
 <div class="w-3/4">
 	<div class="mb-10">
 		<Breadcrumb aria-label="Devices BreadCrumb">
-			<BreadcrumbItem href="/" home>
+			<BreadcrumbItem href="/">
 				<svelte:fragment slot="icon">
-					
+					<IconSlash size={18} stroke={1} />
 				</svelte:fragment>
 				Home
 			</BreadcrumbItem>
-			<BreadcrumbItem>Devices</BreadcrumbItem>
-			<BreadcrumbItem href="/devices/{$selectedDeviceStore?.device.id}">{$selectedDeviceStore?.device.name}</BreadcrumbItem>
+			<BreadcrumbItem>
+				<svelte:fragment slot="icon">
+					<IconSlash size={18} stroke={1} />
+				</svelte:fragment>
+				Devices</BreadcrumbItem
+			>
+			<BreadcrumbItem href="/devices/{$selectedDeviceStore?.device.id}">
+				<svelte:fragment slot="icon">
+					<IconSlash size={18} stroke={1} />
+				</svelte:fragment>
+				{$selectedDeviceStore?.device.name}</BreadcrumbItem
+			>
 		</Breadcrumb>
 	</div>
 
