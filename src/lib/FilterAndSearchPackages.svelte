@@ -13,16 +13,17 @@
 	let filterPackageStates: [string, string][] = [
 		['Disabled', 'Disabled'],
 		['Enabled', 'Enabled'],
-		['Unknown', '']
+		['Uninstalled', 'Uninstalled'],
+		['Hidden', 'Hidden']
 	];
-	let selectedFilterPackageStates: string[] | undefined;
+	let selectedFilterPackageStates: string[] = [];
 
 	let filterPackageTypes: [string, string][] = [
 		['System', 'system'],
 		['Third Party', 'thirdparty'],
-		['Unknown', '']
+		['Unknown', 'unknown']
 	];
-	let selectedFilterPackageTypes: string[] | undefined;
+	let selectedFilterPackageTypes: string[] = [];
 
 	let selectedFiltersCount = 0;
 
@@ -47,18 +48,26 @@
 			);
 		}
 
-		if (selectedFilterPackageStates !== undefined) {
-			let fstates = selectedFilterPackageStates;
-			for (let fs of fstates) {
-				fpkgs = fpkgs.filter((pkg) => pkg.state.toLowerCase().indexOf(fs.toLowerCase()) !== -1);
+		if (selectedFilterPackageStates.length > 0) {
+			let fstatesFiltered: Package[] = [];
+			for (let fs of selectedFilterPackageStates) {
+				let fspkgs = fpkgs.filter(
+					(pkg) => pkg.state.toLowerCase().indexOf(fs.toLowerCase()) !== -1
+				);
+				fstatesFiltered.push(...fspkgs);
 			}
+			fpkgs = fstatesFiltered;
 		}
 
-		if (selectedFilterPackageTypes !== undefined) {
-			let ftypes = selectedFilterPackageTypes;
-			for (let ft of ftypes) {
-				fpkgs = fpkgs.filter((pkg) => pkg.ptype.toLowerCase().indexOf(ft.toLowerCase()) !== -1);
+		if (selectedFilterPackageTypes.length > 0) {
+			let ftypesFiltered: Package[] = [];
+			for (let ft of selectedFilterPackageTypes) {
+				let ftpkgs = fpkgs.filter(
+					(pkg) => pkg.ptype.toLowerCase().indexOf(ft.toLowerCase()) !== -1
+				);
+				ftypesFiltered.push(...ftpkgs);
 			}
+			fpkgs = ftypesFiltered;
 		}
 
 		$filteredPackages = fpkgs;
@@ -70,7 +79,7 @@
 		<div class="relative">
 			<Input type="search" class="pl-10" placeholder="Search..." bind:value={searchTerm}>
 				<svelte:fragment slot="left">
-					<IconSearch  size={18}/>
+					<IconSearch size={18} />
 				</svelte:fragment>
 			</Input>
 		</div>
@@ -78,7 +87,7 @@
 
 	<div>
 		<Button color="alternative" on:click={() => (filterModalOpen = true)}>
-			<IconFilter size={18}/>
+			<IconFilter size={18} />
 			<span class="mx-1">Filters</span>
 			<Badge border class="px-2 mx-1">{selectedFiltersCount}</Badge>
 		</Button>
