@@ -1,7 +1,10 @@
 <script>
-	import { IconDevicesCode, IconInfoSquareRounded } from '@tabler/icons-svelte';
-	import { Hr, Sidebar, SidebarGroup, SidebarItem, SidebarWrapper } from 'flowbite-svelte';
+	import { page } from '$app/stores';
+	import { IconInfoSquareRounded, IconSettings } from '@tabler/icons-svelte';
+	import { Sidebar, SidebarGroup, SidebarItem, SidebarWrapper } from 'flowbite-svelte';
 	import DevicesSidebarItems from './DevicesSidebarItems.svelte';
+
+	$: activeUrl = $page.url.pathname;
 </script>
 
 <Sidebar>
@@ -12,7 +15,12 @@
 		</SidebarGroup>
 
 		<SidebarGroup border>
-			<SidebarItem label="About" class="text-sm">
+			<SidebarItem label="Settings" class="text-sm" href="/settings" active={activeUrl == '/settings'}>
+				<svelte:fragment slot="icon">
+					<IconSettings stroke={1.5} />
+				</svelte:fragment>
+			</SidebarItem>
+			<SidebarItem label="About" class="text-sm" href="/about" active={activeUrl == '/about'}>
 				<svelte:fragment slot="icon">
 					<IconInfoSquareRounded stroke={1.5} />
 				</svelte:fragment>

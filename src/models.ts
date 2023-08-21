@@ -38,5 +38,4 @@ export type DeviceUserPackage = {
 
 export type Config = {
 	prompt_disable_package: boolean;
-	prompt_uninstall_package: boolean;
 }

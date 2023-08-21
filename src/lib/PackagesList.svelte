@@ -71,7 +71,7 @@
 						{:else}
 							<Badge rounded color="primary">{pkg.ptype}</Badge>
 						{/if}
-						<p class="text-xs">{pkg.package_prefix}</p>
+						<p class="text-xs italic text-gray-500">{pkg.package_prefix}</p>
 					</TableBodyCell>
 					<TableBodyCell tdClass={tbCellClass}>
 						{#if pkg.state == 'Enabled'}
