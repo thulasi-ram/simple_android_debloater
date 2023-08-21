@@ -8,9 +8,9 @@
 	import {
 		sadErrorStore,
 		selectedDeviceStore,
-		selectedDeviceURLStore,
 		selectedUserIDStore
 	} from '../stores';
+	import { page } from '$app/stores';
 
 	onMount(async () => {
 		listen('device_event', (event) => {
@@ -37,12 +37,26 @@
 		name: `${d.device.name} (${d.device.model})`,
 		id: d.device.id
 	}));
+
+	$: activeUrl = $page.url.pathname;
+
+
+	let activeClass =
+	'flex items-center p-2 text-base font-normal text-gray-900 bg-red-200 dark:bg-red-700 rounded-lg dark:text-white hover:bg-red-100 dark:hover:bg-red-700';
+	let nonActiveClass =
+	'flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700';
 </script>
 
 {#each deviceMap as { id, name }, i}
-
 	{@const hrefUrl = `/devices/${id}`}
-	<SidebarItem label={name} href={hrefUrl} active={$selectedDeviceURLStore === hrefUrl}>
+	<SidebarItem
+		label={name}
+		href={hrefUrl}
+		active={activeUrl === hrefUrl}
+		class="text-sm"
+		{activeClass}
+		{nonActiveClass}
+	>
 		<svelte:fragment slot="icon">
 			<IconDeviceMobileUp size={18} />
 		</svelte:fragment>

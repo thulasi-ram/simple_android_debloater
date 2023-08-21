@@ -44,8 +44,6 @@ export const selectedUserStore: Readable<User | null> = derived(
 	}
 );
 
-export const selectedDeviceURLStore: Writable<string> = writable('');
-
 type SadError = {
 	message: string;
 	isPermanent: boolean;
