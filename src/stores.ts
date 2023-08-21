@@ -1,6 +1,6 @@
 import { derived, writable, type Readable, type Writable } from 'svelte/store';
 import { devicesWithUsersStore } from './deviceUsersStore';
-import type { DeviceWithUsers, User } from './models';
+import type { Config, DeviceWithUsers, User } from './models';
 
 export const selectedDeviceIDStore: Writable<string> = writable('');
 
@@ -38,7 +38,7 @@ export const selectedUserStore: Readable<User | null> = derived(
 		});
 
 		if (selectedUser == null) {
-			selectedUserIDStore.set("");
+			selectedUserIDStore.set('');
 		}
 		return selectedUser;
 	}
@@ -71,3 +71,8 @@ function createSadErrorStore() {
 }
 
 export const sadErrorStore = createSadErrorStore();
+
+export const configStore: Writable<Config> = writable({
+	prompt_disable_package: true,
+	prompt_uninstall_package: true
+});

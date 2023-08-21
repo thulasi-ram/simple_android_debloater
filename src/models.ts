@@ -34,3 +34,9 @@ export type DeviceUserPackage = {
 	user_id: string;
 	package: Package;
 };
+
+
+export type Config = {
+	prompt_disable_package: boolean;
+	prompt_uninstall_package: boolean;
+}

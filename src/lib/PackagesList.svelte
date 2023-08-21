@@ -2,19 +2,18 @@
 	import {
 		Badge,
 		Button,
-		Popover,
+		Modal,
 		Table,
 		TableBody,
 		TableBodyCell,
-		TableBodyRow,
-		TableHead,
-		TableHeadCell
+		TableBodyRow
 	} from 'flowbite-svelte';
 
 	import { onDestroy, onMount } from 'svelte';
 	import type { Unsubscriber } from 'svelte/motion';
 	import { filteredPackages } from '../packageStore';
 
+	import { configStore } from '../stores';
 	import {
 		disablePackage,
 		enablePackage,
@@ -31,9 +30,36 @@
 	onDestroy(unsub);
 
 	let tbCellClass = 'whitespace-nowrap font-small px-2 py-1';
+
+	let disablePackageModal = false;
+	let disablePackageName = '';
+	function disablePackageButton(pkg: string) {
+		if ($configStore.prompt_disable_package) {
+			disablePackageName = pkg;
+			disablePackageModal = true;
+		} else {
+			return disablePackage(pkg);
+		}
+	}
 </script>
 
 <div>
+	<Modal bind:open={disablePackageModal} size="xs" autoclose>
+		<div class="text-center">
+			<h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+				Are you sure you want to disable package {disablePackageName}?
+			</h3>
+			<Button
+				color="red"
+				class="mr-2"
+				on:click={() => {
+					disablePackage(disablePackageName);
+				}}>Yes, I'm sure</Button
+			>
+			<Button color="alternative">No, cancel</Button>
+		</div>
+	</Modal>
+
 	<Table striped={true}>
 		<TableBody>
 			{#each $filteredPackages as pkg}
@@ -46,7 +72,6 @@
 							<Badge rounded color="primary">{pkg.ptype}</Badge>
 						{/if}
 						<p class="text-xs">{pkg.package_prefix}</p>
-
 					</TableBodyCell>
 					<TableBodyCell tdClass={tbCellClass}>
 						{#if pkg.state == 'Enabled'}
@@ -55,7 +80,7 @@
 								outline
 								color="red"
 								class="rounded float-right"
-								on:click={() => disablePackage(pkg.name)}>Disable</Button
+								on:click={() => disablePackageButton(pkg.name)}>Disable</Button
 							>
 						{:else if pkg.state == 'Disabled'}
 							<Button
@@ -75,7 +100,7 @@
 							>
 						{:else}
 							{@const hideID = `hide-${pkg.name}`}
-							<Button disabled id="{hideID}" size="xs"  color="alternative" class="rounded float-right"
+							<Button disabled id={hideID} size="xs" color="alternative" class="rounded float-right"
 								>Hidden</Button
 							>
 						{/if}
