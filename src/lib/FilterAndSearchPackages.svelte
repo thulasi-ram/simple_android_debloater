@@ -8,7 +8,7 @@
 
 	let filterModalOpen = false;
 
-	let searchTerm = 'aaaaxy';
+	let searchTerm = '';
 
 	let filterPackageStates: [string, string][] = [
 		['Disabled', 'Disabled'],
