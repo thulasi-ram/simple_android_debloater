@@ -1,16 +1,13 @@
 <script>
 	import { IconDevicesCode, IconInfoSquareRounded } from '@tabler/icons-svelte';
-	import { Sidebar, SidebarGroup, SidebarItem, SidebarWrapper } from 'flowbite-svelte';
+	import { Hr, Sidebar, SidebarGroup, SidebarItem, SidebarWrapper } from 'flowbite-svelte';
 	import DevicesSidebarItems from './DevicesSidebarItems.svelte';
 </script>
 
 <Sidebar>
 	<SidebarWrapper>
 		<SidebarGroup>
-			<div class="flex gap-x-2 text-lg items-center">
-				<IconDevicesCode />
-				<h2>Devices</h2>
-			</div>
+			<h3 class="text-gray-700 text-xs font-semibold mb-5">DEVICES</h3>
 			<DevicesSidebarItems />
 		</SidebarGroup>
 
