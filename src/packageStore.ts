@@ -40,7 +40,7 @@ export const packagesStore = createPackagesStore();
 
 const packagesKey = (deviceId: string | undefined, userId: string | undefined): string | null => {
 	if (!deviceId || !userId) {
-		console.log("pkey is null", deviceId, userId)
+		console.log("pkey is null", deviceId, userId);
 		return null;
 	}
 	return `${deviceId}-${userId}`;

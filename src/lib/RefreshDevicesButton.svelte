@@ -12,8 +12,6 @@
 
 		adb_list_devices_with_users()
 			.then((devices) => {
-				console.log("refresh", devices);
-
 				for (let du of devices) {
 					devicesWithUsersStore.insertDevice(du);
 				}
