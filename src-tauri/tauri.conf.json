@@ -44,7 +44,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.ahiravan.simple_android_debloater",
+      "identifier": "com.ahiravan.simple-android-debloater",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
