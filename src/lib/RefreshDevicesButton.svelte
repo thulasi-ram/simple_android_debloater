@@ -19,7 +19,7 @@
 	}
 </script>
 
-<Button color="alternative" class="gap-x-2 text-gray-700" on:click={list_devices}>
+<Button color="alternative" class="gap-x-2 text-gray-500" on:click={list_devices}>
 	Refresh Devices
 	<IconRefresh size={21} stroke={1.5} />
 
