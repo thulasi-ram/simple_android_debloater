@@ -33,32 +33,33 @@
 
 	onDestroy(unsubSelectedDeviceStore);
 
-	$: deviceMap = Object.entries($devicesWithUsersStore).map(([_, d]) => ({
-		name: `${d.device.name} (${d.device.model})`,
-		id: d.device.id
-	}));
-
 	$: activeUrl = $page.url.pathname;
 
 
 	let activeClass =
-	'flex items-center p-2 text-base font-normal text-gray-900 bg-red-200 dark:bg-red-700 rounded-lg dark:text-white hover:bg-red-100 dark:hover:bg-red-700';
+	'grid grid-rows-2 grid-cols-none grid-flow-col items-center text-base font-normal text-gray-900 bg-red-200 dark:bg-red-700 rounded-lg dark:text-white hover:bg-red-100 dark:hover:bg-red-700';
 	let nonActiveClass =
-	'flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700';
+	'grid grid-rows-2 grid-cols-none grid-flow-col items-center text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700';
 </script>
 
-{#each deviceMap as { id, name }, i}
-	{@const hrefUrl = `/devices/${id}`}
+{#each Object.entries($devicesWithUsersStore) as [ _, d ]}
+	{@const dev = d.device}
+	{@const hrefUrl = `/devices/${dev.id}`}
 	<SidebarItem
-		label={name}
+		label={dev.name}
 		href={hrefUrl}
 		active={activeUrl === hrefUrl}
-		class="text-sm"
+		class="text-sm p-1 grid grid-rows-2 grid-cols-none grid-flow-col items-center border"
 		{activeClass}
 		{nonActiveClass}
+		spanClass="col-span-8"
 	>
+		<!-- https://tailwindcss.com/docs/grid-row#basic-usage -->
 		<svelte:fragment slot="icon">
-			<IconDeviceMobileUp size={18} />
+			<IconDeviceMobileUp class="row-span-2 ml-2" size={24} stroke={1.5} />
+		</svelte:fragment>
+		<svelte:fragment slot="subtext">
+			<span class="col-span-8 text-xxs">({dev.model})</span>
 		</svelte:fragment>
 	</SidebarItem>
 {/each}
