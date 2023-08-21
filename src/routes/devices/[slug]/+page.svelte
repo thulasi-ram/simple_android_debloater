@@ -15,19 +15,19 @@
 		<Breadcrumb aria-label="Devices BreadCrumb">
 			<BreadcrumbItem href="/">
 				<svelte:fragment slot="icon">
-					<IconSlash size={18} stroke={1} />
+					<IconSlash size={18} stroke={1.5} />
 				</svelte:fragment>
 				Home
 			</BreadcrumbItem>
 			<BreadcrumbItem>
 				<svelte:fragment slot="icon">
-					<IconSlash size={18} stroke={1} />
+					<IconSlash size={18} stroke={1.5} />
 				</svelte:fragment>
 				Devices</BreadcrumbItem
 			>
 			<BreadcrumbItem href="/devices/{$selectedDeviceStore?.device.id}">
 				<svelte:fragment slot="icon">
-					<IconSlash size={18} stroke={1} />
+					<IconSlash size={18} stroke={1.5} />
 				</svelte:fragment>
 				{$selectedDeviceStore?.device.name}</BreadcrumbItem
 			>

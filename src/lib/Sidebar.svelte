@@ -14,7 +14,7 @@
 		<SidebarGroup border>
 			<SidebarItem label="About" class="text-sm">
 				<svelte:fragment slot="icon">
-					<IconInfoSquareRounded size={21} />
+					<IconInfoSquareRounded stroke={1.5} />
 				</svelte:fragment>
 			</SidebarItem>
 		</SidebarGroup>

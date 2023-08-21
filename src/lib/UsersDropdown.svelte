@@ -39,7 +39,7 @@
 			<span class="mr-auto">Select User</span>
 		{/if}
 
-		<IconSelector />
+		<IconSelector stroke={1.5} />
 	</Button>
 
 	<Dropdown class="w-60 p-3 space-y-1 border rounded">

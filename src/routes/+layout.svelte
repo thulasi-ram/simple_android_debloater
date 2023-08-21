@@ -7,16 +7,13 @@
 	import '../app.css';
 </script>
 
-
-
 <div class="relative p-4">
-	<div class="fixed top-4 right-4	">
-		<SadToast/>
+	<div class="fixed top-4 right-4">
+		<SadToast />
 	</div>
 
 	<NavBar />
 	<SadError />
-
 
 	<div class="flex flex-wrap mt-4">
 		<div class="flex-none"><Sidebar /></div>

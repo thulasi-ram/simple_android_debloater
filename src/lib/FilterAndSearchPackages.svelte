@@ -79,7 +79,7 @@
 		<div class="relative">
 			<Input type="search" class="pl-10" placeholder="Search..." bind:value={searchTerm}>
 				<svelte:fragment slot="left">
-					<IconSearch size={18} />
+					<IconSearch size={18} stroke={1.5} />
 				</svelte:fragment>
 			</Input>
 		</div>
@@ -87,7 +87,7 @@
 
 	<div>
 		<Button color="alternative" on:click={() => (filterModalOpen = true)}>
-			<IconFilter size={18} />
+			<IconFilter size={18} stroke={1.5} />
 			<span class="mx-1">Filters</span>
 			<Badge border class="px-2 mx-1">{selectedFiltersCount}</Badge>
 		</Button>
