@@ -2,6 +2,7 @@
 	import {
 		Badge,
 		Button,
+		Popover,
 		Table,
 		TableBody,
 		TableBodyCell,
@@ -18,6 +19,7 @@
 		disablePackage,
 		enablePackage,
 		fetchPackagesIfEmptySubscription,
+		installPackage,
 		packageEventListener
 	} from './PackagesList';
 
@@ -43,6 +45,8 @@
 						{:else}
 							<Badge rounded color="primary">{pkg.ptype}</Badge>
 						{/if}
+						<p class="text-xs">{pkg.package_prefix}</p>
+
 					</TableBodyCell>
 					<TableBodyCell tdClass={tbCellClass}>
 						{#if pkg.state == 'Enabled'}
@@ -61,9 +65,18 @@
 								class="rounded float-right"
 								on:click={() => enablePackage(pkg.name)}>Enable</Button
 							>
+						{:else if pkg.state == 'Uninstalled'}
+							<Button
+								size="xs"
+								outline
+								color="green"
+								class="rounded float-right"
+								on:click={() => installPackage(pkg.name)}>Install</Button
+							>
 						{:else}
-							<Button size="xs" disabled color="alternative" class="rounded float-right"
-								>Unknown State</Button
+							{@const hideID = `hide-${pkg.name}`}
+							<Button disabled id="{hideID}" size="xs"  color="alternative" class="rounded float-right"
+								>Hidden</Button
 							>
 						{/if}
 					</TableBodyCell>

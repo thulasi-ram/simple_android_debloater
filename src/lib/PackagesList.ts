@@ -4,7 +4,12 @@ import type { DeviceUserPackage } from '../models';
 import { notifications } from '../notificationStore';
 import { packagesStore } from '../packageStore';
 import { selectedUserStore } from '../stores';
-import { adb_disable_package, adb_enable_package, adb_list_packages } from './adb';
+import {
+	adb_disable_package,
+	adb_enable_package,
+	adb_install_package,
+	adb_list_packages
+} from './adb';
 import { setErrorModal } from './utils';
 
 export function fetchPackagesIfEmptySubscription(): Unsubscriber {
@@ -13,7 +18,7 @@ export function fetchPackagesIfEmptySubscription(): Unsubscriber {
 			if (!packagesStore.hasPackages(su.device_id, su.id)) {
 				adb_list_packages(su.device_id, su.id)
 					.then((pkgs) => {
-						notifications.info(`fetching packages for ${su?.name}`);
+						notifications.info(`fetched packages for ${su?.name}`);
 						packagesStore.setPackages(pkgs.device_id, pkgs.user_id, pkgs.packages);
 					})
 					.catch(setErrorModal);
@@ -60,5 +65,21 @@ export function enablePackage(pkg: string) {
 		})
 		.catch((e) => {
 			notifications.error(`error enabling ${pkg} - ${JSON.stringify(e)}`);
+		});
+}
+
+export function installPackage(pkg: string) {
+	let user = get(selectedUserStore);
+	if (!user) {
+		return setErrorModal('user is not selected');
+	}
+	notifications.info(`installing package: {pkg} - ${user.name} ${pkg}`);
+
+	adb_install_package(user.device_id, user.id, pkg)
+		.then(() => {
+			notifications.success(`${pkg} successfully installed`);
+		})
+		.catch((e) => {
+			notifications.error(`error installing ${pkg} - ${JSON.stringify(e)}`);
 		});
 }

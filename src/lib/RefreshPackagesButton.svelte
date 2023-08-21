@@ -16,7 +16,7 @@
 
 		adb_list_packages(user.device_id, user.id)
 			.then((pkgs) => {
-				notifications.info(`fetching packages for ${user?.name}`);
+				notifications.info(`fetched packages for ${user?.name}`);
 				packagesStore.setPackages(pkgs.device_id, pkgs.user_id, pkgs.packages);
 			})
 			.catch(setErrorModal);

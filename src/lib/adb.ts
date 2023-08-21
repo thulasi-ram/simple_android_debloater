@@ -40,3 +40,13 @@ export async function adb_enable_package(deviceId: string, userId: string, pkg: 
 		pkg: pkg
 	});
 }
+
+export async function adb_install_package(deviceId: string, userId: string, pkg: string) {
+	console.log(`invoking install - ${userId} - ${pkg}`);
+
+	await invoke('adb_install_package', {
+		deviceId: deviceId,
+		userId: userId,
+		pkg: pkg
+	});
+}

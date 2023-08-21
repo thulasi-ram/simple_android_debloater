@@ -52,6 +52,7 @@ fn main() {
             adb_list_packages,
             adb_disable_clear_and_stop_package,
             adb_enable_package,
+            adb_install_package,
         ])
         .setup(|app| {
             let app_handle = app.handle();
@@ -235,6 +236,44 @@ async fn adb_enable_package(
         match package {
             None => {
                 return Err(anyhow!("package {} not found in cache", pkg.to_string()).into());
+            }
+            Some(p) => {
+                p.set_state(packages::PackageState::Enabled);
+                let pe = PackageEvent::new(device_id.to_string(), user_id.to_string(), p.clone());
+                let esender = event_sender_state.inner.lock().await;
+                esender
+                    .send(Box::new(pe))
+                    .await
+                    .ok_or_print_err("error emitting");
+            }
+        }
+    }
+
+    return Ok(());
+}
+
+
+
+#[tauri::command]
+async fn adb_install_package(
+    device_id: &str,
+    user_id: &str,
+    pkg: &str,
+    event_sender_state: tauri::State<'_, AsyncEventSender>,
+    cache_state: tauri::State<'_, SadCache>,
+) -> Result<(), SADError> {
+    let acl = packages::ADBTerminalImpl {};
+    acl.install_package(device_id.to_string(), user_id.to_string(), pkg.to_string())?;
+
+    {
+        let mut cache = cache_state.inner.lock().await;
+        let device = cache.device(device_id.to_owned())?;
+        let user = device.user(user_id.to_owned())?;
+        let package = user.get_package(pkg);
+
+        match package {
+            None => {
+                return Err(anyhow!("package {} not found in cache for install", pkg.to_string()).into());
             }
             Some(p) => {
                 p.set_state(packages::PackageState::Enabled);
