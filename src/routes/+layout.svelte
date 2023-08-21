@@ -7,7 +7,7 @@
 	import '../app.css';
 </script>
 
-<div class="relative p-4">
+<div class="w-3/4 mx-auto">
 	<div class="fixed top-4 right-4">
 		<SadToast />
 	</div>
@@ -16,7 +16,9 @@
 	<SadError />
 
 	<div class="flex flex-wrap mt-4">
-		<div class="flex-none"><Sidebar /></div>
+		<div class="flex-none">
+			<Sidebar />
+		</div>
 		<div class="flex-auto px-5">
 			<main class="container px-04">
 				<slot />

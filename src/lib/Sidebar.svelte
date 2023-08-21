@@ -5,7 +5,7 @@
 </script>
 
 <Sidebar>
-	<SidebarWrapper>
+	<SidebarWrapper divClass="bg-white-100">
 		<SidebarGroup>
 			<h3 class="text-gray-700 text-xs font-semibold mb-5">DEVICES</h3>
 			<DevicesSidebarItems />

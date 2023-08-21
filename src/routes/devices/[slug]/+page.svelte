@@ -10,7 +10,7 @@
 	export const deviceId = '';
 </script>
 
-<div class="w-3/4">
+<div class="w-full">
 	<div class="mb-10">
 		<Breadcrumb aria-label="Devices BreadCrumb">
 			<BreadcrumbItem href="/">
