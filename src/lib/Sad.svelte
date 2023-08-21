@@ -15,5 +15,5 @@
 		</BreadcrumbItem>
 	</Breadcrumb>
 
-	<NoDeviceBanner refreshButton={RefreshDevicesButton} refreshButtonText="Refresh Devices" />
+	<NoDeviceBanner refreshButton={RefreshDevicesButton} />
 </div>

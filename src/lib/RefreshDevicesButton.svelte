@@ -4,8 +4,7 @@
 	import { notifications } from '../notificationStore';
 	import { adb_list_devices_with_users } from './adb';
 	import { setErrorModal } from './utils';
-
-	export let buttonText = '';
+	import { IconRefresh } from '@tabler/icons-svelte';
 
 	function list_devices() {
 		notifications.info('fetching devices and users');
@@ -20,4 +19,8 @@
 	}
 </script>
 
-<Button on:click={list_devices}>{buttonText}</Button>
+<Button color="alternative" class="gap-x-2 text-gray-700" on:click={list_devices}>
+	Refresh Devices
+	<IconRefresh size={21} stroke={1.5} />
+
+</Button>
