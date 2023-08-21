@@ -11,7 +11,7 @@
 		selectedSidebarItemStore,
 		selectedUserIDStore
 	} from '../stores';
-
+	
 	onMount(async () => {
 		listen('device_event', (event) => {
 			let du = event.payload as DeviceWithUsers;
@@ -24,8 +24,10 @@
 			if (!sd.users || sd.users.length < 1) {
 				return sadErrorStore.setError('UserDetails not found');
 			}
-
-			selectedUserIDStore.set(sd.users[0].id);
+			
+			if ($selectedUserIDStore === "") {
+				selectedUserIDStore.set(sd.users[0].id);
+			}
 		}
 	});
 

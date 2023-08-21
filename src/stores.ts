@@ -26,10 +26,10 @@ export const selectedUserStore: Readable<User | null> = derived(
 		let selectedUserID = $selectedUserIDStore;
 
 		if (selectedUserID === '') {
-			return;
+			return null;
 		}
 
-		let selectedUser;
+		let selectedUser: User | null = null;
 		$selectedDeviceStore?.users.forEach((user) => {
 			if (user.id === selectedUserID) {
 				selectedUser = user;
@@ -37,6 +37,9 @@ export const selectedUserStore: Readable<User | null> = derived(
 			}
 		});
 
+		if (selectedUser == null) {
+			selectedUserIDStore.set("");
+		}
 		return selectedUser;
 	}
 );
