@@ -8,7 +8,7 @@
 	import {
 		sadErrorStore,
 		selectedDeviceStore,
-		selectedSidebarItemStore,
+		selectedDeviceURLStore,
 		selectedUserIDStore
 	} from '../stores';
 
@@ -33,13 +33,6 @@
 
 	onDestroy(unsubSelectedDeviceStore);
 
-	let activeUrl = '';
-	const unsubSelectedSidebarItem = selectedSidebarItemStore.subscribe((val) => {
-		activeUrl = val;
-	});
-
-	onDestroy(unsubSelectedSidebarItem);
-
 	$: deviceMap = Object.entries($devicesWithUsersStore).map(([_, d]) => ({
 		name: `${d.device.name} (${d.device.model})`,
 		id: d.device.id
@@ -47,7 +40,9 @@
 </script>
 
 {#each deviceMap as { id, name }, i}
-	<SidebarItem label={name} href="/devices/{id}" active={activeUrl === '/devices/{id}'}>
+
+	{@const hrefUrl = `/devices/${id}`}
+	<SidebarItem label={name} href={hrefUrl} active={$selectedDeviceURLStore === hrefUrl}>
 		<svelte:fragment slot="icon">
 			<IconDeviceMobileUp size={18} />
 		</svelte:fragment>

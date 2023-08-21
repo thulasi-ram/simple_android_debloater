@@ -1,5 +1,8 @@
 <script>
 	import Sad from '../lib/Sad.svelte';
+	import { selectedDeviceURLStore } from '../stores';
+
+	selectedDeviceURLStore.set("");
 </script>
 
 <Sad />

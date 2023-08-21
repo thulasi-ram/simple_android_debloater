@@ -44,7 +44,7 @@ export const selectedUserStore: Readable<User | null> = derived(
 	}
 );
 
-export const selectedSidebarItemStore: Writable<string> = writable('');
+export const selectedDeviceURLStore: Writable<string> = writable('');
 
 type SadError = {
 	message: string;
