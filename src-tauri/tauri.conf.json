@@ -8,10 +8,13 @@
   },
   "package": {
     "productName": "Simple Android Debloater",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "tauri": {
     "allowlist": {
+      "app": {
+        "all": true
+      },
       "shell": {
 				"all": true,
 				"execute": true,

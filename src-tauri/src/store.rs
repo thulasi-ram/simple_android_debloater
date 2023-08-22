@@ -52,13 +52,6 @@ impl DeviceWithUserPackages {
 
         return Ok(user);
     }
-
-    pub fn as_device_with_users(&self) -> DeviceWithUsers {
-        return DeviceWithUsers {
-            device: self.device.clone(),
-            users: self.users_map.values().map(|v| v.user.clone()).collect(),
-        };
-    }
 }
 
 #[derive(Debug, Clone)]
