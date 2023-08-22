@@ -7,7 +7,7 @@
     "distDir": "../build"
   },
   "package": {
-    "productName": "sad.rs",
+    "productName": "Simple Android Debloater",
     "version": "0.1.0"
   },
   "tauri": {
