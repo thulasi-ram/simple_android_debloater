@@ -15,7 +15,7 @@
 	<NavBar />
 	<SadError />
 
-	<div class="flex flex-wrap mt-4">
+	<div class="flex flex-nowrap mt-4">
 		<div class="flex-none">
 			<Sidebar />
 		</div>

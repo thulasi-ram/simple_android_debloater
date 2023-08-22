@@ -12,7 +12,7 @@
 		Home
 	</BreadcrumbItem>
 
-	<BreadcrumbItem href="/settings">
+	<BreadcrumbItem>
 		<svelte:fragment slot="icon">
 			<IconSlash size={18} stroke={1.5} />
 		</svelte:fragment>
