@@ -1,7 +1,7 @@
 <script>
-	import { Breadcrumb, BreadcrumbItem, Checkbox, Heading } from 'flowbite-svelte';
-	import { configStore } from '../../stores';
+	import { configStore } from '$lib/config/stores';
 	import { IconSlash } from '@tabler/icons-svelte';
+	import { Breadcrumb, BreadcrumbItem, Checkbox } from 'flowbite-svelte';
 </script>
 
 <Breadcrumb aria-label="Devices BreadCrumb">

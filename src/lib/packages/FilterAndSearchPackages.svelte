@@ -1,14 +1,12 @@
 <script lang="ts">
 	import { Badge, Button, Checkbox, Input, Modal } from 'flowbite-svelte';
 
-	import type { Package } from '../models';
-	import { currentPackagesStore, filteredPackages } from '../packageStore';
+	import type { Package } from './models';
+	import { currentPackagesStore, filteredPackages, searchTermStore } from './stores';
 
 	import { IconFilter, IconSearch } from '@tabler/icons-svelte';
 
 	let filterModalOpen = false;
-
-	let searchTerm = '';
 
 	let filterPackageStates: [string, string][] = [
 		['Disabled', 'Disabled'],
@@ -42,9 +40,9 @@
 	$: {
 		let fpkgs: Package[] = $currentPackagesStore;
 
-		if (searchTerm) {
+		if ($searchTermStore) {
 			fpkgs = fpkgs.filter(
-				(pkg) => pkg.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1
+				(pkg) => pkg.name.toLowerCase().indexOf($searchTermStore.toLowerCase()) !== -1
 			);
 		}
 
@@ -77,7 +75,7 @@
 <div class="flex items-center gap-x-2">
 	<div>
 		<div class="relative">
-			<Input type="search" class="pl-10" placeholder="Search..." bind:value={searchTerm}>
+			<Input type="search" class="pl-10" placeholder="Search..." bind:value={$searchTermStore}>
 				<svelte:fragment slot="left">
 					<IconSearch size={18} stroke={1.5} />
 				</svelte:fragment>

@@ -11,9 +11,9 @@
 
 	import { onDestroy, onMount } from 'svelte';
 	import type { Unsubscriber } from 'svelte/motion';
-	import { filteredPackages } from '../packageStore';
+	import { filteredPackages } from './stores';
 
-	import { configStore } from '../stores';
+	import { configStore } from '../config/stores';
 	import {
 		disablePackage,
 		enablePackage,

@@ -1,10 +1,10 @@
 <script>
-	import { Button } from 'flowbite-svelte';
-	import { devicesWithUsersStore } from '../deviceUsersStore';
-	import { notifications } from '../notificationStore';
-	import { adb_list_devices_with_users } from './adb';
-	import { setErrorModal } from './utils';
+	import { setErrorModal } from '$lib/error';
+	import { notifications } from '$lib/notifications/stores';
 	import { IconRefresh } from '@tabler/icons-svelte';
+	import { Button } from 'flowbite-svelte';
+	import { adb_list_devices_with_users } from './adb';
+	import { devicesWithUsersStore } from './stores';
 
 	function list_devices() {
 		notifications.info('fetching devices and users');

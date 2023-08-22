@@ -1,4 +1,4 @@
-import { get, writable } from 'svelte/store';
+import { derived, get, writable, type Readable, type Writable } from 'svelte/store';
 import type { DeviceWithUsers } from './models';
 
 function createDeviceWithUsersStore() {
@@ -34,3 +34,20 @@ function createDeviceWithUsersStore() {
 }
 
 export const devicesWithUsersStore = createDeviceWithUsersStore();
+
+export const selectedDeviceIDStore: Writable<string> = writable('');
+
+export const selectedDeviceStore: Readable<DeviceWithUsers | null> = derived(
+	[devicesWithUsersStore, selectedDeviceIDStore],
+	([$devicesWithUsersStore, $selectedDeviceIDStore]) => {
+		let selectedDeviceID = $selectedDeviceIDStore;
+
+		if (!selectedDeviceID) {
+			return null;
+		}
+
+		let device = devicesWithUsersStore.getDevice(selectedDeviceID);
+
+		return device;
+	}
+);

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button, Modal } from 'flowbite-svelte';
 	import { onDestroy } from 'svelte';
-	import { sadErrorStore } from '../stores';
+	import { sadErrorStore } from './stores';
 
 	let errMessage = '';
 	let isPermanent = true;

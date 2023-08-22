@@ -2,7 +2,7 @@
 	import { Toast } from 'flowbite-svelte';
 	import { Icon } from 'flowbite-svelte-icons';
 	import { fly } from 'svelte/transition';
-	import { notifications } from '../notificationStore';
+	import { notifications } from './stores';
 </script>
 
 <!-- <div class="relative h-56"> -->

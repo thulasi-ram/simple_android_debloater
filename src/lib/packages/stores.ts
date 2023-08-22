@@ -1,19 +1,18 @@
-import { setErrorModal } from '$lib/utils';
+import { selectedDeviceStore } from '$lib/devices/stores';
+import { setErrorModal } from '$lib/error';
+import { selectedUserStore } from '$lib/users/stores';
 import { derived, get, writable, type Writable } from 'svelte/store';
 import type { Package } from './models';
-import { selectedDeviceStore, selectedUserStore } from './stores';
 
 function createPackagesStore() {
 	const store = writable<Record<string, Package[]>>({});
 	const { set, update, subscribe } = store;
 
 	function setPackages(device_id: string, user_id: string, packages: Package[]) {
-
-
 		update((store) => {
 			let pkey = packagesKey(device_id, user_id);
 			if (!pkey) {
-				setErrorModal("pkey is empty")
+				setErrorModal('pkey is empty');
 				return store;
 			}
 			store[pkey] = packages;
@@ -40,7 +39,7 @@ export const packagesStore = createPackagesStore();
 
 const packagesKey = (deviceId: string | undefined, userId: string | undefined): string | null => {
 	if (!deviceId || !userId) {
-		console.log("pkey is null", deviceId, userId);
+		console.log('pkey is null', deviceId, userId);
 		return null;
 	}
 	return `${deviceId}-${userId}`;
@@ -60,3 +59,4 @@ export const currentPackagesStore = derived(
 );
 
 export const filteredPackages: Writable<Package[]> = writable([]);
+export const searchTermStore = writable("");

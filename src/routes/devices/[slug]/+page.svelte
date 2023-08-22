@@ -1,11 +1,11 @@
 <script>
-	import FilterAndSearchPackages from '$lib/FilterAndSearchPackages.svelte';
-	import PackagesList from '$lib/PackagesList.svelte';
-	import RefreshPackagesButton from '$lib/RefreshPackagesButton.svelte';
-	import UsersDropdown from '$lib/UsersDropdown.svelte';
+	import { selectedDeviceStore } from '$lib/devices/stores';
+	import FilterAndSearchPackages from '$lib/packages/FilterAndSearchPackages.svelte';
+	import PackagesList from '$lib/packages/PackagesList.svelte';
+	import RefreshPackagesButton from '$lib/packages/RefreshPackagesButton.svelte';
+	import UsersDropdown from '$lib/users/UsersDropdown.svelte';
+	import { IconSlash } from '@tabler/icons-svelte';
 	import { Breadcrumb, BreadcrumbItem } from 'flowbite-svelte';
-	import { selectedDeviceStore } from '../../../stores';
-	import { IconSlash, IconSlashes } from '@tabler/icons-svelte';
 
 	export const deviceId = '';
 </script>

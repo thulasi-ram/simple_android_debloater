@@ -1,16 +1,16 @@
+import { setErrorModal } from '$lib/error';
+import { selectedUserStore } from '$lib/users/stores';
 import { listen } from '@tauri-apps/api/event';
 import { get, type Unsubscriber } from 'svelte/store';
-import type { DeviceUserPackage } from '../models';
-import { notifications } from '../notificationStore';
-import { packagesStore } from '../packageStore';
-import { selectedUserStore } from '../stores';
+import { notifications } from '../notifications/stores';
 import {
 	adb_disable_package,
 	adb_enable_package,
 	adb_install_package,
 	adb_list_packages
 } from './adb';
-import { setErrorModal } from './utils';
+import type { DeviceUserPackage } from './models';
+import { packagesStore } from './stores';
 
 export function fetchPackagesIfEmptySubscription(): Unsubscriber {
 	const unsub = selectedUserStore.subscribe((su) => {

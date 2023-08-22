@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { IconInfoSquareRounded, IconSettings } from '@tabler/icons-svelte';
 	import { Sidebar, SidebarGroup, SidebarItem, SidebarWrapper } from 'flowbite-svelte';
-	import DevicesSidebarItems from './DevicesSidebarItems.svelte';
+	import DevicesSidebarItems from '$lib/devices/DevicesSidebarItems.svelte';
 
 	$: activeUrl = $page.url.pathname;
 </script>

@@ -1,4 +1,4 @@
-import { selectedDeviceIDStore } from '../../../stores.js';
+import { selectedDeviceIDStore } from "$lib/devices/stores";
 
 export function load({ params }) {
 	let deviceId = params.slug;

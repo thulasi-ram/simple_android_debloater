@@ -1,8 +1,8 @@
 <script>
-	import { Breadcrumb, BreadcrumbItem } from 'flowbite-svelte';
-	import NoDeviceBanner from './NoDeviceBanner.svelte';
-	import RefreshDevicesButton from './RefreshDevicesButton.svelte';
 	import { IconSlash } from '@tabler/icons-svelte';
+	import { Breadcrumb, BreadcrumbItem } from 'flowbite-svelte';
+	import NoDeviceBanner from '$lib/devices/NoDeviceBanner.svelte';
+	import RefreshDevicesButton from '$lib/devices/RefreshDevicesButton.svelte';
 </script>
 
 <div class="space-y-12">

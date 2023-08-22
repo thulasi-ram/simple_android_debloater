@@ -1,12 +1,13 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+	import { sadErrorStore } from '$lib/error/stores';
+	import { selectedUserIDStore } from '$lib/users/stores';
 	import { IconAccessPoint, IconDeviceMobileUp } from '@tabler/icons-svelte';
 	import { listen } from '@tauri-apps/api/event';
 	import { SidebarItem } from 'flowbite-svelte';
 	import { onDestroy, onMount } from 'svelte';
-	import { devicesWithUsersStore } from '../deviceUsersStore';
-	import type { DeviceWithUsers } from '../models';
-	import { sadErrorStore, selectedDeviceStore, selectedUserIDStore } from '../stores';
-	import { page } from '$app/stores';
+	import type { DeviceWithUsers } from './models';
+	import { devicesWithUsersStore, selectedDeviceStore } from './stores';
 
 	onMount(async () => {
 		listen('device_event', (event) => {

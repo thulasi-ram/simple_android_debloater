@@ -1,7 +1,6 @@
 <script>
 	import { IconDevicesSearch } from '@tabler/icons-svelte';
-	import { Heading } from 'flowbite-svelte';
-
+	
 	/**
 	 * @type {any}
 	 */

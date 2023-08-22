@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { IconSelector } from '@tabler/icons-svelte';
 	import { Avatar, Button, Dropdown, Label, Radio } from 'flowbite-svelte';
-	import { selectedDeviceStore, selectedUserIDStore, selectedUserStore } from '../stores';
+	import { selectedUserIDStore, selectedUserStore } from './stores';
+	import { selectedDeviceStore } from '$lib/devices/stores';
 
 	export let divClass = '';
 

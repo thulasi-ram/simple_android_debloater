@@ -1,5 +1,5 @@
 <script>
-	import Sad from '../lib/Sad.svelte';
+	import Sad from '$lib/Sad.svelte';
 </script>
 
 <Sad />

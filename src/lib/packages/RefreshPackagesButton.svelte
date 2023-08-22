@@ -1,12 +1,12 @@
 <script>
-	import { adb_list_packages } from '$lib/adb';
-	import { setErrorModal } from '$lib/utils';
+	import { setErrorModal } from '$lib/error';
+	import { notifications } from '$lib/notifications/stores';
+	import { selectedUserStore } from '$lib/users/stores';
 	import { IconRefresh } from '@tabler/icons-svelte';
 	import { Button } from 'flowbite-svelte';
 	import { get } from 'svelte/store';
-	import { notifications } from '../notificationStore';
-	import { packagesStore } from '../packageStore';
-	import { selectedUserStore } from '../stores';
+	import { adb_list_packages } from './adb';
+	import { packagesStore } from './stores';
 
 	function list_packages() {
 		let user = get(selectedUserStore);

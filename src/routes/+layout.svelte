@@ -1,8 +1,8 @@
 <script>
 	import NavBar from '$lib/NavBar.svelte';
-	import SadError from '$lib/SadError.svelte';
-	import SadToast from '$lib/SadToast.svelte';
 	import Sidebar from '$lib/Sidebar.svelte';
+	import SadError from '$lib/error/SadError.svelte';
+	import SadToast from '$lib/notifications/SadToast.svelte';
 	import 'flowbite';
 	import '../app.css';
 </script>
