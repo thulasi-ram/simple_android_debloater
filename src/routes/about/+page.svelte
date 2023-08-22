@@ -1,6 +1,6 @@
 <script>
 	import { IconMessages, IconPackages, IconSlash, IconSourceCode } from '@tabler/icons-svelte';
-	import { Breadcrumb, BreadcrumbItem, Button, ButtonGroup } from 'flowbite-svelte';
+	import { Breadcrumb, BreadcrumbItem, Button, ButtonGroup, Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from 'flowbite-svelte';
 	import { getVersion } from '@tauri-apps/api/app';
 	const appVersion = getVersion();
 </script>
@@ -60,6 +60,14 @@
 			Discussions
 		</Button>
 	</div>
+
+
+	<p class="text-xl text-gray-700"> Logs </p>
+	<ul>
+		<li class="pre"><pre> macOS: /Users/Bob/Library/Logs/com.ahiravan.simple-android-debloater</pre> </li>
+		<li><pre> Windows:C:\Users\Bob\AppData\Roaming\com.ahiravan.simple-android-debloater\logs </pre></li>
+		<li><pre> Linux: /home/bob/.config/com.ahiravan.simple-android-debloater/logs</pre> </li>
+	</ul>
 
 	{#await appVersion then version}
 		<p class="mx-auto text-gray-500">app version: {version}</p>

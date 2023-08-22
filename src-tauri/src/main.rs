@@ -15,6 +15,7 @@ use std::time::Duration;
 use anyhow::anyhow;
 use err::ResultOkPrintErrExt;
 use events::{Event, PackageEvent};
+use log::{error, info};
 use packages::Package;
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
@@ -23,6 +24,7 @@ use tokio::{sync::mpsc, time};
 use devices::Device;
 use sad::SADError;
 use users::User;
+use tauri_plugin_log::{LogTarget, fern::colors::ColoredLevelConfig};
 
 struct AsyncEventSender {
     inner: tokio::sync::Mutex<mpsc::Sender<events::AsyncEvent>>,
@@ -41,6 +43,12 @@ fn main() {
     ) = mpsc::channel(1);
     let store = store::Store::new();
 
+    #[cfg(debug_assertions)]
+    const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stdout, LogTarget::Webview];
+
+    #[cfg(not(debug_assertions))]
+    const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stdout, LogTarget::LogDir];
+
     tauri::Builder::default()
         .manage(AsyncEventSender {
             inner: tokio::sync::Mutex::new(async_event_sender),
@@ -48,6 +56,12 @@ fn main() {
         .manage(SadCache {
             inner: tokio::sync::Mutex::new(store),
         })
+        .plugin(
+            tauri_plugin_log::Builder::default()
+                .targets(LOG_TARGETS)
+                .with_colors(ColoredLevelConfig::default())
+                .build(),
+        )
         .invoke_handler(tauri::generate_handler![
             greet,
             adb_list_devices_with_users,
@@ -93,12 +107,13 @@ async fn track_devices<R: tauri::Runtime>(manager: &impl Manager<R>) {
     let res = _adb_list_device_with_users().await;
     match res {
         Err(e) => {
-            println!("Error getting async devices {:?}", e);
+            error!("Error getting async devices {:?}", e);
         }
         Ok(device_with_users) => {
             let w = manager.get_window("main").unwrap();
             let cache_state: tauri::State<'_, SadCache> = manager.state();
             let mut cache = cache_state.inner.lock().await;
+
             for du in device_with_users {
                 let event = events::DeviceEvent::new(du.clone());
                 let pl: serde_json::Value =
@@ -109,7 +124,7 @@ async fn track_devices<R: tauri::Runtime>(manager: &impl Manager<R>) {
                 match res {
                     Ok(_) => {}
                     Err(e) => {
-                        println!("Error emitting async devices {:?}", e);
+                        error!("Error emitting async devices {:?}", e);
                     }
                 }
             }
@@ -254,8 +269,6 @@ async fn adb_enable_package(
     return Ok(());
 }
 
-
-
 #[tauri::command]
 async fn adb_install_package(
     device_id: &str,
@@ -275,7 +288,9 @@ async fn adb_install_package(
 
         match package {
             None => {
-                return Err(anyhow!("package {} not found in cache for install", pkg.to_string()).into());
+                return Err(
+                    anyhow!("package {} not found in cache for install", pkg.to_string()).into(),
+                );
             }
             Some(p) => {
                 p.set_state(packages::PackageState::Enabled);

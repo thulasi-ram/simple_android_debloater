@@ -42,6 +42,7 @@
 		"flowbite-svelte": "^0.40.2",
 		"flowbite-svelte-icons": "^0.3.6",
 		"lru-cache": "^10.0.1",
-		"tailwind-merge": "^1.14.0"
+		"tailwind-merge": "^1.14.0",
+		"tauri-plugin-log-api": "github:tauri-apps/tauri-plugin-log"
 	}
 }
