@@ -2,8 +2,8 @@ import { selectedDeviceStore } from '$lib/devices/stores';
 import { setErrorModal } from '$lib/error';
 import { selectedUserStore } from '$lib/users/stores';
 import { derived, get, writable, type Writable } from 'svelte/store';
-import type { Package } from './models';
 import { info } from "tauri-plugin-log-api";
+import type { Package } from './models';
 
 
 function createPackagesStore() {

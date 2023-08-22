@@ -4,9 +4,9 @@
 	import SadError from '$lib/error/SadError.svelte';
 	import SadToast from '$lib/notifications/SadToast.svelte';
 	import 'flowbite';
-	import '../app.css';
 	import { onMount } from 'svelte';
 	import { attachConsole } from 'tauri-plugin-log-api';
+	import '../app.css';
 
 	onMount(async () => {
 		const _detach = await attachConsole();

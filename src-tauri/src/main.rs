@@ -15,7 +15,7 @@ use std::time::Duration;
 use anyhow::anyhow;
 use err::ResultOkPrintErrExt;
 use events::{Event, PackageEvent};
-use log::{error, info};
+use log::error;
 use packages::Package;
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
