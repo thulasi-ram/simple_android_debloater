@@ -3,17 +3,6 @@
 version = 3
 
 [[package]]
-name = "adb_client"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "692d66ce6daa57fd8d2f54d4ff60cf7b83644b97c1d9b1153adc034faa882f4c"
-dependencies = [
- "regex",
- "termios",
- "thiserror",
-]
-
-[[package]]
 name = "addr2line"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -90,23 +79,6 @@ name = "anyhow"
 version = "1.0.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c7d0618f0e0b7e8ff11427422b64564d5fb0be1940354bfe2e0529b18a9d9b8"
-
-[[package]]
-name = "app"
-version = "0.1.0"
-dependencies = [
- "adb_client",
- "anyhow",
- "fix-path-env",
- "lazy_static",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-sql",
- "thiserror",
- "tokio",
-]
 
 [[package]]
 name = "arrayvec"
@@ -3205,6 +3177,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "238abfbb77c1915110ad968465608b68e869e0772622c9656714e73e5a1a522f"
 
 [[package]]
+name = "simple_android_debloater"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "fix-path-env",
+ "lazy_static",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-sql",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
 name = "siphasher"
 version = "0.3.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3939,15 +3927,6 @@ dependencies = [
  "futf",
  "mac",
  "utf-8",
-]
-
-[[package]]
-name = "termios"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "411c5bf740737c7918b8b1fe232dca4dc9f8e754b8ad5e20966814001ed0ac6b"
-dependencies = [
- "libc",
 ]
 
 [[package]]
