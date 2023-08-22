@@ -59,6 +59,12 @@ Run rust and node at once:
 
 [Tauri Quickstart Docs](https://tauri.app/v1/guides/getting-started/setup/sveltekit)
 
+### Logs
+| Platform | Location                               | Example                                              |
+|----------|----------------------------------------|------------------------------------------------------|
+| macOS    | $HOME/Library/Logs/{bundleIdentifier}  | /Users/Bob/Library/Logs/com.ahiravan.simple-android-debloater           |
+| Windows  | %APPDATA%\${bundleIdentifier}\logs     | C:\Users\Bob\AppData\Roaming\com.ahiravan.simple-android-debloater\logs |
+| Linux    | $HOME/.config/${bundleIdentifier}/logs | /home/bob/.config/com.ahiravan.simple-android-debloater/logs            |
 
 
  ## TODOs:
@@ -78,3 +84,7 @@ Run rust and node at once:
 - [x] Adb track device
 
 - [ ] Github discussion for package
+
+- [ ] Prepackage ADB
+
+- [ ] Persist Settings

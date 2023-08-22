@@ -1,3 +1,5 @@
+use log::error;
+
 pub trait ResultOkPrintErrExt<T> {
     fn ok_or_print_err(self, msg: &str) -> Option<T>;
 }
@@ -10,7 +12,7 @@ where
         match self {
             Ok(v) => Some(v),
             Err(e) => {
-                eprintln!("{}: {:?}", msg, e);
+                error!("{}: {:?}", msg, e);
                 None
             }
         }

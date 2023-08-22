@@ -5,6 +5,12 @@
 	import SadToast from '$lib/notifications/SadToast.svelte';
 	import 'flowbite';
 	import '../app.css';
+	import { onMount } from 'svelte';
+	import { attachConsole } from 'tauri-plugin-log-api';
+
+	onMount(async () => {
+		const _detach = await attachConsole();
+	});
 </script>
 
 <div class="w-3/4 mx-auto">

@@ -3,6 +3,8 @@ import { setErrorModal } from '$lib/error';
 import { selectedUserStore } from '$lib/users/stores';
 import { derived, get, writable, type Writable } from 'svelte/store';
 import type { Package } from './models';
+import { info } from "tauri-plugin-log-api";
+
 
 function createPackagesStore() {
 	const store = writable<Record<string, Package[]>>({});
@@ -39,7 +41,7 @@ export const packagesStore = createPackagesStore();
 
 const packagesKey = (deviceId: string | undefined, userId: string | undefined): string | null => {
 	if (!deviceId || !userId) {
-		console.log('pkey is null', deviceId, userId);
+		info(`pkey is null ${deviceId} ${userId}`);
 		return null;
 	}
 	return `${deviceId}-${userId}`;
