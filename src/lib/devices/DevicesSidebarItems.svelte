@@ -7,7 +7,7 @@
 	import { SidebarItem } from 'flowbite-svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import type { DeviceWithUsers } from './models';
-	import { devicesWithUsersStore, selectedDeviceStore } from './stores';
+	import { devicesWithUsersStore, liveDevicesStore, selectedDeviceStore } from './stores';
 
 	onMount(async () => {
 		listen('device_event', (event) => {
@@ -32,21 +32,29 @@
 
 	$: activeUrl = $page.url.pathname;
 
+	let defaultClass =
+		'text-sm p-1 grid grid-rows-2 grid-cols-none grid-flow-col items-center border';
+
+	let disconnectedClass = defaultClass + " text-gray-300"
+
 	let activeClass =
 		'grid grid-rows-2 grid-cols-none grid-flow-col items-center text-base font-normal text-gray-900 bg-red-200 dark:bg-red-700 rounded-lg dark:text-white hover:bg-red-100 dark:hover:bg-red-700';
 	let nonActiveClass =
 		'grid grid-rows-2 grid-cols-none grid-flow-col items-center text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700';
+
 </script>
 
 {#if Object.keys($devicesWithUsersStore).length > 0}
 	{#each Object.entries($devicesWithUsersStore) as [_, d]}
 		{@const dev = d.device}
 		{@const hrefUrl = `/devices/${dev.id}`}
+		{@const isLive = $liveDevicesStore[dev.id]}
+
 		<SidebarItem
 			label={dev.name}
-			href={hrefUrl}
-			active={activeUrl === hrefUrl}
-			class="text-sm p-1 grid grid-rows-2 grid-cols-none grid-flow-col items-center border"
+			href={isLive ? hrefUrl : "#"}
+			active={isLive ? activeUrl === hrefUrl : false}
+			class={isLive ? defaultClass : disconnectedClass}
 			{activeClass}
 			{nonActiveClass}
 			spanClass="col-span-8"
@@ -56,20 +64,26 @@
 				<IconDeviceMobileUp class="row-span-2 ml-2" size={24} stroke={1.5} />
 			</svelte:fragment>
 			<svelte:fragment slot="subtext">
-				<span class="col-span-8 text-xxs">({dev.model})</span>
+				<span class="col-span-8 text-xxs">
+					({dev.model})
+					{#if !isLive}
+						Disconnected: {dev.state}
+					{/if}
+				</span>
 			</svelte:fragment>
 		</SidebarItem>
 	{/each}
 {:else}
 	<SidebarItem label="Loading Devices..." class="text-sm text-gray-500 mr-2 border">
-
 		<svelte:fragment slot="subtext">
 			<span class="relative flex ml-5">
-				<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+				<span
+					class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
+				/>
 				<span class="relative inline-flex rounded-full">
-					<IconAccessPoint size={24} stroke={1.5}></IconAccessPoint>
+					<IconAccessPoint size={24} stroke={1.5} />
 				</span>
-			  </span>
+			</span>
 		</svelte:fragment>
 	</SidebarItem>
 {/if}

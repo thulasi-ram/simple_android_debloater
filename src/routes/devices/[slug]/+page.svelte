@@ -1,5 +1,5 @@
 <script>
-	import { selectedDeviceStore } from '$lib/devices/stores';
+	import { liveDevicesStore, selectedDeviceStore } from '$lib/devices/stores';
 	import FilterAndSearchPackages from '$lib/packages/FilterAndSearchPackages.svelte';
 	import PackagesList from '$lib/packages/PackagesList.svelte';
 	import RefreshPackagesButton from '$lib/packages/RefreshPackagesButton.svelte';
@@ -8,6 +8,16 @@
 	import { Breadcrumb, BreadcrumbItem } from 'flowbite-svelte';
 
 	export const deviceId = '';
+
+	let renderPackages = true;
+
+	liveDevicesStore.subscribe((store) => {
+		if ($selectedDeviceStore && store[$selectedDeviceStore.device.id]) {
+			renderPackages = true;
+		} else {
+			renderPackages = false;
+		}
+	});
 </script>
 
 <div class="w-full">
@@ -42,5 +52,8 @@
 		<h2 class="text-gray-700 font-semibold">Packages</h2>
 		<FilterAndSearchPackages />
 	</div>
-	<PackagesList />
+
+	{#if renderPackages}
+		<PackagesList />
+	{/if}
 </div>
