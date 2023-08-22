@@ -34,3 +34,7 @@ custom-protocol = [ "tauri/custom-protocol" ]
 git = "https://github.com/tauri-apps/plugins-workspace"
 branch = "v1"
 features = ["sqlite"] # or "postgres", or "mysql"
+
+[dependencies.fix-path-env]
+git = "https://github.com/tauri-apps/fix-path-env-rs"
+branch = "release"

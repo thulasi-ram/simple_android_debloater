@@ -115,7 +115,7 @@ struct PackageAttribs {
 impl PackageAttribs {
     fn package_prefix(&self) -> String {
         let splits: Vec<&str> = self.package_path.splitn(4, "/").collect();
-        return splits[..3].join("/");;
+        return splits[..3].join("/");
     }
 }
 

@@ -33,6 +33,8 @@ struct SadCache {
 }
 
 fn main() {
+    fix_path_env::fix().unwrap();
+
     let (async_event_sender, mut async_event_receiver): (
         mpsc::Sender<events::AsyncEvent>,
         mpsc::Receiver<events::AsyncEvent>,
