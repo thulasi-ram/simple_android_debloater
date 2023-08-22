@@ -1,7 +1,7 @@
 <script>
 	import { IconMessages, IconPackages, IconSlash, IconSourceCode } from '@tabler/icons-svelte';
-	import { Breadcrumb, BreadcrumbItem, Button, ButtonGroup, Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from 'flowbite-svelte';
 	import { getVersion } from '@tauri-apps/api/app';
+	import { Breadcrumb, BreadcrumbItem, Button } from 'flowbite-svelte';
 	const appVersion = getVersion();
 </script>
 
