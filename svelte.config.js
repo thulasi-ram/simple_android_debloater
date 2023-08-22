@@ -9,7 +9,9 @@ const config = {
 
 	kit: {
 		adapter: adapter({
-			fallback: 'app.html'
+			// should be index.html and not app.html since vite converts app.html to index.html
+			// tauri expects index.html to be present in ../build directory
+			fallback: 'index.html' 
 		})
 	}
 };
