@@ -87,4 +87,4 @@ Run rust and node at once:
 
 - [ ] Prepackage ADB
 
-- [ ] Persist Settings
+- [x] Persist Settings
