@@ -1,8 +1,8 @@
-import { writable, type Writable } from 'svelte/store';
-import { defaultConfig, type Config } from './models';
-import { info } from 'tauri-plugin-log-api';
-import { invoke } from '@tauri-apps/api/tauri';
 import { sadErrorStore } from '$lib/error/stores';
+import { invoke } from '@tauri-apps/api/tauri';
+import { writable, type Writable } from 'svelte/store';
+import { info } from 'tauri-plugin-log-api';
+import type { Config } from './models';
 
 export function createConfigStore() {
 	let store: Writable<Config | null> = writable(null);
@@ -10,17 +10,14 @@ export function createConfigStore() {
 	const { subscribe, set } = store;
 
 	return {
+		set,
 		subscribe,
 		init: async () => {
 			try {
-				let res: string = await invoke('get_config');
+				let res: Config = await invoke('get_config');
 				console.info('res', res);
-				set(JSON.parse(res));
+				set(res);
 			} catch (error) {
-				if (error == 'config not found') {
-					set(defaultConfig);
-					return
-				}
 				console.error(error);
 				sadErrorStore.setError(`unable to load config: ${error}`);
 			}
@@ -30,14 +27,24 @@ export function createConfigStore() {
 
 export const configStore = createConfigStore();
 
+let updateTimeoutID: number;
+
 configStore.subscribe(async (s) => {
 	info(`writing store ${JSON.stringify(s)}`);
 	if (s == null || Object.keys(s).length <= 0) {
 		return;
 	}
-	try {
-		await invoke('update_config', { config: JSON.stringify(s) });
-	} catch (e) {
-		sadErrorStore.setError('unable to update settings');
+
+	if (updateTimeoutID) {
+		clearTimeout(updateTimeoutID);
 	}
+
+	// debounce by 300ms
+	updateTimeoutID = setTimeout(() => {
+		invoke('update_config', { config: s })
+			.then(() => {})
+			.catch((e) => {
+				sadErrorStore.setError(`unable to update settings: ${e}`);
+			});
+	}, 300);
 });

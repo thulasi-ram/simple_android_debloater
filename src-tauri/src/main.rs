@@ -9,16 +9,17 @@ mod packages;
 mod sad;
 mod store;
 mod users;
+mod config;
 
 use std::{env, str::FromStr, time::Duration};
 
 use anyhow::anyhow;
 use err::ResultOkPrintErrExt;
 use events::{Event, PackageEvent};
-use log::{error, info};
+use log::error;
 use packages::Package;
 use serde::{Deserialize, Serialize};
-use sqlx::{sqlite::SqliteConnectOptions, Row, SqlitePool};
+use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
 
 use tauri::Manager;
 use tokio::{sync::mpsc, time};
@@ -322,54 +323,29 @@ async fn adb_install_package(
 }
 
 #[tauri::command]
-async fn get_config(app: tauri::State<'_, App>) -> Result<String, SADError> {
-    let db = app.db.lock().await;
-
-    let default_id = 1;
-
-    let res = sqlx::query("SELECT * FROM config where id = ?")
-        .bind(default_id)
-        .fetch_one(&*db)
-        .await;
-
+async fn get_config(app: tauri::State<'_, App>) -> Result<config::Config, SADError> {
+    let db = &app.db.lock().await;
+    let svc = config::SqliteImpl{db};
+    let res = svc.get_default_config().await;
     match res {
-        Err(e) => match e {
-            sqlx::Error::RowNotFound => {
-                return Err(anyhow!("config not found").into());
-            }
-            _ => {
-                return Err(anyhow!("error executing db: {}", e.to_string()).into());
-            }
-        },
         Ok(r) => {
-            let res: Result<&str, sqlx::Error> = r.try_get("data");
-            match res {
-                Ok(d) => return Ok(d.to_string()),
-                Err(e) => {
-                    return Err(anyhow!("error getting data db: {}", e.to_string()).into());
-                }
-            }
+            return Ok(r);
+        }
+        Err(e) => {
+            return Err(SADError::E(e.into()));
         }
     }
 }
 
 #[tauri::command]
-async fn update_config(config: &str, app: tauri::State<'_, App>) -> Result<(), SADError> {
-    let db = app.db.lock().await;
-    let default_id = 1;
-    let res = sqlx::query(
-        "insert into config(id, data) VALUES($1, $2) ON CONFLICT(id) DO UPDATE SET data = $2",
-    )
-    .bind(default_id)
-    .bind(config)
-    .execute(&*db)
-    .await;
+async fn update_config(config: config::Config, app: tauri::State<'_, App>) -> Result<(), SADError> {
+    let db = &app.db.lock().await;
+    let svc = config::SqliteImpl{db};
+    let res = svc.update_default_config(config).await;
+
     match res {
-        Ok(r) => {
-            if r.rows_affected() > 0 {
-                return Ok(());
-            }
-            return Err(anyhow!("no rows updated").into());
+        Ok(_) => {
+            return Ok(());
         }
         Err(e) => {
             return Err(SADError::E(e.into()));
