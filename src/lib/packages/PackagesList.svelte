@@ -21,6 +21,7 @@
 		installPackage,
 		packageEventListener
 	} from './PackagesList';
+	import { sadErrorStore } from '$lib/error/stores';
 
 	let unsub: Unsubscriber = () => {};
 	onMount(() => {
@@ -34,6 +35,10 @@
 	let disablePackageModal = false;
 	let disablePackageName = '';
 	function disablePackageButton(pkg: string) {
+		if (!$configStore) {
+			sadErrorStore.setError("config is not loaded yet");
+			return;
+		}
 		if ($configStore.prompt_disable_package) {
 			disablePackageName = pkg;
 			disablePackageModal = true;

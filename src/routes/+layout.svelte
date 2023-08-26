@@ -7,9 +7,11 @@
 	import { onMount } from 'svelte';
 	import { attachConsole } from 'tauri-plugin-log-api';
 	import '../app.css';
+	import { configStore } from '$lib/config/stores';
 
 	onMount(async () => {
 		const _detach = await attachConsole();
+		configStore.init();
 	});
 </script>
 

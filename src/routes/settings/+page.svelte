@@ -21,7 +21,9 @@
 </Breadcrumb>
 
 <div class="flex gap-y-5 mt-10">
-	<Checkbox bind:checked={$configStore.prompt_disable_package} class="cursor:pointer">
-		Prompt on Disable Package
-	</Checkbox>
+	{#if $configStore}
+		<Checkbox bind:checked={$configStore.prompt_disable_package} class="cursor:pointer">
+			Prompt on Disable Package
+		</Checkbox>
+	{/if}
 </div>
