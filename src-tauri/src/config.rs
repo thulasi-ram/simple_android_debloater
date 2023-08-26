@@ -5,9 +5,9 @@ use sqlx::SqlitePool;
 
 #[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct Config {
-    id: i64,
-    prompt_disable_package: bool,
-    custom_adb_path: String,
+    pub id: i64,
+    pub prompt_disable_package: bool,
+    pub custom_adb_path: String,
 }
 
 static DEFAULT_CONFIG_ID: i64 = 1;

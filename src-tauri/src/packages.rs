@@ -1,11 +1,10 @@
 use crate::adb_cmd::{ADBCommand, ADBShell};
 use anyhow::{anyhow, Error, Result};
-use serde::{Deserialize, Serialize};
-use tauri::regex::Regex;
-use std::collections::{HashSet, HashMap};
-use std::{fmt::Display, str::FromStr};
 use lazy_static::lazy_static;
-
+use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
+use std::{fmt::Display, str::FromStr};
+use tauri::regex::Regex;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PackageState {
@@ -41,12 +40,11 @@ impl FromStr for PackageState {
     }
 }
 
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PackageType {
     System,
     ThirdParty,
-    Unknown
+    Unknown,
 }
 
 impl Display for PackageType {
@@ -78,7 +76,7 @@ pub struct Package {
     pub name: String,
     state: PackageState,
     ptype: PackageType,
-    package_prefix: String
+    package_prefix: String,
 }
 
 impl Package {
@@ -106,10 +104,26 @@ const LIST_ENABLED_PACKAGES: &str = "pm list packages -e";
 const LIST_DISABLED_PACKAGES: &str = "pm list packages -d";
 const LIST_UNINSTALLED_DISABLED_PACKAGES: &str = "pm list packages -u -d";
 
-pub struct ADBTerminalImpl {}
+pub struct ADBTerminalImpl {
+    custom_adb_path: String,
+}
+
+impl ADBTerminalImpl {
+    pub fn new() -> Self {
+        Self {
+            custom_adb_path: String::from(""),
+        }
+    }
+
+    pub fn new_with_options(custom_adb_path: String) -> Self {
+        Self {
+            custom_adb_path: String::from(""),
+        }
+    }
+}
 
 struct PackageAttribs {
-    package_path: String
+    package_path: String,
 }
 
 impl PackageAttribs {
@@ -182,23 +196,24 @@ impl ADBTerminalImpl {
             ),
         );
 
-        fn callback_all_pkg(container: &mut HashMap<String, PackageAttribs>) -> impl FnMut(String) -> Result<()> + '_ {
+        fn callback_all_pkg(
+            container: &mut HashMap<String, PackageAttribs>,
+        ) -> impl FnMut(String) -> Result<()> + '_ {
             let parser = |s: String| -> Result<()> {
                 let ot = s.replace("package:", "");
                 for l in ot.lines() {
                     let caps = PACKAGE_PARSE_REGEX.captures(l).unwrap();
                     container.insert(
-                        caps.get(2).unwrap().as_str().to_string(), 
+                        caps.get(2).unwrap().as_str().to_string(),
                         PackageAttribs {
-                            package_path: caps.get(1).unwrap().as_str().to_string()
-                        }
+                            package_path: caps.get(1).unwrap().as_str().to_string(),
+                        },
                     );
                 }
                 return Ok(());
             };
             return parser;
         }
-
 
         fn callback(container: &mut HashSet<String>) -> impl FnMut(String) -> Result<()> + '_ {
             let parser = |s: String| -> Result<()> {

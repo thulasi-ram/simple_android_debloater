@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod adb_cmd;
+mod config;
 mod devices;
 mod err;
 mod events;
@@ -9,12 +10,11 @@ mod packages;
 mod sad;
 mod store;
 mod users;
-mod config;
 
 use std::{env, str::FromStr, time::Duration};
 
 use anyhow::anyhow;
-use err::ResultOkPrintErrExt;
+use err::{IntoSADError, ResultOkPrintErrExt};
 use events::{Event, PackageEvent};
 use log::error;
 use packages::Package;
@@ -203,7 +203,15 @@ async fn adb_list_packages(
     user_id: &str,
     app: tauri::State<'_, App>,
 ) -> Result<Vec<Package>, SADError> {
-    let acl = packages::ADBTerminalImpl {};
+    let db = &app.db.lock().await;
+    let config_svc = config::SqliteImpl { db };
+    
+    let config = config_svc
+        .get_default_config()
+        .await
+        .into_sad_error("unable tp get config")?;
+
+    let acl = packages::ADBTerminalImpl::new_with_options(config.custom_adb_path);
     let packages = acl.list_packages(device_id.to_string(), user_id.to_string())?;
 
     let mut cache = app.cache_store.lock().await;
@@ -222,7 +230,7 @@ async fn adb_disable_clear_and_stop_package(
     pkg: &str,
     app: tauri::State<'_, App>,
 ) -> Result<(), SADError> {
-    let acl = packages::ADBTerminalImpl {};
+    let acl = packages::ADBTerminalImpl::new();
     acl.disable_package(device_id.to_string(), user_id.to_string(), pkg.to_string())?;
 
     {
@@ -257,7 +265,7 @@ async fn adb_enable_package(
     pkg: &str,
     app: tauri::State<'_, App>,
 ) -> Result<(), SADError> {
-    let acl = packages::ADBTerminalImpl {};
+    let acl = packages::ADBTerminalImpl::new();
     acl.enable_package(device_id.to_string(), user_id.to_string(), pkg.to_string())?;
 
     {
@@ -292,7 +300,7 @@ async fn adb_install_package(
     pkg: &str,
     app: tauri::State<'_, App>,
 ) -> Result<(), SADError> {
-    let acl = packages::ADBTerminalImpl {};
+    let acl = packages::ADBTerminalImpl::new();
     acl.install_package(device_id.to_string(), user_id.to_string(), pkg.to_string())?;
 
     {
@@ -325,7 +333,7 @@ async fn adb_install_package(
 #[tauri::command]
 async fn get_config(app: tauri::State<'_, App>) -> Result<config::Config, SADError> {
     let db = &app.db.lock().await;
-    let svc = config::SqliteImpl{db};
+    let svc = config::SqliteImpl { db };
     let res = svc.get_default_config().await;
     match res {
         Ok(r) => {
@@ -340,7 +348,7 @@ async fn get_config(app: tauri::State<'_, App>) -> Result<config::Config, SADErr
 #[tauri::command]
 async fn update_config(config: config::Config, app: tauri::State<'_, App>) -> Result<(), SADError> {
     let db = &app.db.lock().await;
-    let svc = config::SqliteImpl{db};
+    let svc = config::SqliteImpl { db };
     let res = svc.update_default_config(config).await;
 
     match res {
