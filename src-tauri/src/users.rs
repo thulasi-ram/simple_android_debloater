@@ -24,6 +24,10 @@ pub struct ADBTerminalImpl {
     pub adb_path: String
 }
 
+lazy_static! {
+    static ref USER_INFO_PARSE_REGEX: Regex = Regex::new(r"UserInfo\{(.*)\}").unwrap();
+}
+
 impl ADBTerminalImpl {
     pub fn list_users(&self, device_id: String) -> Result<Vec<User>> {
         let shell_cmd: ADBShell =
@@ -35,10 +39,8 @@ impl ADBTerminalImpl {
                 return Err(e.into());
             }
             Ok(o) => {
-                let re = Regex::new(r"UserInfo\{(.*)\}").unwrap();
-
                 let mut users: Vec<User> = vec![];
-                for (_, [cap]) in re.captures_iter(&o).map(|c| c.extract()) {
+                for (_, [cap]) in USER_INFO_PARSE_REGEX.captures_iter(&o).map(|c| c.extract()) {
                     let split: Vec<&str> = cap.split(":").collect();
                     if split.len() < 2 {
                         return Err(anyhow!("unable to parse user. input {}", cap));
