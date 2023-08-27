@@ -27,6 +27,7 @@ log = "^0.4"
 tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1", features = ["colored"] }
 sqlx = { version = "0.7", features = [ "runtime-tokio", "tls-native-tls", "sqlite" ] }
 regex = "1.9.4"
+futures = "0.3.28"
 
 
 [features]

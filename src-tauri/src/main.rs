@@ -2,7 +2,9 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod adb_cmd;
+mod cache;
 mod config;
+mod db;
 mod devices;
 mod err;
 mod events;
@@ -10,21 +12,22 @@ mod packages;
 mod sad;
 mod store;
 mod users;
-mod cache;
 
-use std::{env, str::FromStr, time::Duration};
+use std::{env, time::Duration};
 
 use anyhow::anyhow;
 use config::Config;
-use err::ResultOkPrintErrExt;
+use err::{ResultOkPrintErrExt, IntoSADError};
 use events::{Event, PackageEvent};
 use log::error;
 use packages::Package;
 use serde::{Deserialize, Serialize};
-use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
+use sqlx::SqlitePool;
+use futures;
 
 use tauri::Manager;
-use tokio::{sync::mpsc, time};
+use tokio::{sync::{mpsc}, time};
+
 
 use devices::Device;
 use sad::SADError;
@@ -32,23 +35,24 @@ use tauri_plugin_log::{fern::colors::ColoredLevelConfig, LogTarget};
 use users::User;
 
 struct App {
-    pub db: tokio::sync::Mutex<SqlitePool>,
+    db: tokio::sync::Mutex<anyhow::Result<SqlitePool>>,
     pub event_emitter: tokio::sync::Mutex<mpsc::Sender<events::AsyncEvent>>,
     pub cache: tokio::sync::Mutex<cache::Cache>,
 }
 
 impl App {
-    fn new(p: SqlitePool, s: mpsc::Sender<events::AsyncEvent>) -> Self {
+    fn new(s: mpsc::Sender<events::AsyncEvent>) -> Self {
         Self {
-            db: tokio::sync::Mutex::new(p),
+            db: tokio::sync::Mutex::new(Err(anyhow!("connection is none"))),
             event_emitter: tokio::sync::Mutex::new(s),
-            cache: tokio::sync::Mutex::new(cache::Cache::new())
+            cache: tokio::sync::Mutex::new(cache::Cache::new()),
         }
     }
 
     async fn config(&self) -> anyhow::Result<Config> {
-        let db = &self.db.lock().await;
-        let cache= &mut self.cache.lock().await;
+        let db_res = self.db.lock().await;
+        let db = db_res.as_ref().unwrap();
+        let cache = &mut self.cache.lock().await;
         let config = cache.get_config(db).await?;
         return Ok(config);
     }
@@ -58,19 +62,12 @@ impl App {
 async fn main() {
     fix_path_env::fix().unwrap();
 
-    let db_url: &str = env!("DATABASE_URL");
-    let conn_options = SqliteConnectOptions::from_str(&db_url)
-        .unwrap()
-        .create_if_missing(true);
-    let db = SqlitePool::connect_with(conn_options).await.unwrap();
-    sqlx::migrate!().run(&db).await.unwrap();
-
     let (async_event_sender, mut async_event_receiver): (
         mpsc::Sender<events::AsyncEvent>,
         mpsc::Receiver<events::AsyncEvent>,
     ) = mpsc::channel(1);
 
-    let app = App::new(db, async_event_sender);
+    let app = App::new(async_event_sender);
 
     #[cfg(debug_assertions)]
     const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stdout, LogTarget::Webview];
@@ -99,6 +96,17 @@ async fn main() {
             update_config,
         ])
         .setup(|app| {
+            let app_handle = app.handle();
+            
+            let init_db_fut = async move {
+                let conn = db::init(&app_handle).await.expect("unable to init db");
+                let app_state: tauri::State<App> = app_handle.state();
+                let mut app_db = app_state.db.lock().await;
+                *app_db = Ok(conn);
+            };
+
+            futures::executor::block_on(init_db_fut);
+
             let app_handle = app.handle();
             tauri::async_runtime::spawn(async move {
                 loop {
@@ -176,8 +184,7 @@ pub struct DeviceWithUsers {
 async fn adb_list_devices_with_users(
     app: tauri::State<'_, App>,
 ) -> Result<Vec<DeviceWithUsers>, SADError> {
-
-    let config = app.config().await.unwrap();
+    let config = app.config().await.into_sad_error("unable to get config")?;
 
     let res = _adb_list_device_with_users(config).await;
     match res {
@@ -196,11 +203,17 @@ async fn adb_list_devices_with_users(
     }
 }
 
-async fn _adb_list_device_with_users(config: config::Config) -> anyhow::Result<Vec<DeviceWithUsers>> {
+async fn _adb_list_device_with_users(
+    config: config::Config,
+) -> anyhow::Result<Vec<DeviceWithUsers>> {
     let mut device_with_users: Vec<DeviceWithUsers> = vec![];
 
-    let acd = devices::ADBTerminalImpl {adb_path: config.custom_adb_path.to_owned()};
-    let acu = users::ADBTerminalImpl {adb_path: config.custom_adb_path.to_owned()};
+    let acd = devices::ADBTerminalImpl {
+        adb_path: config.custom_adb_path.to_owned(),
+    };
+    let acu = users::ADBTerminalImpl {
+        adb_path: config.custom_adb_path.to_owned(),
+    };
     let devices = acd.list_devices()?;
 
     for device in devices {
@@ -238,10 +251,15 @@ async fn adb_disable_clear_and_stop_package(
     pkg: &str,
     app: tauri::State<'_, App>,
 ) -> Result<(), SADError> {
-    let config = app.config().await.unwrap();
+    let config = app.config().await.into_sad_error("unable to get config")?;
 
     let acl = packages::ADBTerminalImpl::new(config.custom_adb_path);
-    acl.disable_package(device_id.to_string(), user_id.to_string(), pkg.to_string(), config.clear_packages_on_disable)?;
+    acl.disable_package(
+        device_id.to_string(),
+        user_id.to_string(),
+        pkg.to_string(),
+        config.clear_packages_on_disable,
+    )?;
 
     {
         let mut cache = app.cache.lock().await;
@@ -275,8 +293,7 @@ async fn adb_enable_package(
     pkg: &str,
     app: tauri::State<'_, App>,
 ) -> Result<(), SADError> {
-
-    let config = app.config().await.unwrap();
+    let config = app.config().await.into_sad_error("unable to get config")?;
 
     let acl = packages::ADBTerminalImpl::new(config.custom_adb_path);
     acl.enable_package(device_id.to_string(), user_id.to_string(), pkg.to_string())?;
@@ -313,8 +330,7 @@ async fn adb_install_package(
     pkg: &str,
     app: tauri::State<'_, App>,
 ) -> Result<(), SADError> {
-
-    let config = app.config().await.unwrap();
+    let config = app.config().await.into_sad_error("unable to get config")?;
 
     let acl = packages::ADBTerminalImpl::new(config.custom_adb_path);
     acl.install_package(device_id.to_string(), user_id.to_string(), pkg.to_string())?;
@@ -348,9 +364,10 @@ async fn adb_install_package(
 
 #[tauri::command]
 async fn get_config(app: tauri::State<'_, App>) -> Result<config::Config, SADError> {
-    let db = &app.db.lock().await;
+    let db_guard = &app.db.lock().await;
+    let db_conn = db_guard.as_ref().into_sad_error("")?;
     let mut cache = app.cache.lock().await;
-    let svc = config::SqliteImpl { db };
+    let svc = config::SqliteImpl { db: db_conn };
     let res = svc.get_default_config().await;
     match res {
         Ok(r) => {
@@ -365,9 +382,11 @@ async fn get_config(app: tauri::State<'_, App>) -> Result<config::Config, SADErr
 
 #[tauri::command]
 async fn update_config(config: config::Config, app: tauri::State<'_, App>) -> Result<(), SADError> {
-    let db = &app.db.lock().await;
+    let db_guard = &app.db.lock().await;
+    let db_conn = db_guard.as_ref().into_sad_error("")?;
+
     let mut cache = app.cache.lock().await;
-    let svc = config::SqliteImpl { db };
+    let svc = config::SqliteImpl { db: db_conn };
     let res = svc.update_default_config(config).await;
 
     match res {
