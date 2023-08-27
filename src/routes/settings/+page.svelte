@@ -1,18 +1,16 @@
 <script lang="ts">
+	import Breadcrumbs from '$lib/BreadCrumbs.svelte';
 	import type { Config } from '$lib/config/models';
 	import { configStore } from '$lib/config/stores';
 	import ErrorModal from '$lib/error/Error.svelte';
 	import { notifications } from '$lib/notifications/stores';
 	import { sleep } from '$lib/utils';
-	import { IconSlash } from '@tabler/icons-svelte';
-	import {
-		Breadcrumb,
-		BreadcrumbItem,
-		Button,
-		Checkbox,
-		Input,
-		Label
-	} from 'flowbite-svelte';
+	import { Button, Checkbox, Input, Label } from 'flowbite-svelte';
+
+	let crumbs = [
+		{ name: 'Home', href: '/' },
+		{ name: 'Settings', href: '' }
+	];
 
 	let config: Config | null = null;
 	$: {
@@ -21,7 +19,7 @@
 				id: $configStore?.id,
 				prompt_disable_package: $configStore?.prompt_disable_package,
 				custom_adb_path: $configStore?.custom_adb_path,
-				clear_packages_on_disable: $configStore?.clear_packages_on_disable,
+				clear_packages_on_disable: $configStore?.clear_packages_on_disable
 			};
 		}
 	}
@@ -54,21 +52,7 @@
 
 <ErrorModal message={updateErr} />
 
-<Breadcrumb aria-label="Devices BreadCrumb">
-	<BreadcrumbItem href="/">
-		<svelte:fragment slot="icon">
-			<IconSlash size={18} stroke={1.5} />
-		</svelte:fragment>
-		Home
-	</BreadcrumbItem>
-
-	<BreadcrumbItem>
-		<svelte:fragment slot="icon">
-			<IconSlash size={18} stroke={1.5} />
-		</svelte:fragment>
-		Settings</BreadcrumbItem
-	>
-</Breadcrumb>
+<Breadcrumbs {crumbs} />
 
 <div class="flex flex-col gap-y-5 mt-10">
 	{#if config}

@@ -1,25 +1,18 @@
 <script>
-	import { IconMessages, IconPackages, IconSlash, IconSourceCode } from '@tabler/icons-svelte';
+	import Breadcrumbs from '$lib/BreadCrumbs.svelte';
+	import { IconMessages, IconPackages, IconSourceCode } from '@tabler/icons-svelte';
 	import { getVersion } from '@tauri-apps/api/app';
-	import { Breadcrumb, BreadcrumbItem, Button } from 'flowbite-svelte';
+	import { Button } from 'flowbite-svelte';
+
 	const appVersion = getVersion();
+
+	let crumbs = [
+		{ name: 'Home', href: '/' },
+		{ name: 'About', href: '' }
+	];
 </script>
 
-<Breadcrumb aria-label="Devices BreadCrumb">
-	<BreadcrumbItem href="/">
-		<svelte:fragment slot="icon">
-			<IconSlash size={18} stroke={1.5} />
-		</svelte:fragment>
-		Home
-	</BreadcrumbItem>
-
-	<BreadcrumbItem>
-		<svelte:fragment slot="icon">
-			<IconSlash size={18} stroke={1.5} />
-		</svelte:fragment>
-		About</BreadcrumbItem
-	>
-</Breadcrumb>
+<Breadcrumbs {crumbs} />
 
 <div class="flex flex-col gap-y-5 mt-10 text-gray-700">
 	<p>
@@ -61,12 +54,15 @@
 		</Button>
 	</div>
 
-
-	<p class="text-xl text-gray-700"> Logs </p>
+	<p class="text-xl text-gray-700">Logs</p>
 	<ul>
-		<li class="pre"><pre> macOS: /Users/Bob/Library/Logs/com.ahiravan.simple-android-debloater</pre> </li>
-		<li><pre> Windows:C:\Users\Bob\AppData\Roaming\com.ahiravan.simple-android-debloater\logs </pre></li>
-		<li><pre> Linux: /home/bob/.config/com.ahiravan.simple-android-debloater/logs</pre> </li>
+		<li class="pre">
+			<pre> macOS: /Users/Bob/Library/Logs/com.ahiravan.simple-android-debloater</pre>
+		</li>
+		<li>
+			<pre> Windows:C:\Users\Bob\AppData\Roaming\com.ahiravan.simple-android-debloater\logs </pre>
+		</li>
+		<li><pre> Linux: /home/bob/.config/com.ahiravan.simple-android-debloater/logs</pre></li>
 	</ul>
 
 	{#await appVersion then version}
