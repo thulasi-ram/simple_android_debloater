@@ -105,19 +105,13 @@ const LIST_DISABLED_PACKAGES: &str = "pm list packages -d";
 const LIST_UNINSTALLED_DISABLED_PACKAGES: &str = "pm list packages -u -d";
 
 pub struct ADBTerminalImpl {
-    custom_adb_path: String,
+    adb_path: String,
 }
 
 impl ADBTerminalImpl {
-    pub fn new() -> Self {
+    pub fn new(adb_path: String) -> Self {
         Self {
-            custom_adb_path: String::from(""),
-        }
-    }
-
-    pub fn new_with_options(custom_adb_path: String) -> Self {
-        Self {
-            custom_adb_path: String::from(""),
+            adb_path: String::from(adb_path),
         }
     }
 }
@@ -139,6 +133,8 @@ lazy_static! {
 
 impl ADBTerminalImpl {
     pub fn list_packages(&self, device_id: String, user_id: String) -> Result<Vec<Package>> {
+        let shell_cmd = ADBShell::new(self.adb_path.to_owned()).for_device(device_id.to_owned());
+
         let (
             mut all_pkg,
             mut enabled_pkg,
@@ -170,30 +166,12 @@ impl ADBTerminalImpl {
             cmd_tpp_pkg,
             cmd_uninstalled_disabled_pkg,
         ) = (
-            ADBShell::new_for_device(
-                device_id.to_owned(),
-                &[LIST_ALL_PACKAGES_INCLUDING_UNINSTALLED],
-            ),
-            ADBShell::new_for_device(
-                device_id.to_owned(),
-                &[LIST_ENABLED_PACKAGES, "--user", &user_id],
-            ),
-            ADBShell::new_for_device(
-                device_id.to_owned(),
-                &[LIST_DISABLED_PACKAGES, "--user", &user_id],
-            ),
-            ADBShell::new_for_device(
-                device_id.to_owned(),
-                &[LIST_SYSTEM_PACKAGES, "--user", &user_id],
-            ),
-            ADBShell::new_for_device(
-                device_id.to_owned(),
-                &[LIST_THIRD_PARTY_PACKAGES, "--user", &user_id],
-            ),
-            ADBShell::new_for_device(
-                device_id.to_owned(),
-                &[LIST_UNINSTALLED_DISABLED_PACKAGES, "--user", &user_id],
-            ),
+            shell_cmd.clone().with_commands(&[LIST_ALL_PACKAGES_INCLUDING_UNINSTALLED]),
+            shell_cmd.clone().with_commands(&[LIST_ENABLED_PACKAGES, "--user", &user_id]),
+            shell_cmd.clone().with_commands(&[LIST_DISABLED_PACKAGES, "--user", &user_id]),
+            shell_cmd.clone().with_commands(&[LIST_SYSTEM_PACKAGES, "--user", &user_id]),
+            shell_cmd.clone().with_commands(&[LIST_THIRD_PARTY_PACKAGES, "--user", &user_id]),
+            shell_cmd.clone().with_commands(&[LIST_UNINSTALLED_DISABLED_PACKAGES, "--user", &user_id]),
         );
 
         fn callback_all_pkg(
@@ -279,19 +257,12 @@ impl ADBTerminalImpl {
     }
 
     pub fn disable_package(&self, device_id: String, user_id: String, pkg: String) -> Result<()> {
+        let shell_cmd: ADBShell = ADBShell::new(self.adb_path.to_owned()).for_device(device_id.to_owned());
+
         let (cmd_disable_pkg, cmd_fstop_pkg, cmd_clear_pkg) = (
-            ADBShell::new_for_device(
-                device_id.to_owned(),
-                &["pm disable-user", "--user", &user_id, &pkg.to_owned()],
-            ),
-            ADBShell::new_for_device(
-                device_id.to_owned(),
-                &["am force-stop", "--user", &user_id, &pkg.to_owned()],
-            ),
-            ADBShell::new_for_device(
-                device_id.to_owned(),
-                &["pm clear", "--user", &user_id, &pkg.to_owned()],
-            ),
+            shell_cmd.clone().with_commands(&["pm disable-user", "--user", &user_id, &pkg.to_owned()]),
+            shell_cmd.clone().with_commands(&["am force-stop", "--user", &user_id, &pkg.to_owned()]),
+            shell_cmd.clone().with_commands(&["pm clear", "--user", &user_id, &pkg.to_owned()]),
         );
 
         Self::_execute_and_parse(cmd_disable_pkg, |s| {
@@ -324,10 +295,10 @@ impl ADBTerminalImpl {
     }
 
     pub fn enable_package(&self, device_id: String, user_id: String, pkg: String) -> Result<()> {
-        let cmd_enable_pkg = ADBShell::new_for_device(
-            device_id.to_owned(),
-            &["pm enable", "--user", &user_id, &pkg.to_owned()],
-        );
+        let shell_cmd: ADBShell = ADBShell::new(self.adb_path.to_owned()).for_device(device_id.to_owned());
+
+        let cmd_enable_pkg =
+            shell_cmd.with_commands(&["pm enable", "--user", &user_id, &pkg.to_owned()]);
 
         Self::_execute_and_parse(cmd_enable_pkg, |s| {
             if s.contains(&format!("Package {} new state: enabled", pkg.to_owned())) {
@@ -340,15 +311,14 @@ impl ADBTerminalImpl {
     }
 
     pub fn install_package(&self, device_id: String, user_id: String, pkg: String) -> Result<()> {
-        let cmd_enable_pkg = ADBShell::new_for_device(
-            device_id.to_owned(),
-            &[
-                "cmd package install-existing",
-                "--user",
-                &user_id,
-                &pkg.to_owned(),
-            ],
-        );
+        let shell_cmd: ADBShell = ADBShell::new(self.adb_path.to_owned()).for_device(device_id.to_owned());
+
+        let cmd_enable_pkg = shell_cmd.with_commands(&[
+            "cmd package install-existing",
+            "--user",
+            &user_id,
+            &pkg.to_owned(),
+        ]);
 
         Self::_execute_and_parse(cmd_enable_pkg, |s| {
             if s.contains(&format!("Package {} new state: enabled", pkg.to_owned())) {

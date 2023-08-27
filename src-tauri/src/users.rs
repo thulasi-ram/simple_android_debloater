@@ -20,11 +20,16 @@ pub trait ListUsers {
     fn list_users(&self, device_id: String) -> Result<Vec<User>>;
 }
 
-pub struct ADBTerminalImpl {}
+pub struct ADBTerminalImpl {
+    pub adb_path: String
+}
 
 impl ADBTerminalImpl {
     pub fn list_users(&self, device_id: String) -> Result<Vec<User>> {
-        let res = ADBShell::new_for_device(device_id.to_owned(), &["pm list users "]).execute();
+        let shell_cmd: ADBShell =
+        ADBShell::new(self.adb_path.to_owned()).for_device(device_id.to_owned());
+
+        let res = shell_cmd.with_commands(&["pm list users "]).execute();
         match res {
             Err(e) => {
                 return Err(e.into());

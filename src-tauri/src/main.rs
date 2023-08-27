@@ -122,14 +122,22 @@ fn event_publisher<R: tauri::Runtime>(event: events::AsyncEvent, manager: &impl 
 }
 
 async fn track_devices<R: tauri::Runtime>(manager: &impl Manager<R>) {
-    let res = _adb_list_device_with_users().await;
+    let app: tauri::State<'_, App> = manager.state();
+    let db = &app.db.lock().await;
+    let config_svc = config::SqliteImpl { db };
+    
+    let config = config_svc
+        .get_default_config()
+        .await
+        .into_sad_error("unable tp get config").unwrap();
+
+    let res = _adb_list_device_with_users(config).await;
     match res {
         Err(e) => {
             error!("Error getting async devices {:?}", e);
         }
         Ok(device_with_users) => {
             let w = manager.get_window("main").unwrap();
-            let app: tauri::State<'_, App> = manager.state();
             let mut cache = app.cache_store.lock().await;
 
             for du in device_with_users {
@@ -165,7 +173,16 @@ pub struct DeviceWithUsers {
 async fn adb_list_devices_with_users(
     app: tauri::State<'_, App>,
 ) -> Result<Vec<DeviceWithUsers>, SADError> {
-    let res = _adb_list_device_with_users().await;
+
+    let db = &app.db.lock().await;
+    let config_svc = config::SqliteImpl { db };
+    
+    let config = config_svc
+        .get_default_config()
+        .await
+        .into_sad_error("unable tp get config")?;
+
+    let res = _adb_list_device_with_users(config).await;
     match res {
         Err(e) => {
             return Err(SADError::E(e));
@@ -182,11 +199,11 @@ async fn adb_list_devices_with_users(
     }
 }
 
-async fn _adb_list_device_with_users() -> anyhow::Result<Vec<DeviceWithUsers>> {
+async fn _adb_list_device_with_users(config: config::Config) -> anyhow::Result<Vec<DeviceWithUsers>> {
     let mut device_with_users: Vec<DeviceWithUsers> = vec![];
 
-    let acd = devices::ADBTerminalImpl {};
-    let acu = users::ADBTerminalImpl {};
+    let acd = devices::ADBTerminalImpl {adb_path: config.custom_adb_path.to_owned()};
+    let acu = users::ADBTerminalImpl {adb_path: config.custom_adb_path.to_owned()};
     let devices = acd.list_devices()?;
 
     for device in devices {
@@ -211,7 +228,7 @@ async fn adb_list_packages(
         .await
         .into_sad_error("unable tp get config")?;
 
-    let acl = packages::ADBTerminalImpl::new_with_options(config.custom_adb_path);
+    let acl = packages::ADBTerminalImpl::new(config.custom_adb_path);
     let packages = acl.list_packages(device_id.to_string(), user_id.to_string())?;
 
     let mut cache = app.cache_store.lock().await;
@@ -230,7 +247,15 @@ async fn adb_disable_clear_and_stop_package(
     pkg: &str,
     app: tauri::State<'_, App>,
 ) -> Result<(), SADError> {
-    let acl = packages::ADBTerminalImpl::new();
+    let db = &app.db.lock().await;
+    let config_svc = config::SqliteImpl { db };
+    
+    let config = config_svc
+        .get_default_config()
+        .await
+        .into_sad_error("unable tp get config")?;
+
+    let acl = packages::ADBTerminalImpl::new(config.custom_adb_path);
     acl.disable_package(device_id.to_string(), user_id.to_string(), pkg.to_string())?;
 
     {
@@ -265,7 +290,16 @@ async fn adb_enable_package(
     pkg: &str,
     app: tauri::State<'_, App>,
 ) -> Result<(), SADError> {
-    let acl = packages::ADBTerminalImpl::new();
+
+    let db = &app.db.lock().await;
+    let config_svc = config::SqliteImpl { db };
+    
+    let config = config_svc
+        .get_default_config()
+        .await
+        .into_sad_error("unable tp get config")?;
+
+    let acl = packages::ADBTerminalImpl::new(config.custom_adb_path);
     acl.enable_package(device_id.to_string(), user_id.to_string(), pkg.to_string())?;
 
     {
@@ -300,7 +334,16 @@ async fn adb_install_package(
     pkg: &str,
     app: tauri::State<'_, App>,
 ) -> Result<(), SADError> {
-    let acl = packages::ADBTerminalImpl::new();
+
+    let db = &app.db.lock().await;
+    let config_svc = config::SqliteImpl { db };
+    
+    let config = config_svc
+        .get_default_config()
+        .await
+        .into_sad_error("unable tp get config")?;
+
+    let acl = packages::ADBTerminalImpl::new(config.custom_adb_path);
     acl.install_package(device_id.to_string(), user_id.to_string(), pkg.to_string())?;
 
     {

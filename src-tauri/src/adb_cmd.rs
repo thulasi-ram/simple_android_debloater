@@ -3,7 +3,6 @@ use std::process::Command;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 
-
 pub trait ADBCommand {
     fn execute(&self) -> Result<String, ADBError>;
 }
@@ -14,36 +13,45 @@ pub enum ADBError {
     Unknown(String),
 }
 
+#[derive(Debug, Clone)]
 pub struct ADBRaw {
+    adb_path: String,
     sub_commands: Vec<String>,
 }
 
 impl ADBRaw {
-    pub fn new(value: &[&str]) -> Self {
+    pub fn new(adb_path: String, value: Vec<String>) -> Self {
         Self {
-            sub_commands: value.iter().map(|s| String::from(*s)).collect(),
+            adb_path: adb_path,
+            sub_commands: value,
         }
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct ADBShell {
+    adb_path: String,
     sub_commands: Vec<String>,
     device_id: String,
 }
 
 impl ADBShell {
-    // pub fn new(value: &[&str]) -> Self {
-    //     Self {
-    //         sub_commands: value.iter().map(|s| String::from(*s)).collect(),
-    //         device_id: String::from(""),
-    //     }
-    // }
-
-    pub fn new_for_device(device_id: String, value: &[&str]) -> Self {
+    pub fn new(adb_path: String) -> Self {
         Self {
-            sub_commands: value.iter().map(|s| String::from(*s)).collect(),
-            device_id: device_id,
+            adb_path: adb_path,
+            sub_commands: vec![],
+            device_id: String::from(""),
         }
+    }
+
+    pub fn for_device(mut self, device_id: String) -> Self {
+        self.device_id = device_id;
+        return self;
+    }
+
+    pub fn with_commands(mut self, sub_commands: &[&str]) -> Self {
+        self.sub_commands = sub_commands.iter().map(|s| String::from(*s)).collect();
+        return self;
     }
 }
 
@@ -95,13 +103,11 @@ impl ADBCommand for ADBShell {
 
         if !String::is_empty(&self.device_id.to_owned()) {
             sub_commands_with_shell.insert(0, String::from("-s"));
-            sub_commands_with_shell.insert(1, String::from(self.device_id.to_owned()));
+            sub_commands_with_shell.insert(1, self.device_id.to_owned());
         }
 
         sub_commands_with_shell.extend(self.sub_commands.to_owned());
-        let adb_raw = ADBRaw {
-            sub_commands: sub_commands_with_shell,
-        };
+        let adb_raw = ADBRaw::new(self.adb_path.to_owned(), sub_commands_with_shell);
         return adb_raw.execute();
     }
 }
