@@ -3,6 +3,8 @@ use std::process::Command;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 
+use log::info;
+
 pub trait ADBCommand {
     fn execute(&self) -> Result<String, ADBError>;
 }
@@ -57,7 +59,13 @@ impl ADBShell {
 
 impl ADBCommand for ADBRaw {
     fn execute(&self) -> Result<String, ADBError> {
-        let mut command = Command::new("adb");
+
+        let mut cmd_str = "adb";
+        if !self.adb_path.is_empty() {
+            cmd_str = self.adb_path.as_str();
+        }
+
+        let mut command = Command::new(cmd_str);
 
         // https://stackoverflow.com/a/38186733/6323666
         let args = self
@@ -66,6 +74,8 @@ impl ADBCommand for ADBRaw {
             .map(|s| s.as_str())
             .collect::<Vec<&str>>();
         command.args(args);
+
+        info!("command {:?}", command);
 
         #[cfg(target_os = "windows")]
         let command = command.creation_flags(0x08000000); // do not open a cmd window
