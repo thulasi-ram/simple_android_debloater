@@ -34,7 +34,6 @@ use users::User;
 struct App {
     pub db: tokio::sync::Mutex<SqlitePool>,
     pub event_emitter: tokio::sync::Mutex<mpsc::Sender<events::AsyncEvent>>,
-    // pub cache_store: tokio::sync::Mutex<store::Store>,
     pub cache: tokio::sync::Mutex<cache::Cache>,
 }
 
@@ -242,7 +241,7 @@ async fn adb_disable_clear_and_stop_package(
     let config = app.config().await.unwrap();
 
     let acl = packages::ADBTerminalImpl::new(config.custom_adb_path);
-    acl.disable_package(device_id.to_string(), user_id.to_string(), pkg.to_string())?;
+    acl.disable_package(device_id.to_string(), user_id.to_string(), pkg.to_string(), config.clear_packages_on_disable)?;
 
     {
         let mut cache = app.cache.lock().await;

@@ -8,6 +8,7 @@ pub struct Config {
     pub id: i64,
     pub prompt_disable_package: bool,
     pub custom_adb_path: String,
+    pub clear_packages_on_disable: bool,
 }
 
 static DEFAULT_CONFIG_ID: i64 = 1;
@@ -18,6 +19,7 @@ impl Default for Config {
             id: DEFAULT_CONFIG_ID,
             prompt_disable_package: true,
             custom_adb_path: String::from(""),
+            clear_packages_on_disable: false,
         }
     }
 }
@@ -65,12 +67,13 @@ impl SqliteImpl<'_> {
 
     pub async fn update_default_config(&self, config: Config) -> Result<Config> {
         let res = sqlx::query(
-            "insert into config(id, prompt_disable_package, custom_adb_path) VALUES($1, $2, $3) 
-            ON CONFLICT(id) DO UPDATE SET prompt_disable_package = $2, custom_adb_path = $3",
+            "insert into config(id, prompt_disable_package, custom_adb_path, clear_packages_on_disable) VALUES($1, $2, $3, $4) 
+            ON CONFLICT(id) DO UPDATE SET prompt_disable_package = $2, custom_adb_path = $3, clear_packages_on_disable = $4",
         )
         .bind(DEFAULT_CONFIG_ID)
         .bind(config.prompt_disable_package)
         .bind(config.custom_adb_path.to_owned())
+        .bind(config.clear_packages_on_disable)
         .execute(self.db)
         .await?;
 

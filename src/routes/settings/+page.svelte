@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Config } from '$lib/config/models';
 	import { configStore } from '$lib/config/stores';
-	import Error from '$lib/error/Error.svelte';
 	import ErrorModal from '$lib/error/Error.svelte';
 	import { notifications } from '$lib/notifications/stores';
 	import { sleep } from '$lib/utils';
@@ -11,7 +10,6 @@
 		BreadcrumbItem,
 		Button,
 		Checkbox,
-		Helper,
 		Input,
 		Label
 	} from 'flowbite-svelte';
@@ -22,7 +20,8 @@
 			config = {
 				id: $configStore?.id,
 				prompt_disable_package: $configStore?.prompt_disable_package,
-				custom_adb_path: $configStore?.custom_adb_path
+				custom_adb_path: $configStore?.custom_adb_path,
+				clear_packages_on_disable: $configStore?.clear_packages_on_disable,
 			};
 		}
 	}
@@ -46,7 +45,7 @@
 	function resetConfig() {
 		discarding = true;
 		sleep(500).then(() => {
-			config == null;
+			config = null;
 			notifications.info('Config Discarded Successfully!');
 			discarding = false;
 		});
@@ -74,7 +73,10 @@
 <div class="flex flex-col gap-y-5 mt-10">
 	{#if config}
 		<Checkbox bind:checked={config.prompt_disable_package} class="cursor:pointer">
-			Prompt on Disable Package
+			Prompt on disable package
+		</Checkbox>
+		<Checkbox bind:checked={config.clear_packages_on_disable} class="cursor:pointer">
+			Clear packages on disable
 		</Checkbox>
 
 		<div class="mb-6">
