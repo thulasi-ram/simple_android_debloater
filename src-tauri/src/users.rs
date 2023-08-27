@@ -1,7 +1,7 @@
 use crate::adb_cmd::{ADBCommand, ADBShell};
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
-use tauri::regex::Regex;
+use regex::Regex;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct User {

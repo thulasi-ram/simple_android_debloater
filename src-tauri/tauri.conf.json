@@ -15,19 +15,9 @@
       "app": {
         "all": true
       },
-      "shell": {
-				"all": true,
-				"execute": true,
-				"sidecar": true,
-				"open": true,
-				"scope": [
-					{
-						"name": "adb-devices",
-						"cmd": "adb",
-						"args": ["devices"]
-					}
-				]
-			},
+      "path": {
+        "all": true
+      },
       "notification": {
         "all": true
       }

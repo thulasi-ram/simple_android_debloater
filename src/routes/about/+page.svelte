@@ -3,6 +3,12 @@
 	import { IconMessages, IconPackages, IconSourceCode } from '@tabler/icons-svelte';
 	import { getVersion } from '@tauri-apps/api/app';
 	import { Button } from 'flowbite-svelte';
+	import { appLogDir } from '@tauri-apps/api/path';
+
+	let logDir = '';
+	appLogDir().then((v) => {
+		logDir = v;
+	});
 
 	const appVersion = getVersion();
 
@@ -54,16 +60,10 @@
 		</Button>
 	</div>
 
-	<p class="text-xl text-gray-700">Logs</p>
-	<ul>
-		<li class="pre">
-			<pre> macOS: /Users/Bob/Library/Logs/com.ahiravan.simple-android-debloater</pre>
-		</li>
-		<li>
-			<pre> Windows:C:\Users\Bob\AppData\Roaming\com.ahiravan.simple-android-debloater\logs </pre>
-		</li>
-		<li><pre> Linux: /home/bob/.config/com.ahiravan.simple-android-debloater/logs</pre></li>
-	</ul>
+	<span>
+		Logs Directory
+		<pre class="text-xs pt-2">{logDir}</pre>
+	</span>
 
 	{#await appVersion then version}
 		<p class="mx-auto text-gray-500">app version: {version}</p>

@@ -4,7 +4,7 @@ use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::{fmt::Display, str::FromStr};
-use tauri::regex::Regex;
+use regex::Regex;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PackageState {
