@@ -7,7 +7,19 @@ import type { Config } from './models';
 export function createConfigStore() {
 	let store: Writable<Config | null> = writable(null);
 
-	const { subscribe, set } = store;
+	const { subscribe, set: _set } = store;
+
+	function set(c: Config) {
+		info(`invoking update_config ${JSON.stringify(c)}`);
+
+		invoke('update_config', { config: c })
+			.then(() => {
+				_set(c);
+			})
+			.catch((e) => {
+				sadErrorStore.setError(`unable to update config: ${e}`);
+			});
+	}
 
 	return {
 		set,
@@ -26,25 +38,3 @@ export function createConfigStore() {
 }
 
 export const configStore = createConfigStore();
-
-let updateTimeoutID: number;
-
-configStore.subscribe(async (s) => {
-	info(`writing store ${JSON.stringify(s)}`);
-	if (s == null || Object.keys(s).length <= 0) {
-		return;
-	}
-
-	if (updateTimeoutID) {
-		clearTimeout(updateTimeoutID);
-	}
-
-	// debounce by 300ms
-	updateTimeoutID = setTimeout(() => {
-		invoke('update_config', { config: s })
-			.then(() => {})
-			.catch((e) => {
-				sadErrorStore.setError(`unable to update settings: ${e}`);
-			});
-	}, 300);
-});
