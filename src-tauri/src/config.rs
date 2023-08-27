@@ -63,14 +63,14 @@ impl SqliteImpl<'_> {
         }
     }
 
-    pub async fn update_default_config(&self, config: Config) -> Result<()> {
+    pub async fn update_default_config(&self, config: Config) -> Result<Config> {
         let res = sqlx::query(
             "insert into config(id, prompt_disable_package, custom_adb_path) VALUES($1, $2, $3) 
             ON CONFLICT(id) DO UPDATE SET prompt_disable_package = $2, custom_adb_path = $3",
         )
         .bind(DEFAULT_CONFIG_ID)
         .bind(config.prompt_disable_package)
-        .bind(config.custom_adb_path)
+        .bind(config.custom_adb_path.to_owned())
         .execute(self.db)
         .await?;
 
@@ -78,6 +78,6 @@ impl SqliteImpl<'_> {
             return Err(anyhow!("no rows updated").into());
         }
 
-        return Ok(());
+        return Ok(config);
     }
 }
