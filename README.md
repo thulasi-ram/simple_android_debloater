@@ -39,7 +39,7 @@ Screenshots are available in [static](./static/screenshots) directory.
 
 ### Usage
 
-![Usage Screenshot](./static/screenshots/sad_beta_0.1_usage.png)
+![Usage Screenshot](./static/screenshots/sad_v0.3.0-beta_usage.gif)
 
 - Click on Devices found in the left sidebar
 - Use the search bar for searching
