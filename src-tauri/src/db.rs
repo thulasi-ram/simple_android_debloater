@@ -1,6 +1,7 @@
 use anyhow::Result;
+use log::info;
 use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
-use std::str::FromStr;
+use std::{str::FromStr, fs};
 
 // https://github.com/tauri-apps/tauri/discussions/5557
 // https://github.com/RandomEngy/tauri-sqlite/blob/main/src-tauri/src/main.rs
@@ -10,9 +11,11 @@ pub async fn init(app_handle: &tauri::AppHandle) -> Result<SqlitePool> {
         .app_data_dir()
         .expect("The app data directory should exist.");
 
-    // fs::create_dir_all(&app_dir).expect("The app data directory should be created.");
+    fs::create_dir_all(&app_dir).expect("The app data directory should be created.");
 
     let sqlite_path = app_dir.join("sad.sqlite");
+
+    info!("db_url {:?}", sqlite_path);
 
     let db_url = sqlite_path
         .to_str()
