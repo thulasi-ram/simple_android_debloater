@@ -7,14 +7,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: cd ./scripts
       - uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: 'npm'
           cache-dependency-path: 'package-lock.json'
+      - run: cd ./scripts
       - run: npm ci
-      - run: node discussions_dump.js
+      - run: ls -lahtr
+      - run: node ./discussions_dump.js
       - uses: actions/upload-artifact@v3.1.2
         with:
           name: discussions_dump.json
