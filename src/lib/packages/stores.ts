@@ -2,9 +2,8 @@ import { selectedDeviceStore } from '$lib/devices/stores';
 import { setErrorModal } from '$lib/error';
 import { selectedUserStore } from '$lib/users/stores';
 import { derived, get, writable, type Writable } from 'svelte/store';
-import { info } from "tauri-plugin-log-api";
+import { info } from 'tauri-plugin-log-api';
 import type { Package } from './models';
-
 
 function createPackagesStore() {
 	const store = writable<Record<string, Package[]>>({});
@@ -22,6 +21,22 @@ function createPackagesStore() {
 		});
 	}
 
+	function addPackage(device_id: string, user_id: string, pkg: Package) {
+		update((store) => {
+			let pkey = packagesKey(device_id, user_id);
+			if (!pkey) {
+				setErrorModal('pkey is empty');
+				return store;
+			}
+			let existingPkgs = store[pkey];
+
+			existingPkgs = existingPkgs.filter((epkg) => epkg.name !== pkg.name);
+			existingPkgs.push(pkg);
+			store[pkey] = existingPkgs;
+			return store;
+		});
+	}
+
 	function hasPackages(device_id: string, user_id: string): boolean {
 		let pkey = packagesKey(device_id, user_id);
 		if (!pkey) {
@@ -33,7 +48,8 @@ function createPackagesStore() {
 	return {
 		subscribe,
 		setPackages,
-		hasPackages
+		hasPackages,
+		addPackage
 	};
 }
 
@@ -61,4 +77,4 @@ export const currentPackagesStore = derived(
 );
 
 export const filteredPackages: Writable<Package[]> = writable([]);
-export const searchTermStore = writable("");
+export const searchTermStore = writable('');
