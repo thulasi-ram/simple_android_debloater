@@ -1,0 +1,33 @@
+name: Dump Discussions Workflow
+
+on: workflow_dispatch
+
+jobs:
+  discussions_dump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: cd ./scripts
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+      - run: npm ci
+      - run: node discussions_dump.js
+      - uses: actions/upload-artifact@v3.1.2
+        with:
+          name: discussions_dump.json
+          path: discussions_dump.json
+          if-no-files-found: error
+  upload_dump_to_s3:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2.1.1
+      - uses: shallwefootball/upload-s3-action@v1.3.3
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+          aws_bucket: simple-android-debloater
+          source_dir: ./discussions_dump.json
+
