@@ -1,11 +1,10 @@
 <script>
+	import Breadcrumbs from '$lib/BreadCrumbs.svelte';
 	import { liveDevicesStore, selectedDeviceStore } from '$lib/devices/stores';
 	import FilterAndSearchPackages from '$lib/packages/FilterAndSearchPackages.svelte';
 	import PackagesList from '$lib/packages/PackagesList.svelte';
 	import RefreshPackagesButton from '$lib/packages/RefreshPackagesButton.svelte';
 	import UsersDropdown from '$lib/users/UsersDropdown.svelte';
-	import { IconSlash } from '@tabler/icons-svelte';
-	import { Breadcrumb, BreadcrumbItem } from 'flowbite-svelte';
 
 	export const deviceId = '';
 
@@ -18,30 +17,17 @@
 			renderPackages = false;
 		}
 	});
+
+	let crumbs = [
+		{ name: 'Home', href: '/' },
+		{ name: 'Devices', href: '' },
+		{ name: $selectedDeviceStore?.device.name, href: `/devices/${$selectedDeviceStore?.device.id}` }
+	];
 </script>
 
 <div class="w-full">
 	<div class="mb-10">
-		<Breadcrumb aria-label="Devices BreadCrumb">
-			<BreadcrumbItem href="/">
-				<svelte:fragment slot="icon">
-					<IconSlash size={18} stroke={1.5} />
-				</svelte:fragment>
-				Home
-			</BreadcrumbItem>
-			<BreadcrumbItem>
-				<svelte:fragment slot="icon">
-					<IconSlash size={18} stroke={1.5} />
-				</svelte:fragment>
-				Devices</BreadcrumbItem
-			>
-			<BreadcrumbItem href="/devices/{$selectedDeviceStore?.device.id}">
-				<svelte:fragment slot="icon">
-					<IconSlash size={18} stroke={1.5} />
-				</svelte:fragment>
-				{$selectedDeviceStore?.device.name}</BreadcrumbItem
-			>
-		</Breadcrumb>
+		<Breadcrumbs {crumbs} />
 	</div>
 
 	<div class="flex items-center gap-x-2 justify-between mb-10">

@@ -55,11 +55,13 @@ pub trait ListDevices {
     fn list_devices(&self) -> Result<Vec<Device>>;
 }
 
-pub struct ADBTerminalImpl {}
+pub struct ADBTerminalImpl {
+    pub adb_path: String,
+}
 
 impl ADBTerminalImpl {
     pub fn list_devices(&self) -> Result<Vec<Device>> {
-        let res = ADBRaw::new(&["devices"]).execute();
+        let res = ADBRaw::new(self.adb_path.to_owned(), vec![String::from("devices")]).execute();
         match res {
             Err(e) => {
                 return Err(e.into());
@@ -71,7 +73,7 @@ impl ADBTerminalImpl {
                 let devices: Result<Vec<_>> = ots
                     .lines()
                     .map(|s| Self::_parse_device(s))
-                    .map(|d| Self::_set_prop(d))
+                    .map(|d| self._set_prop(d))
                     .collect();
 
                 return devices;
@@ -93,19 +95,19 @@ impl ADBTerminalImpl {
         });
     }
 
-    fn _set_prop(device: Result<Device>) -> Result<Device> {
+    fn _set_prop(&self, device: Result<Device>) -> Result<Device> {
         match device {
             Err(e) => {
                 return Err(e);
             }
             Ok(d) => {
-                let res = ADBShell::new_for_device(d.id.to_owned(), &["getprop"]).execute();
+                let shell_cmd: ADBShell = ADBShell::new(self.adb_path.to_owned()).for_device(d.id.to_owned());
+                let res = shell_cmd.with_commands(&["getprop"]).execute();
                 match res {
                     Err(e) => {
                         return Err(e.into());
                     }
                     Ok(o) => {
-
                         // helper to extract the prop when a match is found
                         let parse_val = |v: &str| {
                             let split = v.split_once(":");
@@ -126,7 +128,7 @@ impl ADBTerminalImpl {
                         };
 
                         let (mut make, mut model, mut name) =
-                        (String::from(""), String::from(""), String::from(""));
+                            (String::from(""), String::from(""), String::from(""));
 
                         for l in o.lines() {
                             match l {

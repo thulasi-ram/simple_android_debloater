@@ -31,7 +31,7 @@ export function fetchPackagesIfEmptySubscription(): Unsubscriber {
 export async function packageEventListener() {
 	await listen('package_event', (event) => {
 		let ep = event.payload as DeviceUserPackage;
-		packagesStore.setPackages(ep.device_id, ep.user_id, [ep.package]);
+		packagesStore.addPackage(ep.device_id, ep.user_id, ep.package);
 	});
 }
 

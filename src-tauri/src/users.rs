@@ -1,7 +1,8 @@
 use crate::adb_cmd::{ADBCommand, ADBShell};
 use anyhow::{anyhow, Result};
+use lazy_static::lazy_static;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
-use tauri::regex::Regex;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct User {
@@ -20,20 +21,27 @@ pub trait ListUsers {
     fn list_users(&self, device_id: String) -> Result<Vec<User>>;
 }
 
-pub struct ADBTerminalImpl {}
+pub struct ADBTerminalImpl {
+    pub adb_path: String,
+}
+
+lazy_static! {
+    static ref USER_INFO_PARSE_REGEX: Regex = Regex::new(r"UserInfo\{(.*)\}").unwrap();
+}
 
 impl ADBTerminalImpl {
     pub fn list_users(&self, device_id: String) -> Result<Vec<User>> {
-        let res = ADBShell::new_for_device(device_id.to_owned(), &["pm list users "]).execute();
+        let shell_cmd: ADBShell =
+            ADBShell::new(self.adb_path.to_owned()).for_device(device_id.to_owned());
+
+        let res = shell_cmd.with_commands(&["pm list users "]).execute();
         match res {
             Err(e) => {
                 return Err(e.into());
             }
             Ok(o) => {
-                let re = Regex::new(r"UserInfo\{(.*)\}").unwrap();
-
                 let mut users: Vec<User> = vec![];
-                for (_, [cap]) in re.captures_iter(&o).map(|c| c.extract()) {
+                for (_, [cap]) in USER_INFO_PARSE_REGEX.captures_iter(&o).map(|c| c.extract()) {
                     let split: Vec<&str> = cap.split(":").collect();
                     if split.len() < 2 {
                         return Err(anyhow!("unable to parse user. input {}", cap));

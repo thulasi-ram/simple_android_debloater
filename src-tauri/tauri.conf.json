@@ -8,26 +8,16 @@
   },
   "package": {
     "productName": "Simple Android Debloater",
-    "version": "0.2.0"
+    "version": "0.3.0-beta"
   },
   "tauri": {
     "allowlist": {
       "app": {
         "all": true
       },
-      "shell": {
-				"all": true,
-				"execute": true,
-				"sidecar": true,
-				"open": true,
-				"scope": [
-					{
-						"name": "adb-devices",
-						"cmd": "adb",
-						"args": ["devices"]
-					}
-				]
-			},
+      "path": {
+        "all": true
+      },
       "notification": {
         "all": true
       }

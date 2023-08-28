@@ -23,7 +23,7 @@ Unlike UAD, this tool is aimed to be beginner friendly so as to not uninstall ap
 - Mac: Installer (.dmg), App (.app) 
 - Linux: Installer (.deb), Image (.AppImage)
 
-Screenshots are available in [static](simple_android_debloater/tree/main/static/screenshots) directory.
+Screenshots are available in [static](./static/screenshots) directory.
 
 ## Usage
 
@@ -39,7 +39,7 @@ Screenshots are available in [static](simple_android_debloater/tree/main/static/
 
 ### Usage
 
-![Usage Screenshot](./static/screenshots/sad_beta_0.1_usage.png)
+![Usage Screenshot](./static/screenshots/sad_v0.3.0-beta_usage.gif)
 
 - Click on Devices found in the left sidebar
 - Use the search bar for searching
@@ -85,6 +85,6 @@ Run rust and node at once:
 
 - [ ] Github discussion for package
 
-- [ ] Prepackage ADB
+- [x] ~Prepackage ADB~ Custom ADB Path Instead
 
-- [ ] Persist Settings
+- [x] Persist Settings

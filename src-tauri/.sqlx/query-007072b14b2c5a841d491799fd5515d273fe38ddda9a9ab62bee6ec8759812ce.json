@@ -1,0 +1,38 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT * FROM config where id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "prompt_disable_package",
+        "ordinal": 1,
+        "type_info": "Bool"
+      },
+      {
+        "name": "custom_adb_path",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "clear_packages_on_disable",
+        "ordinal": 3,
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "007072b14b2c5a841d491799fd5515d273fe38ddda9a9ab62bee6ec8759812ce"
+}
