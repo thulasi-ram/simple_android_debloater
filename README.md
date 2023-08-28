@@ -85,6 +85,6 @@ Run rust and node at once:
 
 - [ ] Github discussion for package
 
-- [ ] Prepackage ADB
+- [x] ~Prepackage ADB~ Custom ADB Path Instead
 
 - [x] Persist Settings
