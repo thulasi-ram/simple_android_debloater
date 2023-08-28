@@ -12,14 +12,15 @@ jobs:
           node-version: 18
           cache: 'npm'
           cache-dependency-path: 'package-lock.json'
-      - run: cd ./scripts
-      - run: npm ci
-      - run: ls -lahtr
-      - run: node ./discussions_dump.js
+      - run: |
+          cd ./scripts
+          npm ci
+          ls -lahtr
+          node ./discussions_dump.js
       - uses: actions/upload-artifact@v3.1.2
         with:
           name: discussions_dump.json
-          path: discussions_dump.json
+          path: ./scripts/discussions_dump.json
           if-no-files-found: error
   upload_dump_to_s3:
     runs-on: ubuntu-latest
