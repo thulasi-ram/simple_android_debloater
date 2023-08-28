@@ -26,7 +26,7 @@ use sqlx::SqlitePool;
 use futures;
 
 use tauri::Manager;
-use tokio::{sync::{mpsc}, time};
+use tokio::{sync::mpsc, time};
 
 
 use devices::Device;
@@ -368,16 +368,9 @@ async fn get_config(app: tauri::State<'_, App>) -> Result<config::Config, SADErr
     let db_conn = db_guard.as_ref().into_sad_error("")?;
     let mut cache = app.cache.lock().await;
     let svc = config::SqliteImpl { db: db_conn };
-    let res = svc.get_default_config().await;
-    match res {
-        Ok(r) => {
-            cache.set_config(r.clone());
-            return Ok(r);
-        }
-        Err(e) => {
-            return Err(SADError::E(e.into()));
-        }
-    }
+    let res = svc.get_default_config().await.into_sad_error("unable to get config")?;
+    cache.set_config(res.clone());
+    return Ok(res);
 }
 
 #[tauri::command]
@@ -387,15 +380,7 @@ async fn update_config(config: config::Config, app: tauri::State<'_, App>) -> Re
 
     let mut cache = app.cache.lock().await;
     let svc = config::SqliteImpl { db: db_conn };
-    let res = svc.update_default_config(config).await;
-
-    match res {
-        Ok(r) => {
-            cache.set_config(r.clone());
-            return Ok(());
-        }
-        Err(e) => {
-            return Err(SADError::E(e.into()));
-        }
-    }
+    let res = svc.update_default_config(config).await.into_sad_error("unable to update config")?;
+    cache.set_config(res);
+    return Ok(());
 }

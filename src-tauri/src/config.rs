@@ -46,7 +46,6 @@ impl SqliteImpl<'_> {
             "SELECT * FROM config where id = ?",
             DEFAULT_CONFIG_ID
         )
-        // .bind(DEFAULT_CONFIG_ID)
         .fetch_one(self.db)
         .await;
 

@@ -1,7 +1,8 @@
 use crate::adb_cmd::{ADBCommand, ADBShell};
 use anyhow::{anyhow, Result};
-use serde::{Deserialize, Serialize};
+use lazy_static::lazy_static;
 use regex::Regex;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct User {
@@ -21,7 +22,7 @@ pub trait ListUsers {
 }
 
 pub struct ADBTerminalImpl {
-    pub adb_path: String
+    pub adb_path: String,
 }
 
 lazy_static! {
@@ -31,7 +32,7 @@ lazy_static! {
 impl ADBTerminalImpl {
     pub fn list_users(&self, device_id: String) -> Result<Vec<User>> {
         let shell_cmd: ADBShell =
-        ADBShell::new(self.adb_path.to_owned()).for_device(device_id.to_owned());
+            ADBShell::new(self.adb_path.to_owned()).for_device(device_id.to_owned());
 
         let res = shell_cmd.with_commands(&["pm list users "]).execute();
         match res {
