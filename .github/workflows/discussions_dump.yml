@@ -35,4 +35,5 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
           aws_bucket: simple-android-debloater
           source_dir: ./discussions_dump.json
+          destination_dir: "" # so that uploads to root
 
