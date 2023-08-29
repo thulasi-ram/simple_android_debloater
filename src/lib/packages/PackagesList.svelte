@@ -11,7 +11,7 @@
 
 	import { onDestroy, onMount } from 'svelte';
 	import type { Unsubscriber } from 'svelte/motion';
-	import { filteredPackages } from './stores';
+	import { filteredPackages, packageDiscussionsStore } from './stores';
 
 	import { configStore } from '../config/stores';
 	import {
@@ -38,7 +38,7 @@
 	let disablePackageName = '';
 	function disablePackageButton(pkg: string) {
 		if (!$configStore) {
-			sadErrorStore.setError("config is not loaded yet");
+			sadErrorStore.setError('config is not loaded yet');
 			return;
 		}
 		if ($configStore.prompt_disable_package) {
@@ -70,6 +70,7 @@
 	<Table striped={true}>
 		<TableBody>
 			{#each $filteredPackages as pkg}
+				{@const pkgDiscussion = $packageDiscussionsStore[pkg.name]}
 				<TableBodyRow>
 					<TableBodyCell tdClass={tbCellClass}>
 						{pkg.name}
@@ -79,6 +80,14 @@
 							<Badge rounded color="primary">{pkg.ptype}</Badge>
 						{/if}
 						<p class="text-xs italic text-gray-500">{pkg.package_prefix}</p>
+						{#if pkgDiscussion}
+							<p>{@html pkgDiscussion.bodyHTML}</p>
+							<div class="flex gap-3 my-2">
+								{#each pkgDiscussion.labels as l}
+									<Badge color="dark">{l.name}</Badge>
+								{/each}
+							</div>
+						{/if}
 					</TableBodyCell>
 					<TableBodyCell tdClass={tbCellClass}>
 						{#if pkg.state == 'Enabled'}

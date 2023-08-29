@@ -79,3 +79,14 @@ export const currentPackagesStore = derived(
 export const filteredPackages: Writable<Package[]> = writable([]);
 export const searchTermStore = writable('');
 export const packageDiscussionsStore: Writable<PackageDiscussions> = writable({});
+
+export const packageLabelsStore = derived([packageDiscussionsStore], ([$packageDiscussionsStore]) => {
+	let labels: Record<string, string> = {};
+
+	for (let [_, pkgdiscussion] of Object.entries($packageDiscussionsStore)) {
+		for (let l of pkgdiscussion.labels) {
+			labels[l.name] = l.description;
+		}
+	}
+	return labels;
+});
