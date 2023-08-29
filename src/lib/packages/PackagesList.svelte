@@ -13,15 +13,17 @@
 	import type { Unsubscriber } from 'svelte/motion';
 	import { filteredPackages, packageDiscussionsStore } from './stores';
 
+	import { sadErrorStore } from '$lib/error/stores';
+	import { IconChevronDown, IconChevronUp } from '@tabler/icons-svelte';
 	import { configStore } from '../config/stores';
 	import {
 		disablePackage,
+		discussion_create_url,
 		enablePackage,
 		fetchPackagesIfEmptySubscription,
 		installPackage,
 		packageEventListener
 	} from './PackagesList';
-	import { sadErrorStore } from '$lib/error/stores';
 	import { loadPackageDiscussions } from './discussions';
 
 	let unsub: Unsubscriber = () => {};
@@ -48,6 +50,17 @@
 			return disablePackage(pkg);
 		}
 	}
+
+	$: selectedRowPkgName = '';
+
+	function toggleSeletcedRowPkgName(pkg: string) {
+		console.log('triggering');
+		if (selectedRowPkgName !== pkg) {
+			selectedRowPkgName = pkg;
+		} else {
+			selectedRowPkgName = '';
+		}
+	}
 </script>
 
 <div>
@@ -67,11 +80,28 @@
 		</div>
 	</Modal>
 
-	<Table striped={true}>
+	<Table>
 		<TableBody>
 			{#each $filteredPackages as pkg}
 				{@const pkgDiscussion = $packageDiscussionsStore[pkg.name]}
-				<TableBodyRow>
+				{@const isDiscussionRowActive = selectedRowPkgName === pkg.name}
+				{@const discussionRowActiveClass = isDiscussionRowActive
+					? 'border-b-0 bg-gray-100 dark:bg-gray-700'
+					: ''}
+
+				<TableBodyRow
+					on:click={() => toggleSeletcedRowPkgName(pkg.name)}
+					class="cursor-pointer {discussionRowActiveClass}"
+				>
+					<TableBodyCell tdClass={tbCellClass}>
+						{#if !isDiscussionRowActive}
+							<button>
+								<IconChevronDown stroke={1.5} />
+							</button>
+						{:else}
+							<button><IconChevronUp stroke={1.5} /></button>
+						{/if}
+					</TableBodyCell>
 					<TableBodyCell tdClass={tbCellClass}>
 						{pkg.name}
 						{#if pkg.ptype == 'system'}
@@ -80,16 +110,9 @@
 							<Badge rounded color="primary">{pkg.ptype}</Badge>
 						{/if}
 						<p class="text-xs italic text-gray-500">{pkg.package_prefix}</p>
-						{#if pkgDiscussion}
-							<p>{@html pkgDiscussion.bodyHTML}</p>
-							<div class="flex gap-3 my-2">
-								{#each pkgDiscussion.labels as l}
-									<Badge color="dark">{l.name}</Badge>
-								{/each}
-							</div>
-						{/if}
 					</TableBodyCell>
-					<TableBodyCell tdClass={tbCellClass}>
+
+					<TableBodyCell class="py-3" tdClass={tbCellClass}>
 						{#if pkg.state == 'Enabled'}
 							<Button
 								size="xs"
@@ -122,6 +145,40 @@
 						{/if}
 					</TableBodyCell>
 				</TableBodyRow>
+
+				{#if isDiscussionRowActive}
+					<TableBodyRow>
+						<TableBodyCell tdClass={tbCellClass} />
+						<TableBodyCell
+							colspan="2"
+							class="flex flex-col py-3 items-center"
+							tdClass={tbCellClass}
+						>
+							{#if pkgDiscussion}
+								<div class="flex gap-3 my-2">
+									{#each pkgDiscussion.labels as l}
+										<Badge color="dark">{l.name}</Badge>
+									{/each}
+								</div>
+
+								<p class="text-gray-500 dark:text-gray-400">
+									{@html pkgDiscussion.bodyHTML}
+								</p>
+								<a
+									href={pkgDiscussion.url}
+									class="underline text-gray-500 dark:text-gray-400 text-xs mt-3"
+									>View the entire discussion</a
+								>
+							{:else}
+								<p class="text-gray-500 dark:text-gray-400">No Discussion for this package.</p>
+								<a
+									href={discussion_create_url(pkg)}
+									class="underline text-gray-500 dark:text-gray-400 text-xs mt-3">Create one?</a
+								>
+							{/if}
+						</TableBodyCell>
+					</TableBodyRow>
+				{/if}
 			{/each}
 		</TableBody>
 	</Table>

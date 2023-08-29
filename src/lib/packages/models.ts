@@ -34,6 +34,7 @@ export type PackageDiscussion = {
 	bodyHTML: string;
 	answer: any;
 	labels: Label[];
+	url: string;
 };
 
 export type PackageDiscussions = Record<string, PackageDiscussion>;
