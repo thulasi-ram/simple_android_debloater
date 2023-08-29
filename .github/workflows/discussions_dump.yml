@@ -38,5 +38,6 @@ jobs:
           aws-region: us-east-1
           role-to-assume: ${{ secrets.AWS_SAD_UPLOADER_ROLE }}
       - run: |
+          ls -lahtr
           aws s3 cp discussions_dump.json s3://simple-android-debloater/discussions_dump.json
 
