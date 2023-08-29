@@ -22,11 +22,13 @@
 		packageEventListener
 	} from './PackagesList';
 	import { sadErrorStore } from '$lib/error/stores';
+	import { loadPackageDiscussions } from './discussions';
 
 	let unsub: Unsubscriber = () => {};
 	onMount(() => {
 		unsub = fetchPackagesIfEmptySubscription();
 		packageEventListener();
+		loadPackageDiscussions();
 	});
 	onDestroy(unsub);
 

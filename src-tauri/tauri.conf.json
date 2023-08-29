@@ -15,6 +15,10 @@
       "app": {
         "all": true
       },
+      "http": {
+        "request": true,
+        "scope": ["https://d31d7prv3kbkn6.cloudfront.net/*"]
+      },
       "path": {
         "all": true
       },

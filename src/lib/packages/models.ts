@@ -17,7 +17,23 @@ export type DeviceUserPackage = {
 	package: Package;
 };
 
-
 export type Config = {
 	prompt_disable_package: boolean;
-}
+};
+
+export type Label = {
+	name: string;
+	description: string;
+};
+
+export type PackageDiscussion = {
+	id: string;
+	title: string;
+	closed: boolean;
+	body: string;
+	bodyHTML: string;
+	answer: any;
+	labels: Label[];
+};
+
+export type PackageDiscussions = Record<string, PackageDiscussion>;

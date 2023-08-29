@@ -3,7 +3,7 @@ import { setErrorModal } from '$lib/error';
 import { selectedUserStore } from '$lib/users/stores';
 import { derived, get, writable, type Writable } from 'svelte/store';
 import { info } from 'tauri-plugin-log-api';
-import type { Package } from './models';
+import type { Package, PackageDiscussions } from './models';
 
 function createPackagesStore() {
 	const store = writable<Record<string, Package[]>>({});
@@ -78,3 +78,4 @@ export const currentPackagesStore = derived(
 
 export const filteredPackages: Writable<Package[]> = writable([]);
 export const searchTermStore = writable('');
+export const packageDiscussionsStore: Writable<PackageDiscussions> = writable({});
