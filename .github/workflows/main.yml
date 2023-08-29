@@ -1,4 +1,4 @@
-name: 'publish'
+name: 'Publish Cross Platform Builds'
 on:
   push:
     branches:
