@@ -1,3 +1,4 @@
+import { configStore } from '$lib/config/stores';
 import type { Device, DeviceWithUsers } from '$lib/devices/models';
 import { devicesWithUsersStore, selectedDeviceStore } from '$lib/devices/stores';
 import { setErrorModal } from '$lib/error';
@@ -31,7 +32,7 @@ type DeviceWithUserPackages = {
 
 type PackageExportJSON = DeviceWithUserPackages[];
 
-async function saveCSV(data: PackageExportCSV[]) {
+async function savePackagesCSV(data: PackageExportCSV[]) {
 	const savePath = await save({
 		title: 'Save Packages Export CSV',
 		filters: [{ name: 'Comma Seperated Values', extensions: ['csv'] }]
@@ -43,7 +44,7 @@ async function saveCSV(data: PackageExportCSV[]) {
 	await writeTextFile(savePath, fcontent);
 }
 
-async function saveJSON(data: PackageExportJSON) {
+async function savePackagesJSON(data: PackageExportJSON) {
 	const savePath = await save({
 		title: 'Save Packages Export JSON',
 		filters: [{ name: 'JSON', extensions: ['json'] }]
@@ -55,7 +56,7 @@ async function saveJSON(data: PackageExportJSON) {
 	await writeTextFile(savePath, fcontent);
 }
 
-export async function exportCSV() {
+export async function exportPackagesCSV() {
 	let device = get(selectedDeviceStore);
 	if (!device) {
 		throw new Error('device must be selected for export');
@@ -81,10 +82,10 @@ export async function exportCSV() {
 		};
 	});
 
-	await saveCSV(exportablePackages);
+	await savePackagesCSV(exportablePackages);
 }
 
-export async function exportJSON() {
+export async function exportPackagesJSON() {
 	let deviceWithUsers = get(devicesWithUsersStore);
 
 	let allPackages = get(packagesStore);
@@ -105,5 +106,17 @@ export async function exportJSON() {
 		}
 	);
 
-	await saveJSON(exportabledeviceWithUsers);
+	await savePackagesJSON(exportabledeviceWithUsers);
+}
+
+export async function exportAndSaveSettingsJSON() {
+	const savePath = await save({
+		title: 'Save Packages Export JSON',
+		filters: [{ name: 'JSON', extensions: ['json'] }]
+	});
+	if (!savePath) return;
+
+	const fcontent = JSON.stringify(get(configStore));
+
+	await writeTextFile(savePath, fcontent);
 }
