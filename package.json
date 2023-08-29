@@ -17,6 +17,7 @@
 		"@sveltejs/adapter-static": "^1.0.0-next.50",
 		"@sveltejs/kit": "^1.20.4",
 		"@tauri-apps/cli": "^1.4.0",
+		"@types/papaparse": "^5.3.8",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
 		"autoprefixer": "^10.4.14",
@@ -42,6 +43,7 @@
 		"flowbite-svelte": "^0.40.2",
 		"flowbite-svelte-icons": "^0.3.6",
 		"lru-cache": "^10.0.1",
+		"papaparse": "^5.4.1",
 		"tailwind-merge": "^1.14.0",
 		"tauri-plugin-log-api": "github:tauri-apps/tauri-plugin-log"
 	}

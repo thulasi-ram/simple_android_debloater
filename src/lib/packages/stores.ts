@@ -55,7 +55,7 @@ function createPackagesStore() {
 
 export const packagesStore = createPackagesStore();
 
-const packagesKey = (deviceId: string | undefined, userId: string | undefined): string | null => {
+export const packagesKey = (deviceId: string | undefined, userId: string | undefined): string | null => {
 	if (!deviceId || !userId) {
 		info(`pkey is null ${deviceId} ${userId}`);
 		return null;

@@ -1,10 +1,13 @@
 <script>
 	import { page } from '$app/stores';
 	import DevicesSidebarItems from '$lib/devices/DevicesSidebarItems.svelte';
-	import { IconInfoSquareRounded, IconSettings } from '@tabler/icons-svelte';
-	import { Sidebar, SidebarGroup, SidebarItem, SidebarWrapper } from 'flowbite-svelte';
-	import { DarkMode } from 'flowbite-svelte';
-
+	import {
+		IconDownload,
+		IconFileExport,
+		IconInfoSquareRounded,
+		IconSettings
+	} from '@tabler/icons-svelte';
+	import { DarkMode, Sidebar, SidebarGroup, SidebarItem, SidebarWrapper } from 'flowbite-svelte';
 
 	$: activeUrl = $page.url.pathname;
 </script>
@@ -17,17 +20,38 @@
 		</SidebarGroup>
 
 		<SidebarGroup border>
-			<SidebarItem label="Settings" class="text-sm" href="/settings" active={activeUrl == '/settings'}>
+			<SidebarItem
+				label="Settings"
+				class="text-sm"
+				href="/settings"
+				active={activeUrl == '/settings'}
+			>
 				<svelte:fragment slot="icon">
 					<IconSettings stroke={1.5} />
 				</svelte:fragment>
 			</SidebarItem>
+
+			<SidebarItem label="Import" class="text-sm" href="/import" active={activeUrl == '/import'}>
+				<svelte:fragment slot="icon">
+					<IconDownload stroke={1.5} />
+				</svelte:fragment>
+			</SidebarItem>
+
+			<SidebarItem label="Export" class="text-sm" href="/export" active={activeUrl == '/export'}>
+				<svelte:fragment slot="icon">
+					<IconFileExport stroke={1.5} />
+				</svelte:fragment>
+			</SidebarItem>
+
 			<SidebarItem label="About" class="text-sm" href="/about" active={activeUrl == '/about'}>
 				<svelte:fragment slot="icon">
 					<IconInfoSquareRounded stroke={1.5} />
 				</svelte:fragment>
 			</SidebarItem>
-			<DarkMode></DarkMode>
+		</SidebarGroup>
+
+		<SidebarGroup border>
+			<DarkMode />
 		</SidebarGroup>
 	</SidebarWrapper>
 </Sidebar>
