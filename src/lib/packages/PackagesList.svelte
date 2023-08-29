@@ -165,6 +165,7 @@
 									{@html pkgDiscussion.bodyHTML}
 								</p>
 								<a
+									target="_blank"
 									href={pkgDiscussion.url}
 									class="underline text-gray-500 dark:text-gray-400 text-xs mt-3"
 									>View the entire discussion</a
@@ -172,6 +173,7 @@
 							{:else}
 								<p class="text-gray-500 dark:text-gray-400">No Discussion for this package.</p>
 								<a
+									target="_blank"
 									href={discussion_create_url(pkg)}
 									class="underline text-gray-500 dark:text-gray-400 text-xs mt-3">Create one?</a
 								>
