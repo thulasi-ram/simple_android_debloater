@@ -26,6 +26,7 @@ async function getDiscussions(no_of_discussions, next_cursor) {
               closed
               body
               bodyHTML
+			  url
               answer {
                 body
                 bodyHTML
