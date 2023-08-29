@@ -83,10 +83,14 @@ Run rust and node at once:
 
 - [x] Adb track device
 
-- [ ] Github discussion for package
+- [x] Github discussion for package
 
 - [x] ~Prepackage ADB~ Custom ADB Path Instead
 
 - [x] Persist Settings
 
 - [x] Dark Mode
+
+- [x] Export Packages in CSV / JSON
+
+- [ ] Import CSV and Bulk Enable / Disable
