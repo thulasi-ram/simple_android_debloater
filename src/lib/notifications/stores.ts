@@ -1,9 +1,9 @@
 // https://svelte.dev/repl/2254c3b9b9ba4eeda05d81d2816f6276?version=4.2.0
 import { derived, writable, type Readable, type Writable } from 'svelte/store';
 
-const TIMEOUT = 3000;
+const TIMEOUT = 1000;
 
-type Notif = {
+export type Notif = {
 	id: string;
 	type: string;
 	message: string;

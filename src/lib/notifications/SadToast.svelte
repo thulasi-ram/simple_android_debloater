@@ -2,35 +2,46 @@
 	import { Toast } from 'flowbite-svelte';
 	import { Icon } from 'flowbite-svelte-icons';
 	import { fly } from 'svelte/transition';
-	import { notifications } from './stores';
+	import { notifications, type Notif } from './stores';
+	import { quintOut } from 'svelte/easing';
+
+	function getColorFromNotif(n: Notif): string {
+		// https://stackoverflow.com/a/37978675/6323666
+		switch (n.type) {
+			case 'success':
+				return 'green' as const;
+			case 'info':
+				return 'blue' as const;
+			case 'warning':
+				return 'orange' as const;
+			case 'error':
+				return 'red' as const;
+			default:
+				return 'gray' as const;
+		}
+	}
+
+	function getIconFromNotif(n: Notif): string {
+		switch (n.type) {
+			default:
+				return 'bell-outline';
+		}
+	}
 </script>
 
 <!-- <div class="relative h-56"> -->
-{#each $notifications as notif(notif.id)}
-	{#if notif.type === 'success'}
-		<Toast transition={fly} params={{ duration: notif.timeout, x: 200 }} color="green" class="mb-4">
-			<Icon name="bell-outline" slot="icon" class="w-5 h-5" />
-			{notif.message}
-		</Toast>
-	{:else if notif.type === 'info'}
-		<Toast transition={fly} params={{ duration: notif.timeout, x: 200 }} color="blue" class="mb-4">
-			<Icon name="bell-outline" slot="icon" class="w-5 h-5" />
-			{notif.message}
-		</Toast>
-	{:else if notif.type === 'warning'}
-		<Toast transition={fly} params={{ duration: notif.timeout, x: 200 }} color="orange" class="mb-4">
-			<Icon name="bell-outline" slot="icon" class="w-5 h-5" />
-			{notif.message}
-		</Toast>
-	{:else if notif.type === 'error'}
-		<Toast transition={fly} params={{ duration: notif.timeout, x: 200 }} color="red" class="mb-4">
-			<Icon name="bell-outline" slot="icon" class="w-5 h-5" />
-			{notif.message}
-		</Toast>
-	{:else}
-		<Toast transition={fly} params={{ duration: notif.timeout, x: 200 }} color="gray" class="mb-4">
-			<Icon name="bell-outline" slot="icon" class="w-5 h-5" />
-			{notif.message}
-		</Toast>
-	{/if}
+{#each $notifications as notif (notif.id)}
+	{@const ncolor = getColorFromNotif(notif)}
+	{@const nicon = getIconFromNotif(notif)}
+
+	<Toast
+		transition={fly}
+		params={{ duration: notif.timeout, x: 200, easing: quintOut }}
+		color={ncolor}
+		class="mb-4"
+		defaultIconClass="w-4 h-4"
+	>
+		<Icon name={nicon} slot="icon"/>
+		{notif.message}
+	</Toast>
 {/each}
