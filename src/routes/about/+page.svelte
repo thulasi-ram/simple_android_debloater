@@ -20,7 +20,7 @@
 
 <Breadcrumbs {crumbs} />
 
-<div class="flex flex-col gap-y-5 mt-10 text-gray-700">
+<div class="flex flex-col gap-y-5 mt-10 text-gray-700 dark:text-gray-200">
 	<p>
 		Simpl Android Debloater is a free and open source project to disable unwanted system apps that
 		careers / OEMs force install in our mobile phones.
@@ -33,7 +33,7 @@
 	<div class="space-x-px mx-auto">
 		<Button
 			color="alternative"
-			class="gap-x-2 text-gray-700"
+			class="gap-x-2 text-gray-700 dark:hover:border-gray-400"
 			href="https://github.com/thulasi-ram/simple_android_debloater"
 			target="_blank"
 		>
@@ -42,7 +42,7 @@
 		</Button>
 		<Button
 			color="alternative"
-			class="gap-x-2 text-gray-700"
+			class="gap-x-2 text-gray-700 dark:hover:border-gray-400"
 			href="https://github.com/thulasi-ram/simple_android_debloater/releases"
 			target="_blank"
 		>
@@ -51,7 +51,7 @@
 		</Button>
 		<Button
 			color="alternative"
-			class="gap-x-2 text-gray-700"
+			class="gap-x-2 text-gray-700 dark:hover:border-gray-400"
 			href="https://github.com/thulasi-ram/simple_android_debloater/discussions"
 			target="_blank"
 		>

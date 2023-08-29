@@ -23,7 +23,7 @@
 	}
 </script>
 
-<Button color="alternative" class="gap-x-2" on:click={list_packages}>
+<Button color="alternative" class="gap-x-2 dark:hover:border-gray-400" on:click={list_packages}>
 	Refresh Packages
 	<IconRefresh size={18} stroke={1.5} />
 </Button>

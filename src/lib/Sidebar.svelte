@@ -3,6 +3,8 @@
 	import DevicesSidebarItems from '$lib/devices/DevicesSidebarItems.svelte';
 	import { IconInfoSquareRounded, IconSettings } from '@tabler/icons-svelte';
 	import { Sidebar, SidebarGroup, SidebarItem, SidebarWrapper } from 'flowbite-svelte';
+	import { DarkMode } from 'flowbite-svelte';
+
 
 	$: activeUrl = $page.url.pathname;
 </script>
@@ -25,6 +27,7 @@
 					<IconInfoSquareRounded stroke={1.5} />
 				</svelte:fragment>
 			</SidebarItem>
+			<DarkMode></DarkMode>
 		</SidebarGroup>
 	</SidebarWrapper>
 </Sidebar>

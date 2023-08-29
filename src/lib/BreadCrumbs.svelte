@@ -15,7 +15,7 @@
 		{#each crumbs as { href, name }, i}
 			<BreadcrumbItem {href} {linkClass} {spanClass}>
 				<svelte:fragment slot="icon">
-					<IconSlash size={18} stroke={1.5} />
+					<IconSlash size={18} stroke={1.5} class="dark:text-gray-400" />
 				</svelte:fragment>
 				{@const innerSpanClass = isLastItem(crumbs, i) ? 'font-medium' : ''}
 				<span class={innerSpanClass}>{name}</span>

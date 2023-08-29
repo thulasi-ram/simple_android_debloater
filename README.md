@@ -88,3 +88,5 @@ Run rust and node at once:
 - [x] ~Prepackage ADB~ Custom ADB Path Instead
 
 - [x] Persist Settings
+
+- [x] Dark Mode

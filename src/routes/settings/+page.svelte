@@ -73,7 +73,7 @@
 		</div>
 
 		<div class="flex gap-x-5">
-			<Button color="alternative" size="xs" on:click={updateConfig} disabled={saving}>
+			<Button color="alternative" size="xs" class="dark:hover:border-gray-400" on:click={updateConfig} disabled={saving}>
 				{#if saving}
 					Saving...
 				{:else}

@@ -38,7 +38,7 @@
 	let disconnectedClass = defaultClass + " text-gray-300"
 
 	let activeClass =
-		'grid grid-rows-2 grid-cols-none grid-flow-col items-center text-base font-normal text-gray-900 bg-red-200 dark:bg-red-700 rounded-lg dark:text-white hover:bg-red-100 dark:hover:bg-red-700';
+		'grid grid-rows-2 grid-cols-none grid-flow-col items-center text-base font-normal text-gray-900 bg-red-200 dark:bg-transparent dark:border-orange-500 rounded-lg dark:text-white hover:bg-red-100 dark:hover:bg-gray-700';
 	let nonActiveClass =
 		'grid grid-rows-2 grid-cols-none grid-flow-col items-center text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700';
 
