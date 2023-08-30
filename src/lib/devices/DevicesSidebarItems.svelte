@@ -38,7 +38,7 @@
 	let disconnectedClass = defaultClass + " text-gray-300 dark:text-gray-500 dark:border-gray-500"
 
 	let activeClass =
-		'grid grid-rows-2 grid-cols-none grid-flow-col items-center text-base font-normal text-gray-900 bg-red-200 dark:bg-transparent dark:border-orange-500 rounded-lg dark:text-white hover:bg-red-100 dark:hover:bg-gray-700';
+		'grid grid-rows-2 grid-cols-none grid-flow-col items-center text-base font-normal text-gray-900 bg-primary-200 dark:bg-transparent dark:border-primary-500 rounded-lg dark:text-white hover:bg-primary-100 dark:hover:bg-gray-700';
 	let nonActiveClass =
 		'grid grid-rows-2 grid-cols-none grid-flow-col items-center text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700';
 
@@ -78,7 +78,7 @@
 		<svelte:fragment slot="subtext">
 			<span class="relative flex ml-5">
 				<span
-					class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
+					class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"
 				/>
 				<span class="relative inline-flex rounded-full">
 					<IconAccessPoint size={24} stroke={1.5} />

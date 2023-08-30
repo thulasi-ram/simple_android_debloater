@@ -47,7 +47,7 @@
 	};
 
 	let btnClass =
-		'w-64 gap-x-2 font-normal dark:hover:border-gray-400 flex flex-row dark:text-gray-200 hover:border-primary-500 dark:hover:border-primary-500';
+		'w-64 gap-x-2 font-normal flex flex-row dark:text-gray-300 text-gray-700 hover:border-primary-500 dark:hover:border-primary-500';
 	let divClass = 'w-96 flex flex-col items-center';
 </script>
 
@@ -57,7 +57,7 @@
 	<div class={divClass}>
 		<Button class={btnClass} color="alternative" on:click={importSettingsJSONButton}>
 			Import Settings JSON
-			<IconSettingsDown stroke={1.5} />
+			<IconSettingsDown stroke={1}/>
 		</Button>
 
 		<p class="text-xs text-gray-500 text-center">Import settings json previously exported</p>

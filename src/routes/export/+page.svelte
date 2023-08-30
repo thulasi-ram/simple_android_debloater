@@ -48,7 +48,7 @@
 	}
 
 	let btnClass =
-		'w-64 gap-x-2 font-normal dark:hover:border-gray-400 flex flex-row dark:text-gray-200 hover:text-gray-900 hover:border-primary-500 dark:hover:border-primary-500';
+		'w-64 gap-x-2 font-normal flex flex-row dark:text-gray-300 text-gray-700 hover:border-primary-500 dark:hover:border-primary-500';
 	let divClass = 'w-96 flex flex-col items-center';
 </script>
 
@@ -58,7 +58,7 @@
 	<div class={divClass}>
 		<Button class={btnClass} color="alternative" on:click={exportPackagesCSVButton}>
 			Export CSV
-			<IconTableDown stroke={1.5} />
+			<IconTableDown stroke={1} size={21} />
 		</Button>
 		<p class="text-xs text-gray-500 text-center">Exports packages as a flattened CSV</p>
 	</div>
@@ -66,21 +66,21 @@
 	<div class={divClass}>
 		<Button class={btnClass} color="alternative" on:click={exportPackagesJSONButton}>
 			Export JSON
-			<IconCodeAsterix stroke={1.5} />
+			<IconCodeAsterix stroke={1} />
 		</Button>
 		<p class="text-xs text-gray-500 text-center">Exports packages as JSON for advanced usecases</p>
 	</div>
 	<div class={divClass}>
 		<Button class={btnClass} color="alternative" on:click={exportSettingsJSONButton}>
 			Export Settings JSON
-			<IconSettingsDown stroke={1.5} />
+			<IconSettingsDown stroke={1} />
 		</Button>
 		<p class="text-xs text-gray-500 text-center">Export Settings as JSON</p>
 	</div>
 	<div class={divClass}>
 		<Button class={btnClass} color="alternative" href={DISCUSSIONS_DUMP_URL} target="_blank">
 			Package Discussions JSON
-			<IconArrowUpRight stroke={1.5} />
+			<IconArrowUpRight stroke={1} />
 		</Button>
 		<p class="text-xs text-gray-500 text-center">Open url to discssions_dump.json</p>
 	</div>

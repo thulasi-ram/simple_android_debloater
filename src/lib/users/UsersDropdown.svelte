@@ -26,16 +26,16 @@
 <div class={divClass}>
 	<Button pill size="sm" color="light" class="flex p-2 w-48 justify-start justify-items-start">
 		{#if $selectedUserStore}
-			<Avatar border class="mr-2 bg-red-100" size="sm" classPlaceholder="w-full h-full bg-red-100"
+			<Avatar border class="mr-2 bg-primary-100" size="sm" classPlaceholder="w-full h-full bg-primary-100"
 				>{selectedUserInitials}</Avatar
 			>
 			<span class="mr-auto">{$selectedUserStore.name}</span>
 		{:else}
 			<Avatar
 				border
-				class="mr-2 bg-red-100"
+				class="mr-2 bg-primary-100"
 				size="sm"
-				classPlaceholder="w-full h-full bg-red-100"
+				classPlaceholder="w-full h-full bg-primary-100"
 			/>
 			<span class="mr-auto">Select User</span>
 		{/if}
@@ -53,7 +53,7 @@
 						value={user.value}
 						class="hidden peer"
 					/>
-					<Avatar border size="sm" class="bg-red-100">{user.initials}</Avatar>
+					<Avatar border size="sm" class="bg-primary-100">{user.initials}</Avatar>
 					<span>{user.name}</span>
 				</Label>
 			</li>
