@@ -74,7 +74,7 @@
 		</SidebarItem>
 	{/each}
 {:else}
-	<SidebarItem label="Loading Devices..." class="text-sm text-gray-500 mr-2 border">
+	<SidebarItem label="Loading Devices..." href="/" class="text-sm text-gray-500 mr-2 border">
 		<svelte:fragment slot="subtext">
 			<span class="relative flex ml-5">
 				<span
