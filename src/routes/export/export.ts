@@ -1,11 +1,11 @@
 import { configStore } from '$lib/config/stores';
-import type { Device, DeviceWithUsers } from '$lib/devices/models';
+import type { Device } from '$lib/devices/models';
 import { devicesWithUsersStore, selectedDeviceStore } from '$lib/devices/stores';
-import { setErrorModal } from '$lib/error';
 import type { Package } from '$lib/packages/models';
 import { currentPackagesStore, packagesKey, packagesStore } from '$lib/packages/stores';
 import type { User } from '$lib/users/models';
 import { selectedUserStore } from '$lib/users/stores';
+import { CSV_DIALOG_FILTER, JSON_DIALOG_FILTER } from '$lib/utils';
 import { save } from '@tauri-apps/api/dialog';
 import { writeTextFile } from '@tauri-apps/api/fs';
 import Papa from 'papaparse';
@@ -35,7 +35,7 @@ type PackageExportJSON = DeviceWithUserPackages[];
 async function savePackagesCSV(data: PackageExportCSV[]) {
 	const savePath = await save({
 		title: 'Save Packages Export CSV',
-		filters: [{ name: 'Comma Seperated Values', extensions: ['csv'] }]
+		filters: [CSV_DIALOG_FILTER]
 	});
 	if (!savePath) return;
 
@@ -47,7 +47,7 @@ async function savePackagesCSV(data: PackageExportCSV[]) {
 async function savePackagesJSON(data: PackageExportJSON) {
 	const savePath = await save({
 		title: 'Save Packages Export JSON',
-		filters: [{ name: 'JSON', extensions: ['json'] }]
+		filters: [JSON_DIALOG_FILTER]
 	});
 	if (!savePath) return;
 
@@ -112,7 +112,7 @@ export async function exportPackagesJSON() {
 export async function exportAndSaveSettingsJSON() {
 	const savePath = await save({
 		title: 'Save Packages Export JSON',
-		filters: [{ name: 'JSON', extensions: ['json'] }]
+		filters: [JSON_DIALOG_FILTER]
 	});
 	if (!savePath) return;
 
