@@ -160,9 +160,9 @@
 									{/each}
 								</div>
 
-								<p class="text-gray-500 dark:text-gray-400">
+								<span class="text-gray-500 dark:text-gray-400 break-normal whitespace-normal">
 									{@html pkgDiscussion.bodyHTML}
-								</p>
+								</span>
 								<a
 									target="_blank"
 									href={pkgDiscussion.url}
