@@ -9,8 +9,14 @@ import {
 	adb_install_package,
 	adb_list_packages
 } from './adb';
-import type { DeviceUserPackage } from './models';
+import type { DeviceUserPackage, Package } from './models';
 import { packagesStore } from './stores';
+
+export const discussion_create_url = (pkg: Package) => {
+	// https://eric.blog/2016/01/08/prefilling-github-issues/#:~:text=Creating%20issues&text=As%20long%20as%20you're,using%20and%20testing%20your%20software.
+	let body = encodeURI('<describe the package>');
+	return `https://github.com/thulasi-ram/simple_android_debloater/discussions/new?category=packages&title=${pkg.name}&body=${body}`;
+};
 
 export function fetchPackagesIfEmptySubscription(): Unsubscriber {
 	const unsub = selectedUserStore.subscribe((su) => {

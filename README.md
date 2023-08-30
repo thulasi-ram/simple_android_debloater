@@ -12,9 +12,27 @@ Unlike UAD, this tool is aimed to be beginner friendly so as to not uninstall ap
 
 
 
+## Features
+
+### Standard features
+- Disabling and Enabling a package
+- Auto detect devices and heartbeats
+- Customizable prompt settings
+- Search and Filter Packages
+
+### Features over UAD
+- Labels and Discussions powered by Github Discussions
+    - Can be crowdsourced and moderated
+    - Refreshed automatically once a day and can be triggered manually
+    - ![Discussion Screenshot](./static/screenshots/discussion.png)
+- Bulk Enable and Disable
+    - ![Bulk Disable Screenshot](./static/screenshots/bulk_disable_packages.png)
+- Export and Import Settings, Results and Other data
+    - ![Export Screenshot](./static/screenshots/export_packages.png)
+    - ![Import Screenshot](./static/screenshots/import_packages.png)
 
 
- ## Download
+## Download
 
  Goto the latest [Releases Page](https://github.com/thulasi-ram/simple_android_debloater/releases) click on assets and download the installers applicable for your OS. 
 
@@ -33,6 +51,9 @@ Screenshots are available in [static](./static/screenshots) directory.
     - This requires one to enable developer options
 - In the PC
     - Make sure to download [ADB Tools](https://developer.android.com/tools/releases/platform-tools#downloads) for your PC.
+    - ADB need not be in Path. Setting path is tedious in windows. 
+    - Use settings -> custom_adb_path pointing to the downloaded folder
+    - - ![Settings Screenshot](./static/screenshots/settings.png)
 
 [Read More from XDA On Setting up USB Debugging and ABD](https://www.xda-developers.com/install-adb-windows-macos-linux/)
 
@@ -83,8 +104,16 @@ Run rust and node at once:
 
 - [x] Adb track device
 
-- [ ] Github discussion for package
+- [x] Github discussion for package
 
 - [x] ~Prepackage ADB~ Custom ADB Path Instead
 
 - [x] Persist Settings
+
+- [x] Dark Mode
+
+- [x] Export Packages in CSV / JSON
+
+- [x] Import CSV and Bulk Enable / Disable
+
+- [ ] SDK Compatability checks

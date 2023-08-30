@@ -16,11 +16,14 @@
 		{ name: 'Home', href: '/' },
 		{ name: 'About', href: '' }
 	];
+
+	let btnClass =
+		'gap-x-2 font-normal dark:hover:border-gray-400 dark:text-gray-200 hover:text-gray-900 hover:border-primary-500 dark:hover:border-primary-500';
 </script>
 
 <Breadcrumbs {crumbs} />
 
-<div class="flex flex-col gap-y-5 mt-10 text-gray-700">
+<div class="flex flex-col gap-y-5 mt-10 text-gray-700 dark:text-gray-200">
 	<p>
 		Simpl Android Debloater is a free and open source project to disable unwanted system apps that
 		careers / OEMs force install in our mobile phones.
@@ -33,7 +36,7 @@
 	<div class="space-x-px mx-auto">
 		<Button
 			color="alternative"
-			class="gap-x-2 text-gray-700"
+			class={btnClass}
 			href="https://github.com/thulasi-ram/simple_android_debloater"
 			target="_blank"
 		>
@@ -42,7 +45,7 @@
 		</Button>
 		<Button
 			color="alternative"
-			class="gap-x-2 text-gray-700"
+			class={btnClass}
 			href="https://github.com/thulasi-ram/simple_android_debloater/releases"
 			target="_blank"
 		>
@@ -51,8 +54,8 @@
 		</Button>
 		<Button
 			color="alternative"
-			class="gap-x-2 text-gray-700"
-			href="https://github.com/thulasi-ram/simple_android_debloater/discussions"
+			class={btnClass}
+			href="https://github.com/thulasi-ram/simple_android_debloater/discussions/categories/packages"
 			target="_blank"
 		>
 			<IconMessages stroke={1} />

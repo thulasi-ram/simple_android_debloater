@@ -1,8 +1,14 @@
 <script lang="ts">
-	import { Badge, Button, Checkbox, Input, Modal } from 'flowbite-svelte';
+	import { Badge, Button, Checkbox, Input, Modal, Tooltip } from 'flowbite-svelte';
 
 	import type { Package } from './models';
-	import { currentPackagesStore, filteredPackages, searchTermStore } from './stores';
+	import {
+		currentPackagesStore,
+		filteredPackages,
+		packageDiscussionsStore,
+		packageLabelsStore,
+		searchTermStore
+	} from './stores';
 
 	import { IconFilter, IconSearch } from '@tabler/icons-svelte';
 
@@ -21,20 +27,27 @@
 		['Third Party', 'thirdparty'],
 		['Unknown', 'unknown']
 	];
+
 	let selectedFilterPackageTypes: string[] = [];
+
+	let selectedPackageLabelTypes: string[] = [];
 
 	let selectedFiltersCount = 0;
 
 	$: {
 		selectedFiltersCount = 0;
 
-		if (selectedFilterPackageStates) {
-			selectedFiltersCount += selectedFilterPackageStates.length;
-		}
+		selectedFiltersCount += selectedFilterPackageStates.length;
 
-		if (selectedFilterPackageTypes) {
-			selectedFiltersCount += selectedFilterPackageTypes.length;
-		}
+		selectedFiltersCount += selectedFilterPackageTypes.length;
+
+		selectedFiltersCount += selectedPackageLabelTypes.length;
+	}
+
+	function clearFilters() {
+		selectedFilterPackageStates = [];
+		selectedFilterPackageTypes = [];
+		selectedPackageLabelTypes = [];
 	}
 
 	$: {
@@ -49,9 +62,7 @@
 		if (selectedFilterPackageStates.length > 0) {
 			let fstatesFiltered: Package[] = [];
 			for (let fs of selectedFilterPackageStates) {
-				let fspkgs = fpkgs.filter(
-					(pkg) => pkg.state.toLowerCase().indexOf(fs.toLowerCase()) !== -1
-				);
+				let fspkgs = fpkgs.filter((pkg) => pkg.state === fs);
 				fstatesFiltered.push(...fspkgs);
 			}
 			fpkgs = fstatesFiltered;
@@ -60,12 +71,21 @@
 		if (selectedFilterPackageTypes.length > 0) {
 			let ftypesFiltered: Package[] = [];
 			for (let ft of selectedFilterPackageTypes) {
-				let ftpkgs = fpkgs.filter(
-					(pkg) => pkg.ptype.toLowerCase().indexOf(ft.toLowerCase()) !== -1
-				);
+				let ftpkgs = fpkgs.filter((pkg) => pkg.ptype.toLowerCase() === ft);
 				ftypesFiltered.push(...ftpkgs);
 			}
 			fpkgs = ftypesFiltered;
+		}
+
+		if (selectedPackageLabelTypes.length > 0) {
+			let flabelsFiltered: Package[] = [];
+			for (let ft of selectedPackageLabelTypes) {
+				let flpkgs = fpkgs.filter((pkg) =>
+					$packageDiscussionsStore[pkg.name]?.labels.find((lb) => lb.name === ft)
+				);
+				flabelsFiltered.push(...flpkgs);
+			}
+			fpkgs = flabelsFiltered;
 		}
 
 		$filteredPackages = fpkgs;
@@ -92,11 +112,21 @@
 
 		<!-- https://learn.svelte.dev/tutorial/multiple-select-bindings -->
 		<!-- https://flowbite-svelte-blocks.vercel.app/application/faceted-search-modals -->
-		<Modal bind:open={filterModalOpen} size="xs" autoclose={false} class="w-full">
-			<h3 class="text-xl font-medium text-gray-900 dark:text-white">Filters</h3>
+		<Modal title="Filters" bind:open={filterModalOpen} size="xs" autoclose={false} class="w-full">
+			<Button
+				color="alternative"
+				size="xs"
+				class="text-xs p-1 rounded float-right border-primary-300 dark:border-primary-500 dark:hover:border-primary-700"
+				on:click={clearFilters}
+			>
+				clear all
+			</Button>
+
 			<div class="grid grid-cols-2 gap-2">
 				<div class="col-span-1">
 					<h5 class="text-sm dark:text-white py-2">Package State</h5>
+					<hr class="w-2/3 h-px bg-gray-200 rounded border-0 dark:bg-gray-700 mb-3" />
+
 					{#each filterPackageStates as fs}
 						<Checkbox class="py-1" bind:group={selectedFilterPackageStates} value={fs[1]}>
 							{fs[0]}
@@ -106,11 +136,42 @@
 
 				<div class="col-span-1">
 					<h5 class="text-sm dark:text-white py-2">Package Type</h5>
+					<hr class="w-2/3 h-px bg-gray-200 rounded border-0 dark:bg-gray-700 mb-3" />
+
 					{#each filterPackageTypes as ft}
 						<Checkbox class="py-1" bind:group={selectedFilterPackageTypes} value={ft[1]}>
 							{ft[0]}
 						</Checkbox>
 					{/each}
+				</div>
+
+				<div class="col-span-2">
+					<h5 class="text-sm dark:text-white py-2">Label Types</h5>
+					<hr class="w-2/3 h-px bg-gray-200 rounded border-0 dark:bg-gray-700 mb-3" />
+					<div class="flex flex-wrap flex-row gap-2">
+						{#each Object.entries($packageLabelsStore) as [labelName, labelDesc]}
+							{@const labelID = `label-cb-${labelName}`}
+
+							<Checkbox
+								custom
+								class="py-1 col-span-1"
+								bind:group={selectedPackageLabelTypes}
+								value={labelName}
+							>
+								<Badge
+									rounded
+									color="dark"
+									id={labelID}
+									class="rounded-full border-2 cursor-pointer dark:border-gray-700 peer-checked:border-primary-600 bg-white dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+									>{labelName}
+								</Badge>
+
+								<!-- <Tooltip triggeredBy="#{labelID}" arrow={false} strategy="absolute">
+									{labelDesc}
+								</Tooltip> -->
+							</Checkbox>
+						{/each}
+					</div>
 				</div>
 			</div>
 			<div class="flex items-center space-x-4 rounded-b dark:border-gray-600" />

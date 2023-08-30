@@ -3,7 +3,7 @@ import { setErrorModal } from '$lib/error';
 import { selectedUserStore } from '$lib/users/stores';
 import { derived, get, writable, type Writable } from 'svelte/store';
 import { info } from 'tauri-plugin-log-api';
-import type { Package } from './models';
+import type { Package, PackageDiscussions } from './models';
 
 function createPackagesStore() {
 	const store = writable<Record<string, Package[]>>({});
@@ -55,7 +55,7 @@ function createPackagesStore() {
 
 export const packagesStore = createPackagesStore();
 
-const packagesKey = (deviceId: string | undefined, userId: string | undefined): string | null => {
+export const packagesKey = (deviceId: string | undefined, userId: string | undefined): string | null => {
 	if (!deviceId || !userId) {
 		info(`pkey is null ${deviceId} ${userId}`);
 		return null;
@@ -78,3 +78,15 @@ export const currentPackagesStore = derived(
 
 export const filteredPackages: Writable<Package[]> = writable([]);
 export const searchTermStore = writable('');
+export const packageDiscussionsStore: Writable<PackageDiscussions> = writable({});
+
+export const packageLabelsStore = derived([packageDiscussionsStore], ([$packageDiscussionsStore]) => {
+	let labels: Record<string, string> = {};
+
+	for (let [_, pkgdiscussion] of Object.entries($packageDiscussionsStore)) {
+		for (let l of pkgdiscussion.labels) {
+			labels[l.name] = l.description;
+		}
+	}
+	return labels;
+});

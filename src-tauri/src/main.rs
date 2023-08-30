@@ -17,17 +17,16 @@ use std::{env, time::Duration};
 
 use anyhow::anyhow;
 use config::Config;
-use err::{ResultOkPrintErrExt, IntoSADError};
+use err::{IntoSADError, ResultOkPrintErrExt};
 use events::{Event, PackageEvent};
+use futures;
 use log::error;
 use packages::Package;
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
-use futures;
 
 use tauri::Manager;
 use tokio::{sync::mpsc, time};
-
 
 use devices::Device;
 use sad::SADError;
@@ -97,7 +96,7 @@ async fn main() {
         ])
         .setup(|app| {
             let app_handle = app.handle();
-            
+
             let init_db_fut = async move {
                 let conn = db::init(&app_handle).await.expect("unable to init db");
                 let app_state: tauri::State<App> = app_handle.state();
@@ -250,7 +249,7 @@ async fn adb_disable_clear_and_stop_package(
     user_id: &str,
     pkg: &str,
     app: tauri::State<'_, App>,
-) -> Result<(), SADError> {
+) -> Result<Package, SADError> {
     let config = app.config().await.into_sad_error("unable to get config")?;
 
     let acl = packages::ADBTerminalImpl::new(config.custom_adb_path);
@@ -279,11 +278,10 @@ async fn adb_disable_clear_and_stop_package(
                     .send(Box::new(pe))
                     .await
                     .ok_or_print_err("error emitting");
+                return Ok(p.clone());
             }
         }
     }
-
-    return Ok(());
 }
 
 #[tauri::command]
@@ -292,7 +290,7 @@ async fn adb_enable_package(
     user_id: &str,
     pkg: &str,
     app: tauri::State<'_, App>,
-) -> Result<(), SADError> {
+) -> Result<Package, SADError> {
     let config = app.config().await.into_sad_error("unable to get config")?;
 
     let acl = packages::ADBTerminalImpl::new(config.custom_adb_path);
@@ -316,11 +314,10 @@ async fn adb_enable_package(
                     .send(Box::new(pe))
                     .await
                     .ok_or_print_err("error emitting");
+                return Ok(p.clone());
             }
         }
     }
-
-    return Ok(());
 }
 
 #[tauri::command]
@@ -368,7 +365,10 @@ async fn get_config(app: tauri::State<'_, App>) -> Result<config::Config, SADErr
     let db_conn = db_guard.as_ref().into_sad_error("")?;
     let mut cache = app.cache.lock().await;
     let svc = config::SqliteImpl { db: db_conn };
-    let res = svc.get_default_config().await.into_sad_error("unable to get config")?;
+    let res = svc
+        .get_default_config()
+        .await
+        .into_sad_error("unable to get config")?;
     cache.set_config(res.clone());
     return Ok(res);
 }
@@ -380,7 +380,10 @@ async fn update_config(config: config::Config, app: tauri::State<'_, App>) -> Re
 
     let mut cache = app.cache.lock().await;
     let svc = config::SqliteImpl { db: db_conn };
-    let res = svc.update_default_config(config).await.into_sad_error("unable to update config")?;
+    let res = svc
+        .update_default_config(config)
+        .await
+        .into_sad_error("unable to update config")?;
     cache.set_config(res);
     return Ok(());
 }

@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/tauri';
-import { info } from "tauri-plugin-log-api";
+import { info } from 'tauri-plugin-log-api';
 import type { DeviceUserPackages, Package } from './models';
 
 export async function adb_list_packages(
@@ -18,21 +18,25 @@ export async function adb_list_packages(
 export async function adb_disable_package(deviceId: string, userId: string, pkg: string) {
 	info(`invoking disable - ${userId} - ${pkg}`);
 
-	await invoke('adb_disable_clear_and_stop_package', {
+	let dpkg: Package = await invoke('adb_disable_clear_and_stop_package', {
 		deviceId: deviceId,
 		userId: userId,
 		pkg: pkg
 	});
+
+	return dpkg;
 }
 
 export async function adb_enable_package(deviceId: string, userId: string, pkg: string) {
 	info(`invoking enable - ${userId} - ${pkg}`);
 
-	await invoke('adb_enable_package', {
+	let epkg: Package = await invoke('adb_enable_package', {
 		deviceId: deviceId,
 		userId: userId,
 		pkg: pkg
 	});
+
+	return epkg;
 }
 
 export async function adb_install_package(deviceId: string, userId: string, pkg: string) {

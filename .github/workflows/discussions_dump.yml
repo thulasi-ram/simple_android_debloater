@@ -1,0 +1,46 @@
+name: Dump Discussions Workflow
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  discussions_dump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd ./scripts
+          npm ci
+          ls -lahtr
+          node ./discussions_dump.js
+      - uses: actions/upload-artifact@v3.1.2
+        with:
+          name: discussions_dump.json
+          path: ./scripts/discussions_dump.json
+          if-no-files-found: error
+  upload_dump_to_s3:
+    runs-on: ubuntu-latest
+    needs: [discussions_dump]
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/download-artifact@v2.1.1
+      - run: ls -lahtr
+      - run: pwd
+      - uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_SAD_UPLOADER_ROLE }}
+      # use recursive: https://github.com/aws/aws-cli/issues/2929
+      - run: aws s3 cp discussions_dump.json s3://simple-android-debloater --recursive
