@@ -2,10 +2,10 @@
 	import Breadcrumbs from '$lib/BreadCrumbs.svelte';
 	import { sadErrorStore } from '$lib/error/stores';
 	import { notifications } from '$lib/notifications/stores';
-	import { CSV_DIALOG_FILTER } from '$lib/utils';
 	import { IconSettingsDown } from '@tabler/icons-svelte';
-	import { Button, Fileupload, Input, Label } from 'flowbite-svelte';
-	import { importSettingsJSON, openDialongSingleFile } from './import';
+	import { Button } from 'flowbite-svelte';
+	import CSVModal from './csv_parse_modal.svelte';
+	import { importSettingsJSON, openAndpParseCSVToJson, type PackageNames } from './import';
 
 	let crumbs = [
 		{ name: 'Home', href: '/' },
@@ -22,29 +22,32 @@
 			});
 	}
 
-	let bulkActionFile: string | undefined;
-
-	$: {
-		console.log('ba', bulkActionFile);
-	}
+	let csvComponent: any;
+	let csvComponentProps: {
+		title: string;
+		open: boolean;
+		res: () => Promise<PackageNames> | undefined;
+	};
 
 	function bulkDisablePackages() {
-		console.log('bulkActionFile', bulkActionFile);
-	}
+		console.log('bulkDisablePackages');
+		openAndpParseCSVToJson('Bulk Disable Packages')
+			.then((res) => {
+				if (!res) {
+					return;
+				}
 
-	const inputOpenPathHandler = () => {
-		let baFile: string | null = null;
-		openDialongSingleFile('Selected Bulk Action CSV', [CSV_DIALOG_FILTER])
-			.then((val) => {
-				baFile = val;
-				bulkActionFile = val ? val : undefined;
-				return bulkActionFile;
+				csvComponent = CSVModal;
+				csvComponentProps = {
+					title: 'Bulk Disable Packages',
+					open: true,
+					res: res
+				};
 			})
 			.catch((e) => {
 				sadErrorStore.setError(e);
 			});
-		return baFile;
-	};
+	}
 
 	let btnClass =
 		'w-64 gap-x-2 font-normal flex flex-row dark:text-gray-300 text-gray-700 hover:border-primary-500 dark:hover:border-primary-500';
@@ -53,39 +56,24 @@
 
 <Breadcrumbs {crumbs} />
 
+<svelte:component this={csvComponent} {...csvComponentProps} />
+
 <div class="flex flex-col gap-y-5 mt-10 items-center">
 	<div class={divClass}>
 		<Button class={btnClass} color="alternative" on:click={importSettingsJSONButton}>
 			Import Settings JSON
-			<IconSettingsDown stroke={1}/>
+			<IconSettingsDown stroke={1} />
 		</Button>
 
 		<p class="text-xs text-gray-500 text-center">Import settings json previously exported</p>
 	</div>
 
-	<div class={divClass + ' hidden'}>
-		<div class="flex flex-col gap-y-5 mt-10 text-gray-700 dark:text-gray-200">
-			<Label>
-				<Input
-					type="file"
-					on:click={(e) => {
-						e.preventDefault();
-						return inputOpenPathHandler();
-					}}
-					value={bulkActionFile}
-				/>
-				{bulkActionFile}
-			</Label>
+	<div class={divClass}>
+		<Button class={btnClass} color="alternative" on:click={bulkDisablePackages}>
+			Bulk Disable Packages
+			<IconSettingsDown stroke={1} />
+		</Button>
 
-			<Fileupload
-				on:click={(e) => {
-					e.preventDefault();
-					return inputOpenPathHandler();
-				}}
-				bind:x={bulkActionFile}
-			/>
-
-			<Button color="alternative" on:click={bulkDisablePackages}>Bulk Disable</Button>
-		</div>
+		<p class="text-xs text-gray-500 text-center">Bulk Disables Packagess</p>
 	</div>
 </div>

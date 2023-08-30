@@ -20,7 +20,8 @@
 			},
 			"fs": {
 				"readFile": true,
-				"writeFile": true
+				"writeFile": true,
+				"scope": ["**"]
 			},
 			"http": {
 				"request": true,
