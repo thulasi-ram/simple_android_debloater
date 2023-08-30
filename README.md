@@ -23,14 +23,13 @@ Unlike UAD, this tool is aimed to be beginner friendly so as to not uninstall ap
 ### Features over UAD
 - Labels and Discussions powered by Github Discussions
     - Can be crowdsourced and moderated
+    - Refreshed automatically once a day and can be triggered manually
     - ![Discussion Screenshot](./static/screenshots/discussion.png)
 - Bulk Enable and Disable
     - ![Bulk Disable Screenshot](./static/screenshots/bulk_disable_packages.png)
 - Export and Import Settings, Results and Other data
     - ![Export Screenshot](./static/screenshots/export_packages.png)
     - ![Import Screenshot](./static/screenshots/import_packages.png)
-
-
 
 
 ## Download
