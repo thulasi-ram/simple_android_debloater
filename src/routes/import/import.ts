@@ -1,8 +1,8 @@
 import type { Config } from '$lib/config/models';
 import { configStore } from '$lib/config/stores';
 import { CSV_DIALOG_FILTER, JSON_DIALOG_FILTER } from '$lib/utils';
-import { open, type DialogFilter } from '@tauri-apps/api/dialog';
-import { readTextFile } from '@tauri-apps/api/fs';
+import { open, type DialogFilter, save } from '@tauri-apps/api/dialog';
+import { readTextFile, writeTextFile } from '@tauri-apps/api/fs';
 import Papa, { type ParseResult } from 'papaparse';
 
 export async function importSettingsJSON() {
@@ -75,4 +75,20 @@ export async function openAndpParseCSVToJson(title: string) {
 
 		return packageNames;
 	};
+}
+
+export type PackageResult = {
+	package: string;
+	result: string;
+};
+
+export async function savePackagesResultsCSV(data: PackageResult[]) {
+	const savePath = await save({
+		title: 'Save Packages Results CSV',
+		filters: [CSV_DIALOG_FILTER]
+	});
+	if (!savePath) return;
+	const fcontent = Papa.unparse(data);
+
+	await writeTextFile(savePath, fcontent);
 }

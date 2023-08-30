@@ -2,10 +2,12 @@
 	import Breadcrumbs from '$lib/BreadCrumbs.svelte';
 	import { sadErrorStore } from '$lib/error/stores';
 	import { notifications } from '$lib/notifications/stores';
-	import { IconSettingsDown } from '@tabler/icons-svelte';
+	import { IconBoxOff, IconCubeSend, IconSettingsDown } from '@tabler/icons-svelte';
 	import { Button } from 'flowbite-svelte';
-	import CSVModal from './csv_parse_modal.svelte';
+	import CSVModal from '../../lib/packages/PackageCSVEnablerDisabler.svelte';
 	import { importSettingsJSON, openAndpParseCSVToJson, type PackageNames } from './import';
+	import { adb_disable_package, adb_enable_package } from '$lib/packages/adb';
+	import type { Package } from '$lib/packages/models';
 
 	let crumbs = [
 		{ name: 'Home', href: '/' },
@@ -27,11 +29,15 @@
 		title: string;
 		open: boolean;
 		res: () => Promise<PackageNames> | undefined;
+		processor: (deviceID: string, userID: string, pkg: string) => Promise<Package>;
 	};
 
-	function bulkDisablePackages() {
-		console.log('bulkDisablePackages');
-		openAndpParseCSVToJson('Bulk Disable Packages')
+	function _bulkProcesPackages(
+		process_type: string,
+		processor: (deviceID: string, userID: string, pkg: string) => Promise<Package>
+	) {
+		let title = `Bulk ${process_type} packages`;
+		openAndpParseCSVToJson(title)
 			.then((res) => {
 				if (!res) {
 					return;
@@ -39,14 +45,23 @@
 
 				csvComponent = CSVModal;
 				csvComponentProps = {
-					title: 'Bulk Disable Packages',
+					title: title,
 					open: true,
-					res: res
+					res: res,
+					processor: processor
 				};
 			})
 			.catch((e) => {
 				sadErrorStore.setError(e);
 			});
+	}
+
+	function bulkDisablePackages() {
+		return _bulkProcesPackages('disable', adb_disable_package);
+	}
+
+	function bulkEnablePackages() {
+		return _bulkProcesPackages('enable', adb_enable_package);
 	}
 
 	let btnClass =
@@ -71,9 +86,18 @@
 	<div class={divClass}>
 		<Button class={btnClass} color="alternative" on:click={bulkDisablePackages}>
 			Bulk Disable Packages
-			<IconSettingsDown stroke={1} />
+			<IconBoxOff stroke={1} />
 		</Button>
 
-		<p class="text-xs text-gray-500 text-center">Bulk Disables Packagess</p>
+		<p class="text-xs text-gray-500 text-center">Bulk Disables Packages</p>
+	</div>
+
+	<div class={divClass}>
+		<Button class={btnClass} color="alternative" on:click={bulkEnablePackages}>
+			Bulk Enable Packages
+			<IconCubeSend stroke={1} />
+		</Button>
+
+		<p class="text-xs text-gray-500 text-center">Bulk Enable Packages</p>
 	</div>
 </div>
