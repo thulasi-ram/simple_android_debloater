@@ -23,14 +23,14 @@ export async function adb_disable_package(deviceId: string, userId: string, pkg:
 		userId: userId,
 		pkg: pkg
 	});
-	
+
 	return dpkg;
 }
 
 export async function adb_enable_package(deviceId: string, userId: string, pkg: string) {
 	info(`invoking enable - ${userId} - ${pkg}`);
 
-	let epkg = await invoke('adb_enable_package', {
+	let epkg: Package = await invoke('adb_enable_package', {
 		deviceId: deviceId,
 		userId: userId,
 		pkg: pkg
