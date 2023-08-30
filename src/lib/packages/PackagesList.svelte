@@ -54,7 +54,6 @@
 	$: selectedRowPkgName = '';
 
 	function toggleSeletcedRowPkgName(pkg: string) {
-		console.log('triggering');
 		if (selectedRowPkgName !== pkg) {
 			selectedRowPkgName = pkg;
 		} else {

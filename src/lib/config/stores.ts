@@ -27,7 +27,6 @@ export function createConfigStore() {
 		init: async () => {
 			try {
 				let res: Config = await invoke('get_config');
-				console.info('res', res);
 				set(res);
 			} catch (error) {
 				console.error(error);

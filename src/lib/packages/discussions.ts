@@ -18,8 +18,6 @@ export async function getPackageDiscussions(): Promise<PackageDiscussions> {
 }
 
 export async function loadPackageDiscussions() {
-	console.log('loading package discussions');
 	const packageDiscussions = await getPackageDiscussions();
 	packageDiscussionsStore.set(packageDiscussions);
-	console.log(packageDiscussions);
 }
