@@ -6,6 +6,7 @@
 	import { sleep } from '$lib/utils';
 	import {
 		Button,
+		Checkbox,
 		Label,
 		Modal,
 		Select,
@@ -55,6 +56,7 @@
 
 	let processingCount = 0;
 	let stopProcessing = false;
+	let iAgreeProcessing = false;
 
 	$: {
 		if (processingCount <= 0 && stopProcessing) {
@@ -63,7 +65,6 @@
 		}
 	}
 
-	
 	function onContinueButton() {
 		Object.entries(packagesStatusMap).forEach(([k, v]) => {
 			processingCount += 1;
@@ -144,7 +145,7 @@
 			</TableHead>
 			<TableBody>
 				{#each Object.entries(packagesStatusMap) as [p, status]}
-					<TableBodyRow>
+					<TableBodyRow class="border rounded">
 						<TableBodyCell>{p}</TableBodyCell>
 						<TableBodyCell>{status}</TableBodyCell>
 					</TableBodyRow>
@@ -156,31 +157,39 @@
 	{/await}
 
 	<svelte:fragment slot="footer">
-		<div class="flex gap-x-5">
-			{#if processingCount > 0}
-				<Button
-					outline
-					color="red"
-					on:click={() => {
-						stopProcessing = true;
-					}}
-				>
-					{#if stopProcessing && processingCount > 0}
-						Stopping...
-					{:else}
-						Stop Processing
-					{/if}
+		<div class="flex flex-col gap-y-5">
+			<Checkbox bind:checked={iAgreeProcessing}>
+				<span class="text-sm text-red-700">
+					This is a potentially dangerous action and can brick the device. I agree to process.
+				</span>
+			</Checkbox>
+
+			<div class="flex gap-x-5">
+				{#if processingCount > 0}
+					<Button
+						outline
+						color="red"
+						on:click={() => {
+							stopProcessing = true;
+						}}
+					>
+						{#if stopProcessing && processingCount > 0}
+							Stopping...
+						{:else}
+							Stop Processing
+						{/if}
+					</Button>
+				{:else}
+					<Button disabled={!iAgreeProcessing} on:click={onContinueButton}>Process {title}</Button>
+				{/if}
+
+				<div class="mx-auto" />
+
+				<Button class="gap-x-2" outline color="light" on:click={downloadPackageResults}>
+					<IconDownload stroke={1.5} size={21} />
+					Download Results
 				</Button>
-			{:else}
-				<Button on:click={onContinueButton}>Process {title}</Button>
-			{/if}
-
-			<div class="mx-auto" />
-
-			<Button class="gap-x-2" outline color="light" on:click={downloadPackageResults}>
-				<IconDownload stroke={1.5} size={21} />
-				Download Results
-			</Button>
+			</div>
 		</div>
 	</svelte:fragment>
 </Modal>
