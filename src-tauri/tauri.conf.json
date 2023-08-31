@@ -21,13 +21,38 @@
 			"fs": {
 				"readFile": true,
 				"writeFile": true,
-				"scope": ["**"]
+				"scope": [
+					"$APP",
+					"$APP/*",
+					"$APP/**",
+					"$DESKTOP",
+					"$DESKTOP/*",
+					"$DESKTOP/**",
+					"$DOCUMENT",
+					"$DOCUMENT/*",
+					"$DOCUMENT/**",
+					"$DOWNLOAD",
+					"$DOWNLOAD/*",
+					"$DOWNLOAD/**",
+					"$HOME",
+					"$HOME/*",
+					"$HOME/**",
+					"$PICTURE",
+					"$PICTURE/*",
+					"$PICTURE/**",
+					"$PUBLIC",
+					"$PUBLIC/*",
+					"$PUBLIC/**"
+				]
 			},
 			"http": {
 				"request": true,
 				"scope": ["https://d31d7prv3kbkn6.cloudfront.net/*"]
 			},
 			"path": {
+				"all": true
+			},
+			"process": {
 				"all": true
 			},
 			"notification": {

@@ -5,11 +5,28 @@
 		IconDownload,
 		IconFileExport,
 		IconInfoSquareRounded,
-		IconSettings
+		IconMoon,
+		IconMoonFilled,
+		IconRefresh,
+		IconSettings,
+		IconSun,
+		IconSunFilled
 	} from '@tabler/icons-svelte';
-	import { DarkMode, Sidebar, SidebarGroup, SidebarItem, SidebarWrapper } from 'flowbite-svelte';
+	import {
+		Button,
+		DarkMode,
+		Hr,
+		Sidebar,
+		SidebarGroup,
+		SidebarItem,
+		SidebarWrapper
+	} from 'flowbite-svelte';
+	import { relaunch } from '@tauri-apps/api/process';
 
 	$: activeUrl = $page.url.pathname;
+
+	let darkModeBtnClass =
+		'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-xl p-3';
 </script>
 
 <Sidebar>
@@ -42,16 +59,42 @@
 					<IconFileExport stroke={1.5} />
 				</svelte:fragment>
 			</SidebarItem>
+		</SidebarGroup>
 
+		<SidebarGroup border>
 			<SidebarItem label="About" class="text-sm" href="/about" active={activeUrl == '/about'}>
 				<svelte:fragment slot="icon">
 					<IconInfoSquareRounded stroke={1.5} />
 				</svelte:fragment>
 			</SidebarItem>
-		</SidebarGroup>
 
-		<SidebarGroup border>
-			<DarkMode />
+			<DarkMode class="w-full text-gray-800 dark:text-gray-100">
+				<svelte:fragment slot="lightIcon">
+					<div class="flex flex-row gap-x-2">
+						<IconSun stroke={1.5} size={21} />
+						<span class="text-sm">Light Mode</span>
+					</div>
+				</svelte:fragment>
+				<svelte:fragment slot="darkIcon">
+					<div class="flex flex-row gap-x-2">
+						<IconMoon stroke={1.5} size={21} />
+						<span class="text-sm">Dark Mode</span>
+					</div>
+				</svelte:fragment>
+			</DarkMode>
+
+			<SidebarItem
+				label="Relaunch app"
+				class="text-sm"
+				color="alternative"
+				on:click={async () => {
+					await relaunch();
+				}}
+			>
+				<svelte:fragment slot="icon">
+					<IconRefresh stroke={1.5} size={21} />
+				</svelte:fragment>
+			</SidebarItem>
 		</SidebarGroup>
 	</SidebarWrapper>
 </Sidebar>
