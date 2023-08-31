@@ -21,7 +21,8 @@
 	</div>
 
 	<NavBar />
-	<SadError />
+
+	<svelte:component this={SadError} />
 
 	<div class="flex flex-nowrap mt-4">
 		<div class="flex-none">
