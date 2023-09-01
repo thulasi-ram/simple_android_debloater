@@ -102,7 +102,7 @@
 			"active": true,
 			"endpoints": ["https://d31d7prv3kbkn6.cloudfront.net/sad_updater.json"],
 			"dialog": true,
-			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEYyMzBGQkZFNjlCNDI4RTIKUldUaUtMUnAvdnN3OGxIS0J2RWd1NnF6aUJtZDdtY09jR0JEdWlZR1llYjNoaXNTQktheXAwY0cK"
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDdCNkMwNEMyNzA2NjRCNkUKUldSdVMyWnd3Z1JzZTVjRHRhdENCSEtDNzIvT2tqazJsL3djQlNzOHB4cmFuRDFQZ21ZVjExUXcK"
 		},
 		"windows": [
 			{
