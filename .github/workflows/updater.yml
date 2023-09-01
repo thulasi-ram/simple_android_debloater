@@ -1,0 +1,53 @@
+name: Update Manifest Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      user_input_version:
+        description: 'Version /tag to target'
+  release:
+    types: [created]
+
+jobs:
+  generate_updater_json:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          # https://dev.to/mrmike/github-action-handling-input-default-value-5f2g
+          USER_INPUT_VERSION=${{ github.event.inputs.user_input_version }}
+          echo "user_input_version=${USER_INPUT_VERSION:-"latest"}" >> "$GITHUB_OUTPUT"
+      - uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          version: "${{ steps.defaultname.outputs.user_input_version }}"
+          regex: true
+          file: ".*\\.sig"
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - run: ls -lahtr
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github.event) }}
+        run: |
+          echo "$GITHUB_CONTEXT"
+      - run: cat sad_updater.json
+      - uses: actions/upload-artifact@v3.1.2
+        with:
+          name: sad_updater.json
+          path: sad_updater.json
+          if-no-files-found: error
+  upload_updater_json_to_s3:
+    runs-on: ubuntu-latest
+    needs: [generate_updater_json]
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/download-artifact@v2.1.1
+      - run: ls -lahtr
+      - run: pwd
+      - uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_SAD_UPLOADER_ROLE }}
+      # use recursive: https://github.com/aws/aws-cli/issues/2929
+      - run: aws s3 cp sad_updater.json s3://simple-android-debloater --recursive
