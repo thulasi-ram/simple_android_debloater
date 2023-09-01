@@ -1,35 +1,36 @@
 import { Octokit } from '@octokit/core';
 import fs from 'fs';
+import fetch from 'node-fetch';
 
 let template_json = {
 	version: '0.5.0',
 	notes: 'Test version',
 	pub_date: '2023-06-22T19:25:57Z',
 	platforms: {
-		'darwin-x86_64': {
-			signature: 'Content of app.tar.gz.sig',
-			url: 'https://github.com/username/reponame/releases/download/v1.0.0/app-x86_64.app.tar.gz'
-		},
-		'darwin-aarch64': {
-			signature: 'Content of app.tar.gz.sig',
-			url: 'https://github.com/username/reponame/releases/download/v1.0.0/app-aarch64.app.tar.gz'
-		},
-		'linux-x86_64': {
-			signature: 'Content of app.AppImage.tar.gz.sig',
-			url: 'https://github.com/username/reponame/releases/download/v1.0.0/app-amd64.AppImage.tar.gz'
-		},
-		'windows-x86_64': {
-			signature: 'Content of app-setup.nsis.sig or app.msi.sig, depending on the chosen format',
-			url: 'https://github.com/username/reponame/releases/download/v1.0.0/app-x64-setup.nsis.zip'
-		}
+		// 'darwin-x86_64': {
+		// 	signature: 'Content of app.tar.gz.sig',
+		// 	url: 'https://github.com/username/reponame/releases/download/v1.0.0/app-x86_64.app.tar.gz'
+		// },
+		// 'darwin-aarch64': {
+		// 	signature: 'Content of app.tar.gz.sig',
+		// 	url: 'https://github.com/username/reponame/releases/download/v1.0.0/app-aarch64.app.tar.gz'
+		// },
+		// 'linux-x86_64': {
+		// 	signature: 'Content of app.AppImage.tar.gz.sig',
+		// 	url: 'https://github.com/username/reponame/releases/download/v1.0.0/app-amd64.AppImage.tar.gz'
+		// },
+		// 'windows-x86_64': {
+		// 	signature: 'Content of app-setup.nsis.sig or app.msi.sig, depending on the chosen format',
+		// 	url: 'https://github.com/username/reponame/releases/download/v1.0.0/app-x64-setup.nsis.zip'
+		// }
 	}
 };
 
-async function getReleaseForTag(tag) {
-	const octokit = new Octokit({
-		auth: process.env.GH_TOKEN
-	});
+const octokit = new Octokit({
+	auth: process.env.GH_TOKEN
+});
 
+async function getReleaseForTag(tag) {
 	let json = await octokit.request(
 		'GET /repos/thulasi-ram/simple_android_debloater/releases/tags/{tag}',
 		{
@@ -49,6 +50,13 @@ async function getReleaseForTag(tag) {
 	}
 
 	return data;
+}
+
+async function getSignatureAssetContent(sig_url) {
+	const response = await fetch(sig_url);
+	let sig_content = await response.text();
+
+	return sig_content;
 }
 
 async function getReleaseFromEventOrTag() {
@@ -75,7 +83,7 @@ async function getReleaseFromEventOrTag() {
 
 	if (releaseEvent) {
 		let releaseData = JSON.parse(releaseEvent);
-        console.log('release by event', releaseData.id);
+		console.log('release by event', releaseData.id);
 
 		release = {
 			id: releaseData.id,
@@ -104,9 +112,45 @@ async function getReleaseFromEventOrTag() {
 		version = version.substring(1); // remove first letter
 	}
 
+	let asset_url_map = release.assets.reduce((map, a) => {
+		map[a.name] = a.browser_download_url;
+		return map;
+	}, {});
+
+	let extensions = {
+		linux: 'amd64.AppImage.tar.gz',
+		darwin: '.app.tar.gz',
+		windows: 'x64-setup.nsis.zip'
+	};
+
+	let platform_sig_template = {};
+
+	for (let [platform, ext] of Object.entries(extensions)) {
+		for (let [name, url] of Object.entries(asset_url_map)) {
+			if (name.endsWith(ext)) {
+				let sig_url = asset_url_map[`${name}.sig`];
+				let sig_content = await getSignatureAssetContent(sig_url);
+
+				platform_sig_template[`${platform}-x86_64`] = {
+					signature: sig_content,
+					url: url
+				};
+
+				if (platform == 'darwin') {
+					// apple silicon chips
+					platform_sig_template[`${platform}-aarch64`] = {
+						signature: sig_content,
+						url: url
+					};
+				}
+			}
+		}
+	}
+
 	template_json.version = version;
 	template_json.notes = release.body;
 	template_json.pub_date = release.published_at;
+	template_json.platforms = platform_sig_template;
 
 	fs.writeFile('sad_updater.json', JSON.stringify(template_json), 'utf8', function (err) {
 		if (err) throw err;
