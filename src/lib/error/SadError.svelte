@@ -34,7 +34,11 @@
 		</div>
 
 		{#if isPermanent}
-			<Button href="/">Refresh</Button>
+			<Button
+				on:click={() => {
+					window.location.replace('/');
+				}}>Refresh</Button
+			>
 		{/if}
 	</Modal>
 </div>

@@ -18,7 +18,7 @@ dotenvy= "0.15.7"
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.4.0", features = [ "fs-read-file", "fs-write-file", "dialog-all", "shell-open", "http-request", "path-all", "app-all", "notification-all", "devtools"] }
+tauri = { version = "1.4.0", features = [ "updater", "process-all", "fs-read-file", "fs-write-file", "dialog-all", "shell-open", "http-request", "path-all", "app-all", "notification-all", "devtools"] }
 thiserror = "1.0"
 anyhow = "*"
 tokio = { version = "*", features = ["full"] }

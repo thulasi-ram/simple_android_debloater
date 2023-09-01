@@ -12,3 +12,4 @@ vite.config.ts.timestamp-*
 *.db-shm
 *.db-wal
 discussions_dump.json
+sad_updater.json

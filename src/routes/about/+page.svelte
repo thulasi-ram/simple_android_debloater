@@ -4,6 +4,17 @@
 	import { getVersion } from '@tauri-apps/api/app';
 	import { Button } from 'flowbite-svelte';
 	import { appLogDir } from '@tauri-apps/api/path';
+	import { checkUpdate, installUpdate } from '@tauri-apps/api/updater';
+
+	async function checkAndInstallUpdate() {
+		const update = await checkUpdate();
+		if (update.shouldUpdate) {
+			console.log(
+				`Installing update ${update.manifest?.version}, ${update.manifest?.date}, ${update.manifest?.body}`
+			);
+			await installUpdate();
+		}
+	}
 
 	let logDir = '';
 	appLogDir().then((v) => {
@@ -71,4 +82,6 @@
 	{#await appVersion then version}
 		<p class="mx-auto text-gray-500">app version: {version}</p>
 	{/await}
+
+	<Button color="alternative" class={btnClass + " w-64 mx-auto"} on:click={checkAndInstallUpdate}> Check for updates </Button>
 </div>
