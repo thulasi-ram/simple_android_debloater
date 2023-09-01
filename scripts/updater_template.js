@@ -49,6 +49,9 @@ async function getReleaseFromEventOrTag() {
 		throw new Error('one of releaseTag or releaseEvent is expected. Got neither');
 	}
 
+    console.log('release event and tag', releaseEvent, releaseTag);
+
+
 	let release = {
 		id: '',
 		tag: '',
