@@ -1,5 +1,6 @@
 name: 'Publish Cross Platform Builds'
 on:
+  workflow_dispatch:
   push:
     branches:
       - release
