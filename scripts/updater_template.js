@@ -91,3 +91,6 @@ async function getReleaseFromEventOrTag() {
 		console.log('Dumped sad_updater.json');
 	});
 }
+
+
+getReleaseFromEventOrTag();
