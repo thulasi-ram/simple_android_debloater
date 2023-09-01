@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { sadErrorStore } from '$lib/error/stores';
 	import { selectedUserIDStore } from '$lib/users/stores';
-	import { IconAccessPoint, IconDeviceMobileUp } from '@tabler/icons-svelte';
+	import { IconAccessPoint, IconDeviceMobileUp, IconUsb } from '@tabler/icons-svelte';
 	import { listen } from '@tauri-apps/api/event';
 	import { SidebarItem } from 'flowbite-svelte';
 	import { onDestroy, onMount } from 'svelte';
@@ -81,7 +81,7 @@
 					class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"
 				/>
 				<span class="relative inline-flex rounded-full">
-					<IconAccessPoint size={24} stroke={1.5} />
+					<IconUsb size={21} stroke={1.5} />
 				</span>
 			</span>
 		</svelte:fragment>
