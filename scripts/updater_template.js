@@ -1,4 +1,5 @@
 import { Octokit } from '@octokit/core';
+import fs from 'fs';
 
 let template_json = {
 	version: '0.5.0',
@@ -29,12 +30,25 @@ async function getReleaseForTag(tag) {
 		auth: process.env.GH_TOKEN
 	});
 
-	await octokit.request('GET /repos/thulasi-ram/simple_android_debloater/releases/tags/{tag}', {
-		tag: tag,
-		headers: {
-			'X-GitHub-Api-Version': '2022-11-28'
+	let json = await octokit.request(
+		'GET /repos/thulasi-ram/simple_android_debloater/releases/tags/{tag}',
+		{
+			tag: tag,
+			headers: {
+				'Content-Type': 'application/json',
+				'X-GitHub-Api-Version': '2022-11-28'
+			}
 		}
-	});
+	);
+
+	let data = json.data;
+
+	if (!data) {
+		console.log(json);
+		throw new Error('Error in response json');
+	}
+
+	return data;
 }
 
 async function getReleaseFromEventOrTag() {
@@ -49,8 +63,7 @@ async function getReleaseFromEventOrTag() {
 		throw new Error('one of releaseTag or releaseEvent is expected. Got neither');
 	}
 
-    console.log('release event and tag', releaseEvent, releaseTag);
-
+	console.log('release event and tag', releaseEvent, releaseTag);
 
 	let release = {
 		id: '',
@@ -60,29 +73,35 @@ async function getReleaseFromEventOrTag() {
 		published_at: ''
 	};
 
-	if (releaseEvent != '') {
-		let release = JSON.parse(releaseEvent);
-		release.id = release.id;
-		release.tag = release.tag_name;
-		release.body = release.body;
-		release.assets = release.assets;
-		release.published_at = release.published_at;
+	if (releaseEvent) {
+		let releaseData = JSON.parse(releaseEvent);
+        console.log('release by event', releaseData.id);
+
+		release = {
+			id: releaseData.id,
+			tag: releaseData.tag_name,
+			body: releaseData.body,
+			assets: releaseData.assets,
+			published_at: releaseData.published_at
+		};
 	}
 
 	if (releaseTag != '') {
-		let release = await getReleaseForTag(releaseTag);
-		release.id = release.id;
-		release.tag = release.tag_name;
-		release.body = release.body;
-		release.assets = release.assets;
-		release.published_at = release.published_at;
+		let releaseData = await getReleaseForTag(releaseTag);
+		console.log('release by tag', releaseData.id);
+
+		release = {
+			id: releaseData.id,
+			tag: releaseData.tag_name,
+			body: releaseData.body,
+			assets: releaseData.assets,
+			published_at: releaseData.published_at
+		};
 	}
 
-	console.log('release id and assets', JSON.stringify(release));
-
 	let version = release.tag;
-	if (version.startsWith('v')) {
-		version = version.slice(1, version.length - 1);
+	if (version.charAt(0) === 'v') {
+		version = version.substring(1); // remove first letter
 	}
 
 	template_json.version = version;
@@ -94,6 +113,5 @@ async function getReleaseFromEventOrTag() {
 		console.log('Dumped sad_updater.json');
 	});
 }
-
 
 getReleaseFromEventOrTag();
