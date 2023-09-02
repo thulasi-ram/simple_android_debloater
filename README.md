@@ -2,7 +2,7 @@
 
 This software is in beta 🚧
 
-Simple Android Debloater is a free and open source project to disable unwanted system apps that careers / OEMs force install in our mobile phones.
+Simple Android Debloater is a free and open source project to disable unwanted system apps that carriers / OEMs force install in our mobile phones.
 
 This is an attempt like [Universal Android Debloater](https://github.com/0x192/universal-android-debloater/) built with [Tauri](https://tauri.app/) and [Sveltekit](https://kit.svelte.dev/). 
 
