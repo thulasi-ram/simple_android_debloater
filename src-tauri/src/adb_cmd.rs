@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::{process::Command, rc::Rc};
 
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
@@ -7,7 +7,6 @@ use log::info;
 
 pub trait ADBCommand: Sized {
     fn execute(&self) -> Result<String, ADBError>;
-
     fn arg<S: AsRef<str>>(self, arg: S) -> Self;
     fn args<I, S>(self, args: I) -> Self
     where
@@ -20,6 +19,20 @@ pub trait ADBCommand: Sized {
         }
         s1
     }
+
+    fn arg_prepend<S: AsRef<str>>(self, arg: S) -> Self;
+    fn args_prepend<I, S>(self, args: I) -> Self
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<str>,
+    {
+        let mut s1 = self;
+        for arg in args {
+            s1 = s1.arg_prepend(arg);
+        }
+        s1
+    }
+
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -54,6 +67,12 @@ impl ADBCommand for ADBRaw {
 
         let mut s1 = self;
         s1.argsv.push(arg.as_ref().to_owned());
+        return s1;
+    }
+
+    fn arg_prepend<S: AsRef<str>>(self, arg: S) -> Self {
+        let mut s1 = self;
+        s1.argsv.insert(0, arg.as_ref().to_owned());
         return s1;
     }
 
@@ -110,12 +129,6 @@ impl ADBShell {
         let adbr = ADBRaw::new(adb_path).arg("shell");
         Self { adb_raw: adbr }
     }
-
-    pub fn for_device(self, device_id: String) -> Self {
-        let mut s1 = self;
-        s1.adb_raw = s1.adb_raw.args(vec!["-s", &device_id]);
-        return s1;
-    }
 }
 
 impl ADBCommand for ADBShell {
@@ -125,7 +138,19 @@ impl ADBCommand for ADBShell {
         return s1;
     }
 
+    fn arg_prepend<S: AsRef<str>>(self, arg: S) -> Self {
+        let mut s1 = self;
+        s1.adb_raw = s1.adb_raw.arg_prepend(arg.as_ref());
+        return s1;
+    }
+
     fn execute(&self) -> Result<String, ADBError> {
         return self.adb_raw.execute();
     }
+}
+
+
+pub fn for_device<'a, T: ADBCommand + Clone>(abdc: &'a T, device_id: String) -> T {
+    // ideally its -s <device_id> but we send in reverse so prepend works properly
+    return abdc.clone().args_prepend(vec!["-s", &device_id].into_iter().rev())
 }

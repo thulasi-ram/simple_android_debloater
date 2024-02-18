@@ -1,4 +1,4 @@
-use crate::adb_cmd::{ADBCommand, ADBShell};
+use crate::adb_cmd::{self, ADBCommand, ADBShell};
 use anyhow::{anyhow, Error, Result};
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -112,7 +112,7 @@ const LIST_UNINSTALLED_DISABLED_PACKAGES: &str = "pm list packages -u -d";
 
 pub struct ADBTerminalImpl<F>
 where
-    F: ADBCommand + ?Sized,
+    F: ADBCommand + ?Sized, // TODO: Factory with closures?
 {
     adb_command: F,
 }
@@ -142,7 +142,7 @@ lazy_static! {
 
 impl ADBTerminalImpl<ADBShell> {
     pub fn list_packages(&self, device_id: String, user_id: String) -> Result<Vec<Package>> {
-        let shell_cmd = self.adb_command.clone().for_device(device_id.to_owned());
+        let shell_cmd = adb_cmd::for_device(&self.adb_command.clone(), device_id.to_owned());
 
         let (
             mut all_pkg,
@@ -202,17 +202,22 @@ impl ADBTerminalImpl<ADBShell> {
             return parser;
         }
 
-        let res = Self::execute_list_all_with_fallback(shell_cmd, user_id.to_owned(), &mut all_pkg)
-            .and_then(|_| Self::_execute_and_parse(cmd_enabled_pkg, callback(&mut enabled_pkg)))
-            .and_then(|_| Self::_execute_and_parse(cmd_disabled_pkg, callback(&mut disabled_pkg)))
-            .and_then(|_| Self::_execute_and_parse(cmd_system_pkg, callback(&mut sys_pkg)))
-            .and_then(|_| Self::_execute_and_parse(cmd_tpp_pkg, callback(&mut tpp_pkg)))
-            .and_then(|_| {
-                Self::_execute_and_parse(
-                    cmd_uninstalled_disabled_pkg,
-                    callback(&mut uninstalled_disabled_pkg),
-                )
-            });
+        let res =
+            Self::execute_list_all_with_fallback(&shell_cmd, user_id.to_owned(), &mut all_pkg)
+                .and_then(|_| {
+                    Self::_execute_and_parse(&cmd_enabled_pkg, callback(&mut enabled_pkg))
+                })
+                .and_then(|_| {
+                    Self::_execute_and_parse(&cmd_disabled_pkg, callback(&mut disabled_pkg))
+                })
+                .and_then(|_| Self::_execute_and_parse(&cmd_system_pkg, callback(&mut sys_pkg)))
+                .and_then(|_| Self::_execute_and_parse(&cmd_tpp_pkg, callback(&mut tpp_pkg)))
+                .and_then(|_| {
+                    Self::_execute_and_parse(
+                        &cmd_uninstalled_disabled_pkg,
+                        callback(&mut uninstalled_disabled_pkg),
+                    )
+                });
 
         match res {
             Err(e) => {
@@ -261,7 +266,7 @@ impl ADBTerminalImpl<ADBShell> {
         pkg: String,
         clear_pkg: bool,
     ) -> Result<()> {
-        let shell_cmd: ADBShell = self.adb_command.clone().for_device(device_id);
+        let shell_cmd = adb_cmd::for_device(&self.adb_command.clone(), device_id.to_owned());
 
         let (cmd_disable_pkg, cmd_fstop_pkg, cmd_clear_pkg) = (
             shell_cmd
@@ -275,7 +280,7 @@ impl ADBTerminalImpl<ADBShell> {
                 .args(&["pm clear", "--user", &user_id, &pkg.to_owned()]),
         );
 
-        Self::_execute_and_parse(cmd_disable_pkg, |s| {
+        Self::_execute_and_parse(&cmd_disable_pkg, |s| {
             if s.contains(&format!(
                 "Package {} new state: disabled-user",
                 pkg.to_owned()
@@ -285,7 +290,7 @@ impl ADBTerminalImpl<ADBShell> {
             return Err(anyhow!(s));
         })
         .and_then(|_| {
-            Self::_execute_and_parse(cmd_fstop_pkg, |s| {
+            Self::_execute_and_parse(&cmd_fstop_pkg, |s| {
                 if s.is_empty() {
                     return Ok(());
                 }
@@ -294,7 +299,7 @@ impl ADBTerminalImpl<ADBShell> {
         })?;
 
         if clear_pkg {
-            Self::_execute_and_parse(cmd_clear_pkg, |s| {
+            Self::_execute_and_parse(&cmd_clear_pkg, |s| {
                 if s.eq("Success") {
                     return Ok(());
                 }
@@ -306,11 +311,11 @@ impl ADBTerminalImpl<ADBShell> {
     }
 
     pub fn enable_package(&self, device_id: String, user_id: String, pkg: String) -> Result<()> {
-        let shell_cmd: ADBShell = self.adb_command.clone().for_device(device_id);
+        let shell_cmd = adb_cmd::for_device(&self.adb_command.clone(), device_id.to_owned());
 
         let cmd_enable_pkg = shell_cmd.args(["pm enable", "--user", &user_id, &pkg.to_owned()]);
 
-        Self::_execute_and_parse(cmd_enable_pkg, |s| {
+        Self::_execute_and_parse(&cmd_enable_pkg, |s| {
             if s.contains(&format!("Package {} new state: enabled", pkg.to_owned())) {
                 return Ok(());
             }
@@ -321,7 +326,7 @@ impl ADBTerminalImpl<ADBShell> {
     }
 
     pub fn install_package(&self, device_id: String, user_id: String, pkg: String) -> Result<()> {
-        let shell_cmd: ADBShell = self.adb_command.clone().for_device(device_id);
+        let shell_cmd = adb_cmd::for_device(&self.adb_command.clone(), device_id.to_owned());
 
         let cmd_enable_pkg = shell_cmd.args([
             "cmd package install-existing",
@@ -330,7 +335,7 @@ impl ADBTerminalImpl<ADBShell> {
             &pkg.to_owned(),
         ]);
 
-        Self::_execute_and_parse(cmd_enable_pkg, |s| {
+        Self::_execute_and_parse(&cmd_enable_pkg, |s| {
             if s.contains(&format!("Package {} new state: enabled", pkg.to_owned())) {
                 return Ok(());
             }
@@ -340,20 +345,16 @@ impl ADBTerminalImpl<ADBShell> {
         return Ok(());
     }
 
-    fn execute_list_all_with_fallback(
-        shell_cmd: ADBShell,
+    fn execute_list_all_with_fallback<'a, T: ADBCommand + Clone>(
+        cmd: &'a T,
         user_id: String,
         mut container: &mut HashMap<String, PackageAttribs>,
     ) -> Result<()> {
         let (cmd_all_pkg, cmd_all_package_user0_fallback, cmd_all_package_user_fallback) = (
-            shell_cmd
-                .clone()
-                .args([LIST_ALL_PACKAGES_INCLUDING_UNINSTALLED]),
-            shell_cmd
-                .clone()
+            cmd.clone().args([LIST_ALL_PACKAGES_INCLUDING_UNINSTALLED]),
+            cmd.clone()
                 .args([LIST_ALL_PACKAGES_INCLUDING_UNINSTALLED, "--user", "0"]),
-            shell_cmd
-                .clone()
+            cmd.clone()
                 .args([LIST_ALL_PACKAGES_INCLUDING_UNINSTALLED, "--user", &user_id]),
         );
 
@@ -376,7 +377,7 @@ impl ADBTerminalImpl<ADBShell> {
             return parser;
         }
 
-        return Self::_execute_and_parse(cmd_all_pkg, callback(&mut container))
+        return Self::_execute_and_parse(&cmd_all_pkg, callback(&mut container))
             .or_else(|e| {
                 if !e
                     .to_string()
@@ -384,7 +385,7 @@ impl ADBTerminalImpl<ADBShell> {
                 {
                     return Err(e);
                 }
-                Self::_execute_and_parse(cmd_all_package_user0_fallback, callback(&mut container))
+                Self::_execute_and_parse(&cmd_all_package_user0_fallback, callback(&mut container))
             })
             .or_else(|e| {
                 if !e
@@ -393,12 +394,12 @@ impl ADBTerminalImpl<ADBShell> {
                 {
                     return Err(e);
                 }
-                Self::_execute_and_parse(cmd_all_package_user_fallback, callback(&mut container))
+                Self::_execute_and_parse(&cmd_all_package_user_fallback, callback(&mut container))
             });
     }
 
-    fn _execute_and_parse(
-        cmd: ADBShell,
+    fn _execute_and_parse<'a, T: ADBCommand>(
+        cmd: &'a T,
         mut parser: impl FnMut(String) -> Result<()>,
     ) -> Result<()> {
         let res = cmd.execute();
