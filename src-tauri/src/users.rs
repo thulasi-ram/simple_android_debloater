@@ -1,4 +1,4 @@
-use crate::adb_cmd::{ADBCommand, ADBShell};
+use crate::adb_cmd::{self, ADBCommand, ADBShell};
 use anyhow::{anyhow, Result};
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -31,10 +31,12 @@ lazy_static! {
 
 impl ADBTerminalImpl {
     pub fn list_users(&self, device_id: String) -> Result<Vec<User>> {
-        let shell_cmd: ADBShell =
-            ADBShell::new(self.adb_path.to_owned()).for_device(device_id.to_owned());
+        let shell_cmd: ADBShell = adb_cmd::for_device(
+            &ADBShell::new(self.adb_path.to_owned()),
+            device_id.to_owned(),
+        );
 
-        let res = shell_cmd.with_commands(&["pm list users "]).execute();
+        let res = shell_cmd.args(&["pm list users "]).execute();
         match res {
             Err(e) => {
                 return Err(e.into());
