@@ -1,4 +1,4 @@
-use crate::adb_cmd::{ADBCommand, ADBRaw, ADBShell};
+use crate::adb_cmd::{self, ADBCommand, ADBRaw, ADBShell};
 use anyhow::{anyhow, Error, Result};
 use core::result::Result::Ok;
 use serde::{Deserialize, Serialize};
@@ -61,7 +61,9 @@ pub struct ADBTerminalImpl {
 
 impl ADBTerminalImpl {
     pub fn list_devices(&self) -> Result<Vec<Device>> {
-        let res = ADBRaw::new(self.adb_path.to_owned(), vec![String::from("devices")]).execute();
+        let res = ADBRaw::new(self.adb_path.to_owned())
+            .arg("devices")
+            .execute();
         match res {
             Err(e) => {
                 return Err(e.into());
@@ -101,8 +103,9 @@ impl ADBTerminalImpl {
                 return Err(e);
             }
             Ok(d) => {
-                let shell_cmd: ADBShell = ADBShell::new(self.adb_path.to_owned()).for_device(d.id.to_owned());
-                let res = shell_cmd.with_commands(&["getprop"]).execute();
+                let shell_cmd: ADBShell =
+                    adb_cmd::for_device(&ADBShell::new(self.adb_path.to_owned()), d.id.to_owned());
+                let res = shell_cmd.arg("getprop").execute();
                 match res {
                     Err(e) => {
                         return Err(e.into());
