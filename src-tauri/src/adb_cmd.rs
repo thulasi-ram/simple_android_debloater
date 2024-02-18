@@ -5,8 +5,21 @@ use std::os::windows::process::CommandExt;
 
 use log::info;
 
-pub trait ADBCommand {
+pub trait ADBCommand: Sized {
     fn execute(&self) -> Result<String, ADBError>;
+
+    fn arg<S: AsRef<str>>(self, arg: S) -> Self;
+    fn args<I, S>(self, args: I) -> Self
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<str>,
+    {
+        let mut s1 = self;
+        for arg in args {
+            s1 = s1.arg(arg);
+        }
+        s1
+    }
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -15,65 +28,45 @@ pub enum ADBError {
     Unknown(String),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct ADBRaw {
-    adb_path: String,
-    sub_commands: Vec<String>,
+    cmd_str: String,
+    argsv: Vec<String>,
 }
 
 impl ADBRaw {
-    pub fn new(adb_path: String, value: Vec<String>) -> Self {
-        Self {
-            adb_path: adb_path,
-            sub_commands: value,
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct ADBShell {
-    adb_path: String,
-    sub_commands: Vec<String>,
-    device_id: String,
-}
-
-impl ADBShell {
     pub fn new(adb_path: String) -> Self {
+        let mut cmd_str = "adb";
+        if !adb_path.is_empty() {
+            cmd_str = adb_path.as_str();
+        }
         Self {
-            adb_path: adb_path,
-            sub_commands: vec![],
-            device_id: String::from(""),
+            cmd_str: cmd_str.to_string(),
+            argsv: vec![],
         }
     }
-
-    pub fn for_device(mut self, device_id: String) -> Self {
-        self.device_id = device_id;
-        return self;
-    }
-
-    pub fn with_commands(mut self, sub_commands: &[&str]) -> Self {
-        self.sub_commands = sub_commands.iter().map(|s| String::from(*s)).collect();
-        return self;
-    }
+    
 }
 
 impl ADBCommand for ADBRaw {
+    fn arg<S: AsRef<str>>(self, arg: S) -> Self {
+        // https://users.rust-lang.org/t/best-way-to-clone-and-append-a-single-element/68675/2
+
+        let mut s1 = self;
+        s1.argsv.push(arg.as_ref().to_owned());
+        return s1;
+    }
+
     fn execute(&self) -> Result<String, ADBError> {
+        let mut command = Command::new(self.cmd_str.to_owned());
+        command.args(self.argsv.to_vec());
 
-        let mut cmd_str = "adb";
-        if !self.adb_path.is_empty() {
-            cmd_str = self.adb_path.as_str();
-        }
-
-        let mut command = Command::new(cmd_str);
-
-        // https://stackoverflow.com/a/38186733/6323666
-        let args = self
-            .sub_commands
-            .iter()
-            .map(|s| s.as_str())
-            .collect::<Vec<&str>>();
-        command.args(args);
+        // let args = self
+        //     .sub_commands
+        //     .iter()
+        //     .map(|s| s.as_str())
+        //     .collect::<Vec<&str>>();
+        // command.args(args);
 
         info!("command {:?}", command);
 
@@ -107,17 +100,32 @@ impl ADBCommand for ADBRaw {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct ADBShell {
+    adb_raw: ADBRaw,
+}
+
+impl ADBShell {
+    pub fn new(adb_path: String) -> Self {
+        let adbr = ADBRaw::new(adb_path).arg("shell");
+        Self { adb_raw: adbr }
+    }
+
+    pub fn for_device(self, device_id: String) -> Self {
+        let mut s1 = self;
+        s1.adb_raw = s1.adb_raw.args(vec!["-s", &device_id]);
+        return s1;
+    }
+}
+
 impl ADBCommand for ADBShell {
+    fn arg<S: AsRef<str>>(self, arg: S) -> Self {
+        let mut s1 = self;
+        s1.adb_raw = s1.adb_raw.arg(arg.as_ref());
+        return s1;
+    }
+
     fn execute(&self) -> Result<String, ADBError> {
-        let mut sub_commands_with_shell: Vec<String> = vec![String::from("shell")];
-
-        if !String::is_empty(&self.device_id.to_owned()) {
-            sub_commands_with_shell.insert(0, String::from("-s"));
-            sub_commands_with_shell.insert(1, self.device_id.to_owned());
-        }
-
-        sub_commands_with_shell.extend(self.sub_commands.to_owned());
-        let adb_raw = ADBRaw::new(self.adb_path.to_owned(), sub_commands_with_shell);
-        return adb_raw.execute();
+        return self.adb_raw.execute();
     }
 }

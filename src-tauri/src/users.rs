@@ -34,7 +34,7 @@ impl ADBTerminalImpl {
         let shell_cmd: ADBShell =
             ADBShell::new(self.adb_path.to_owned()).for_device(device_id.to_owned());
 
-        let res = shell_cmd.with_commands(&["pm list users "]).execute();
+        let res = shell_cmd.args(&["pm list users "]).execute();
         match res {
             Err(e) => {
                 return Err(e.into());
