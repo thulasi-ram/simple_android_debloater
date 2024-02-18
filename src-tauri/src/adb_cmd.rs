@@ -1,4 +1,4 @@
-use std::{process::Command, rc::Rc};
+use std::process::Command;
 
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
@@ -32,7 +32,6 @@ pub trait ADBCommand: Sized {
         }
         s1
     }
-
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -58,7 +57,6 @@ impl ADBRaw {
             argsv: vec![],
         }
     }
-    
 }
 
 impl ADBCommand for ADBRaw {
@@ -149,8 +147,9 @@ impl ADBCommand for ADBShell {
     }
 }
 
-
 pub fn for_device<'a, T: ADBCommand + Clone>(abdc: &'a T, device_id: String) -> T {
     // ideally its -s <device_id> but we send in reverse so prepend works properly
-    return abdc.clone().args_prepend(vec!["-s", &device_id].into_iter().rev())
+    return abdc
+        .clone()
+        .args_prepend(vec!["-s", &device_id].into_iter().rev());
 }
