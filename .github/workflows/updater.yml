@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       user_input_version:
-        description: 'Version /tag to target'
+        description: "Version /tag to target"
   release:
     types: [released, published]
 
@@ -16,12 +16,12 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
       - env:
           GH_TOKEN: ${{ github.token }}
-          # RELEASE_EVENT: ${{github.event.release}}
-          RELEASE_TAG: ${{github.event.inputs.user_input_version}}
+          RELEASE_EVENT: ${{ github.event.release }}
+          RELEASE_TAG: ${{ github.event.inputs.user_input_version }}
         run: |
           cd ./scripts
           npm ci
