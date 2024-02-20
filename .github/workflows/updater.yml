@@ -4,28 +4,24 @@ on:
   workflow_dispatch:
     inputs:
       user_input_version:
-        description: 'Version /tag to target'
+        description: "Version /tag to target"
   release:
-    types: [created]
+    types: [released, published]
 
 jobs:
   generate_updater_json:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          # https://dev.to/mrmike/github-action-handling-input-default-value-5f2g
-          USER_INPUT_VERSION=${{ github.event.inputs.user_input_version }}
-          echo "user_input_version=${USER_INPUT_VERSION:-"latest"}" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
       - env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_EVENT: ${{github.event.release}}
-          RELEASE_TAG: ${{github.event.inputs.user_input_version}}
+          RELEASE_EVENT: ${{ github.event.release }}
+          RELEASE_TAG: ${{ github.event.inputs.user_input_version }}
         run: |
           cd ./scripts
           npm ci
